@@ -1,0 +1,15 @@
+{
+	"name": "3ducation-theme",
+	"version": "0.1.0",
+	"description": "Custom WooCommerce block theme for 3ducation.be (3D-print shop).",
+	"private": true,
+	"scripts": {
+		"start": "wp-env start",
+		"stop": "wp-env stop",
+		"clean": "wp-env clean all",
+		"destroy": "wp-env destroy"
+	},
+	"devDependencies": {
+		"@wordpress/env": "^10.0.0"
+	}
+}

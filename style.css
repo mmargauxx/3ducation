@@ -1,0 +1,17 @@
+/*
+Theme Name: 3ducation
+Theme URI: https://3ducation.be
+Author: 3ducation
+Author URI: https://3ducation.be
+Description: Custom WooCommerce block theme (FSE) for 3ducation.be, a 3D-printing shop selling printers, filament & accessories, and workshops.
+Version: 0.9.0
+Requires at least: 6.5
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: 3ducation
+Tags: full-site-editing, block-patterns, e-commerce, custom-colors, custom-logo, block-styles, wide-blocks
+
+This theme is a block theme. Most styling lives in theme.json; only supplementary rules live in assets/custom.css.
+*/

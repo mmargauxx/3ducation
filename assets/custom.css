@@ -1,0 +1,318 @@
+/**
+ * Supplementary styles for the 3ducation theme.
+ *
+ * Design system lives in theme.json. This file holds the structural and
+ * motion details theme.json can't express: the category bento grid,
+ * brand color-coding, the kinetic partner marquee, and hover micro-physics.
+ * Design dials: variance 8, motion 6, density 4.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Buttons: tactile push + outline variant on light backgrounds
+ * ------------------------------------------------------------------ */
+.wp-block-button__link {
+	transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease;
+}
+.wp-block-button__link:active {
+	transform: translateY(1px);
+}
+.wp-block-button.is-style-outline .wp-block-button__link {
+	background: transparent;
+	color: var(--wp--preset--color--ink);
+	border: 1.5px solid var(--wp--preset--color--ink);
+}
+.wp-block-button.is-style-outline .wp-block-button__link:hover {
+	background: var(--wp--preset--color--ink);
+	color: var(--wp--preset--color--surface);
+}
+
+/* Focus ring for keyboard users */
+.wp-block-button__link:focus-visible,
+.wc-block-components-button:focus-visible,
+a:focus-visible {
+	outline: 2px solid var(--wp--preset--color--magenta);
+	outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Hero panel: brand-gradient card with a gentle float
+ * ------------------------------------------------------------------ */
+.hero-panel {
+	box-shadow: 0 30px 60px -30px rgba(230, 24, 108, 0.45);
+	animation: float 7s ease-in-out infinite;
+}
+.hero-usp {
+	list-style: none;
+	margin: 0.75rem 0 0;
+	padding: 0;
+}
+.hero-usp li {
+	position: relative;
+	padding-left: 1.5rem;
+}
+.hero-usp li::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.85em;
+	width: 0.7rem;
+	height: 0.7rem;
+	border: 2px solid #fff;
+	border-radius: 2px;
+	transform: rotate(45deg) translateY(-50%);
+}
+@keyframes float {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-8px); }
+}
+
+/* ------------------------------------------------------------------ *
+ * Category bento: asymmetric, color-coded (no 3-equal-card row)
+ * ------------------------------------------------------------------ */
+.cat-bento {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+}
+.cat-card {
+	position: relative;
+	padding: 2rem;
+	border-radius: 18px;
+	border: 1px solid var(--wp--preset--color--border);
+	background: var(--wp--preset--color--surface);
+	overflow: hidden;
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.cat-card::before {
+	content: "";
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 5px;
+	background: var(--cat-accent, var(--wp--preset--color--ink));
+}
+.cat-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
+}
+.cat-card--printers  { grid-column: span 2; --cat-accent: var(--wp--preset--color--amber); }
+.cat-card--workshops { grid-row: span 2; background: var(--wp--preset--color--ink); --cat-accent: var(--wp--preset--color--cyan); }
+.cat-card--filament  { --cat-accent: var(--wp--preset--color--cyan); }
+.cat-card--resin     { --cat-accent: var(--wp--preset--color--magenta); }
+
+/* Workshops card sits on dark: invert text */
+.cat-card--workshops .wp-block-heading,
+.cat-card--workshops .cat-link a { color: #fff; }
+.cat-card--workshops p { color: #b9bac2 !important; }
+.cat-card--workshops .cat-tag { color: var(--wp--preset--color--cyan); }
+
+.cat-tag {
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-weight: 500;
+	color: var(--cat-accent);
+	margin: 0 0 0.5rem;
+}
+.cat-link a {
+	text-decoration: none;
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+/* Stretch the link across the whole card so the card is clickable */
+.cat-card .stretched::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+@media (max-width: 781px) {
+	.cat-bento { grid-template-columns: 1fr; }
+	.cat-card--printers { grid-column: auto; }
+	.cat-card--workshops { grid-row: auto; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Offering: divided info list (no cards), color-tagged
+ * ------------------------------------------------------------------ */
+.offer-list {
+	display: grid;
+	gap: 0;
+}
+.offer-item {
+	padding: 2rem 0;
+	border-top: 1px solid var(--wp--preset--color--border);
+}
+.offer-item:first-child { border-top: 0; padding-top: 0; }
+.offer-item > * { margin-block: 0.35rem; }
+.offer-tag {
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-weight: 500;
+	margin-bottom: 0.4rem !important;
+}
+.offer-tag--magenta { color: var(--wp--preset--color--magenta); }
+.offer-tag--cyan    { color: var(--wp--preset--color--cyan); }
+.offer-tag--amber   { color: var(--wp--preset--color--amber); }
+.offer-item a {
+	text-decoration: none;
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+	transition: color 0.15s ease;
+}
+.offer-item a:hover { color: var(--wp--preset--color--magenta); }
+/* Keep the intro column readable as a sticky anchor on wide screens */
+@media (min-width: 782px) {
+	.offer-list { scroll-margin-top: 6rem; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Kinetic partner marquee
+ * ------------------------------------------------------------------ */
+.marquee {
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+	        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee__track {
+	display: inline-flex;
+	gap: 3.5rem;
+	white-space: nowrap;
+	width: max-content;
+	animation: marquee 34s linear infinite;
+}
+.marquee__track span {
+	font-family: var(--wp--preset--font-family--display), sans-serif;
+	font-weight: 700;
+	font-size: 1.35rem;
+	letter-spacing: -0.01em;
+	color: var(--wp--preset--color--muted);
+	transition: color 0.2s ease;
+}
+.marquee:hover .marquee__track { animation-play-state: paused; }
+.marquee__track span:hover { color: var(--wp--preset--color--ink); }
+@keyframes marquee {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.marquee__track { animation: none; }
+	.hero-panel { animation: none; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Product cards: image ratio + hover lift in shop grids
+ * ------------------------------------------------------------------ */
+.wp-block-woocommerce-product-template li {
+	transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wp-block-woocommerce-product-template li:hover {
+	transform: translateY(-3px);
+}
+.wc-block-components-product-image img,
+.wp-block-woocommerce-product-image img {
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	width: 100%;
+	background: #f3f3f4;
+	border-radius: 10px;
+}
+
+/* Mini-cart trigger spacing */
+.wc-block-mini-cart__button { padding-inline: 0.4rem; }
+
+/* ------------------------------------------------------------------ *
+ * Site notice bar: dismissible announcement at the top of every page
+ * ------------------------------------------------------------------ */
+.site-notice-bar {
+	position: relative;
+	display: none;
+	background: var(--wp--preset--color--ink);
+	color: #fff;
+}
+/* Revealed by the inline script only when the notice is not yet dismissed,
+ * so dismissed visitors never see a flash of the bar. */
+.site-notice-bar.is-visible {
+	display: block;
+	animation: notice-drop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Thin brand accent line along the bottom edge */
+.site-notice-bar::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 2px;
+	background: var(--wp--preset--gradient--cube, linear-gradient(90deg, #e6186c 0%, #f2562f 26%, #f7941e 50%, #2fb58f 72%, #14b1bb 88%, #0fb1bf 100%));
+}
+.site-notice-bar__inner {
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem 1.4rem;
+	max-width: 1240px;
+	margin: 0 auto;
+	padding: 0.7rem 3rem;
+}
+.site-notice-bar__text {
+	margin: 0;
+	font-size: 0.95rem;
+	line-height: 1.45;
+	text-align: center;
+}
+.site-notice-bar__cta {
+	flex-shrink: 0;
+	padding: 0.32em 1em;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+	border-radius: 999px;
+	color: #fff;
+	font-size: 0.9rem;
+	font-weight: 500;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+.site-notice-bar__cta:hover {
+	background: rgba(255, 255, 255, 0.12);
+	border-color: #fff;
+}
+.site-notice-bar__close {
+	position: absolute;
+	top: 50%;
+	right: 0.6rem;
+	transform: translateY(-50%);
+	display: grid;
+	place-items: center;
+	width: 1.9rem;
+	height: 1.9rem;
+	padding: 0;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: #b9bac2;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+.site-notice-bar__close:hover {
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+}
+@keyframes notice-drop {
+	from { opacity: 0; transform: translateY(-100%); }
+	to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.site-notice-bar { animation: none; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Footer flush with preceding section
+ * ------------------------------------------------------------------ */
+/* The site footer is ink-dark, like the homepage workshops CTA that
+ * precedes it. WordPress puts a block-gap margin above the footer
+ * template part, which shows as a thin light strip between the two
+ * dark blocks. Remove it so the footer butts flush against the content. */
+.wp-site-blocks > footer.wp-block-template-part {
+	margin-block-start: 0;
+}
