@@ -219,6 +219,16 @@ a:focus-visible {
 /* Mini-cart trigger spacing */
 .wc-block-mini-cart__button { padding-inline: 0.4rem; }
 
+/* Sale badge ("Aanbieding!"): brand amber with dark ink text, replacing
+ * WooCommerce's default green. Covers the legacy gallery flash and the
+ * block-based sale badge. */
+.onsale,
+.wc-block-components-sale-badge {
+	background-color: var(--wp--preset--color--amber) !important;
+	color: var(--wp--preset--color--ink) !important;
+	border-color: var(--wp--preset--color--amber) !important;
+}
+
 /* ------------------------------------------------------------------ *
  * Site notice bar: dismissible announcement at the top of every page
  * ------------------------------------------------------------------ */
@@ -304,6 +314,168 @@ a:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
 	.site-notice-bar { animation: none; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Product banners: flagship hero + spotlight row
+ *
+ * The storefront leads with big, image-led product banners that reuse
+ * the brand's color-coding: a color accent per shop section and a
+ * gentle hover lift, matching the category bento.
+ * ------------------------------------------------------------------ */
+
+/* Section eyebrow, color-coded per shop section (reuses brand accents) */
+.print-eyebrow {
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-weight: 500;
+	margin: 0 0 0.5rem;
+}
+.print-eyebrow--amber   { color: var(--wp--preset--color--amber); }
+.print-eyebrow--magenta { color: var(--wp--preset--color--magenta); }
+.print-eyebrow--cyan    { color: var(--wp--preset--color--cyan); }
+
+/* Outline button tuned for dark banner grounds */
+.wp-block-button.is-style-outline--light .wp-block-button__link {
+	background: transparent;
+	color: #fff;
+	border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+.wp-block-button.is-style-outline--light .wp-block-button__link:hover {
+	background: #fff;
+	color: var(--wp--preset--color--ink);
+	border-color: #fff;
+}
+
+/* --- Flagship banner --- */
+.print-banner--flagship { overflow: hidden; }
+.print-specs { margin-top: 1rem; }
+.print-spec {
+	margin: 0;
+	padding: 0.3em 0.85em;
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 999px;
+	color: #d7d8de;
+}
+.print-price { gap: 0; }
+.print-price__amount {
+	margin: 0;
+	line-height: 1.05;
+	font-weight: 700;
+}
+
+/* --- Shared print-media frame (flagship + spotlights) --- */
+.print-banner__media,
+.spotlight__media {
+	position: relative;
+	overflow: hidden;
+	border-radius: 16px;
+	isolation: isolate;
+}
+.print-banner__media .print-banner__img,
+.spotlight__media .print-banner__img { margin: 0; }
+.print-banner__media .print-banner__img img,
+.spotlight__media .print-banner__img img {
+	display: block;
+	width: 100%;
+	height: auto; /* let aspect-ratio set the height; a fixed height would void it */
+	object-fit: cover;
+	background: #1b1c22;
+}
+.print-banner__media .print-banner__img img { aspect-ratio: 4 / 3; }
+.spotlight__media  .print-banner__img img    { aspect-ratio: 16 / 10; }
+
+/* --- Spotlight row --- */
+.spotlights {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+/* The group uses flow layout, so WP adds margin-block-start to every
+ * child after the first. In a grid that shoves cards 2 and 3 down;
+ * spacing is handled by `gap`, so zero those margins. */
+.spotlights > * {
+	margin-block: 0;
+}
+.spotlight {
+	position: relative;
+	border-radius: 18px;
+	overflow: hidden;
+	border: 1px solid var(--wp--preset--color--border);
+	background: var(--wp--preset--color--surface);
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.spotlight:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
+}
+/* Color-coded accent strip along the top edge */
+.spotlight::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 4px;
+	z-index: 4;
+	background: var(--spot-accent, var(--wp--preset--color--ink));
+}
+.spotlight--resin     { --spot-accent: var(--wp--preset--color--magenta); }
+.spotlight--filament  { --spot-accent: var(--wp--preset--color--cyan); }
+.spotlight--workshops { --spot-accent: var(--wp--preset--color--amber); }
+.spotlight__media { border-radius: 0; }
+.spotlight__body { padding: 1.25rem 1.5rem 1.5rem; }
+.spotlight__body .print-eyebrow { margin-bottom: 0.3rem; }
+.spotlight__body h3 { margin: 0 0 0.45rem; }
+.spotlight__price { margin: 0; }
+.spotlight__price a {
+	text-decoration: none;
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+	transition: color 0.15s ease;
+}
+.spotlight:hover .spotlight__price a { color: var(--spot-accent); }
+/* Make the whole spotlight clickable via the price link */
+.spotlight .stretched::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+}
+
+/* Stagger the spotlight builds so they print one after another */
+.spotlights .spotlight:nth-child(2) .print-banner__img img,
+.spotlights .spotlight:nth-child(2) .spotlight__media::after { animation-delay: 0.15s; }
+.spotlights .spotlight:nth-child(3) .print-banner__img img,
+.spotlights .spotlight:nth-child(3) .spotlight__media::after { animation-delay: 0.3s; }
+
+@media (max-width: 900px) {
+	.spotlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+	.spotlights { grid-template-columns: 1fr; }
+}
+@media (max-width: 781px) {
+	.print-banner--flagship {
+		padding: var(--wp--preset--spacing--50) !important;
+	}
+}
+@media (max-width: 600px) {
+	.print-banner--flagship {
+		padding: var(--wp--preset--spacing--40) !important;
+	}
+}
+
+/* The print-build reveal is decorative motion: show everything at rest
+ * for visitors who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+	.print-banner__media .print-banner__img img,
+	.spotlight__media .print-banner__img img {
+		animation: none;
+		clip-path: none;
+	}
+	.print-banner__media::after,
+	.spotlight__media::after { display: none; }
 }
 
 /* ------------------------------------------------------------------ *
