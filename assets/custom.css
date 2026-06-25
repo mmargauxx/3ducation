@@ -219,6 +219,16 @@ a:focus-visible {
 /* Mini-cart trigger spacing */
 .wc-block-mini-cart__button { padding-inline: 0.4rem; }
 
+/* Sale badge ("Aanbieding!"): brand amber with dark ink text, replacing
+ * WooCommerce's default green. Covers the legacy gallery flash and the
+ * block-based sale badge. */
+.onsale,
+.wc-block-components-sale-badge {
+	background-color: var(--wp--preset--color--amber) !important;
+	color: var(--wp--preset--color--ink) !important;
+	border-color: var(--wp--preset--color--amber) !important;
+}
+
 /* ------------------------------------------------------------------ *
  * Site notice bar: dismissible announcement at the top of every page
  * ------------------------------------------------------------------ */
