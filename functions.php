@@ -278,6 +278,27 @@ function threeducation_notice_render_admin_page() {
 }
 
 /**
+ * Normalise the shop/loop add-to-cart button labels:
+ *   – "In winkelwagen"  — products that add straight to the cart (ajax);
+ *   – "Selecteer opties" — products sent to their page to pick a variation
+ *     or fill options (variable, or simple products with PPOM options);
+ *   – default ("Lees meer") — unavailable / out-of-stock products.
+ *
+ * Runs at a late priority so it wins over plugins (e.g. PPOM) that also
+ * filter this label. Mirrors the button-colour states in custom.css, which
+ * key off the same add_to_cart_button / ajax_add_to_cart classes.
+ */
+function threeducation_add_to_cart_text( $text, $product ) {
+	if ( ! $product || ! ( $product->is_purchasable() && $product->is_in_stock() ) ) {
+		return $text;
+	}
+	return $product->supports( 'ajax_add_to_cart' )
+		? __( 'In winkelwagen', '3ducation' )
+		: __( 'Selecteer opties', '3ducation' );
+}
+add_filter( 'woocommerce_product_add_to_cart_text', 'threeducation_add_to_cart_text', 9999, 2 );
+
+/**
  * Register a pattern category so the theme's patterns are grouped
  * together in the inserter.
  */
