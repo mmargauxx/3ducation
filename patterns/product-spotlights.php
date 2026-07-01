@@ -1,81 +1,44 @@
 <?php
 /**
- * Title: Product spotlights (banner row)
+ * Title: Category chips (shop)
  * Slug: 3ducation/product-spotlights
- * Categories: 3ducation, banner, woocommerce
- * Description: A row of three image-led promo banners, color-coded per shop section.
+ * Categories: 3ducation, woocommerce
+ * Description: A compact, wrapping row of category chips (name + product count) for the nine most-populated product categories, color-coded in the brand tricolor. Kept small on purpose so the product grid leads.
  */
-$base    = esc_url( get_template_directory_uri() . '/assets/images/' );
-$resin   = $base . 'cat-resin.jpg';
-$fil     = $base . 'cat-filamenten.jpg';
-$work    = $base . 'cat-workshops.jpg';
+
+// The nine most-populated top-level product categories, Uncategorized aside.
+// Rendered dynamically so the row keeps pace with the catalog.
+$default_cat = (int) get_option( 'default_product_cat' );
+$terms       = get_terms(
+	array(
+		'taxonomy'   => 'product_cat',
+		'parent'     => 0,
+		'hide_empty' => true,
+		'orderby'    => 'count',
+		'order'      => 'DESC',
+		'exclude'    => array_filter( array( $default_cat ) ),
+		'number'     => 9,
+	)
+);
+if ( is_wp_error( $terms ) || empty( $terms ) ) {
+	return;
+}
+
+$accents = array( 'magenta', 'cyan', 'amber' );
 ?>
-<!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|50"},"blockGap":"0"}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
-<div class="wp-block-group alignwide" style="padding-top:var(--wp--preset--spacing--50)"><!-- wp:group {"className":"spotlights","layout":{"type":"default"}} -->
-<div class="wp-block-group spotlights"><!-- wp:group {"className":"spotlight spotlight--resin","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight spotlight--resin"><!-- wp:group {"className":"spotlight__media","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight__media"><!-- wp:image {"className":"print-banner__img"} -->
-<figure class="wp-block-image print-banner__img"><img src="<?php echo $resin; ?>" alt="Resin voor 3D-printen"/></figure>
-<!-- /wp:image --></div>
-<!-- /wp:group -->
-
-<!-- wp:group {"className":"spotlight__body","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight__body"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Materiaal</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3,"fontSize":"large"} -->
-<h3 class="wp-block-heading has-large-font-size">Resin</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph {"className":"spotlight__price","fontFamily":"display"} -->
-<p class="spotlight__price has-display-font-family"><a class="stretched" href="/product-category/resin">vanaf €34,99 →</a></p>
-<!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
-<!-- /wp:group -->
-
-<!-- wp:group {"className":"spotlight spotlight--filament","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight spotlight--filament"><!-- wp:group {"className":"spotlight__media","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight__media"><!-- wp:image {"className":"print-banner__img"} -->
-<figure class="wp-block-image print-banner__img"><img src="<?php echo $fil; ?>" alt="Filamenten voor 3D-printen"/></figure>
-<!-- /wp:image --></div>
-<!-- /wp:group -->
-
-<!-- wp:group {"className":"spotlight__body","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight__body"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Materiaal</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3,"fontSize":"large"} -->
-<h3 class="wp-block-heading has-large-font-size">Filamenten</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph {"className":"spotlight__price","fontFamily":"display"} -->
-<p class="spotlight__price has-display-font-family"><a class="stretched" href="/product-category/filamenten">vanaf €19,99 →</a></p>
-<!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
-<!-- /wp:group -->
-
-<!-- wp:group {"className":"spotlight spotlight--workshops","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight spotlight--workshops"><!-- wp:group {"className":"spotlight__media","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight__media"><!-- wp:image {"className":"print-banner__img"} -->
-<figure class="wp-block-image print-banner__img"><img src="<?php echo $work; ?>" alt="3D-print workshop"/></figure>
-<!-- /wp:image --></div>
-<!-- /wp:group -->
-
-<!-- wp:group {"className":"spotlight__body","layout":{"type":"constrained"}} -->
-<div class="wp-block-group spotlight__body"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--amber","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--amber has-display-font-family has-small-font-size">Leren</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3,"fontSize":"large"} -->
-<h3 class="wp-block-heading has-large-font-size">Workshops</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph {"className":"spotlight__price","fontFamily":"display"} -->
-<p class="spotlight__price has-display-font-family"><a class="stretched" href="/product-category/workshops">vanaf €41 →</a></p>
-<!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
-<!-- /wp:group --></div>
-<!-- /wp:group --></div>
+<!-- wp:group {"align":"wide","className":"cat-chips-wrap","style":{"spacing":{"padding":{"top":"var:preset|spacing|30"}}},"layout":{"type":"constrained","wideSize":"1200px"}} -->
+<div class="wp-block-group alignwide cat-chips-wrap" style="padding-top:var(--wp--preset--spacing--30)"><!-- wp:html -->
+<nav class="cat-chips" aria-label="<?php echo esc_attr__( 'Productcategorieën', '3ducation' ); ?>">
+<?php
+$i = 0;
+foreach ( $terms as $term ) :
+	$accent = $accents[ $i % 3 ];
+	$link   = esc_url( get_term_link( $term ) );
+	$count  = number_format_i18n( (int) $term->count );
+	++$i;
+	?>
+	<a class="cat-chip cat-chip--<?php echo esc_attr( $accent ); ?>" href="<?php echo $link; ?>"><span class="cat-chip__name"><?php echo esc_html( $term->name ); ?></span> <span class="cat-chip__count"><?php echo esc_html( $count ); ?></span></a>
+<?php endforeach; ?>
+</nav>
+<!-- /wp:html --></div>
 <!-- /wp:group -->

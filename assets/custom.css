@@ -317,7 +317,7 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
- * Product banners: flagship hero + spotlight row
+ * Product banners: flagship hero + category chips
  *
  * The storefront leads with big, image-led product banners that reuse
  * the brand's color-coding: a color accent per shop section and a
@@ -364,18 +364,15 @@ a:focus-visible {
 	font-weight: 700;
 }
 
-/* --- Shared print-media frame (flagship + spotlights) --- */
-.print-banner__media,
-.spotlight__media {
+/* --- Flagship print-media frame --- */
+.print-banner__media {
 	position: relative;
 	overflow: hidden;
 	border-radius: 16px;
 	isolation: isolate;
 }
-.print-banner__media .print-banner__img,
-.spotlight__media .print-banner__img { margin: 0; }
-.print-banner__media .print-banner__img img,
-.spotlight__media .print-banner__img img {
+.print-banner__media .print-banner__img { margin: 0; }
+.print-banner__media .print-banner__img img {
 	display: block;
 	width: 100%;
 	height: auto; /* let aspect-ratio set the height; a fixed height would void it */
@@ -383,78 +380,62 @@ a:focus-visible {
 	background: #1b1c22;
 }
 .print-banner__media .print-banner__img img { aspect-ratio: 4 / 3; }
-.spotlight__media  .print-banner__img img    { aspect-ratio: 16 / 10; }
 
-/* --- Spotlight row --- */
-.spotlights {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 16px;
+/* --- Category chips (shop) ---
+ * A slim, wrapping row of category links, so the product grid leads the
+ * page instead of a tall bank of image cards. One tricolor accent per chip;
+ * hover fills the pill for a punchy, on-brand state. */
+.cat-chips-wrap { margin-block: 0; }
+.cat-chips {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 14px;
 }
-/* The group uses flow layout, so WP adds margin-block-start to every
- * child after the first. In a grid that shoves cards 2 and 3 down;
- * spacing is handled by `gap`, so zero those margins. */
-.spotlights > * {
-	margin-block: 0;
-}
-.spotlight {
-	position: relative;
-	border-radius: 18px;
-	overflow: hidden;
-	border: 1px solid var(--wp--preset--color--border);
+.cat-chip {
+	--chip-accent: var(--wp--preset--color--ink);
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.7rem 1.25rem;
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-radius: 999px;
 	background: var(--wp--preset--color--surface);
-	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
-}
-.spotlight:hover {
-	transform: translateY(-3px);
-	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
-}
-/* Color-coded accent strip along the top edge */
-.spotlight::before {
-	content: "";
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	height: 4px;
-	z-index: 4;
-	background: var(--spot-accent, var(--wp--preset--color--ink));
-}
-.spotlight--resin     { --spot-accent: var(--wp--preset--color--magenta); }
-.spotlight--filament  { --spot-accent: var(--wp--preset--color--cyan); }
-.spotlight--workshops { --spot-accent: var(--wp--preset--color--amber); }
-.spotlight__media { border-radius: 0; }
-.spotlight__body { padding: 1.25rem 1.5rem 1.5rem; }
-.spotlight__body .print-eyebrow { margin-bottom: 0.3rem; }
-.spotlight__body h3 { margin: 0 0 0.45rem; }
-.spotlight__price { margin: 0; }
-.spotlight__price a {
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 1.05rem;
+	line-height: 1;
 	text-decoration: none;
-	font-weight: 500;
 	color: var(--wp--preset--color--ink);
-	transition: color 0.15s ease;
+	transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-.spotlight:hover .spotlight__price a { color: var(--spot-accent); }
-/* Make the whole spotlight clickable via the price link */
-.spotlight .stretched::after {
+/* Accent dot */
+.cat-chip::before {
 	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: 5;
+	width: 11px;
+	height: 11px;
+	border-radius: 50%;
+	background: var(--chip-accent);
+	flex: 0 0 auto;
+	transition: background-color 0.15s ease;
 }
-
-/* Stagger the spotlight builds so they print one after another */
-.spotlights .spotlight:nth-child(2) .print-banner__img img,
-.spotlights .spotlight:nth-child(2) .spotlight__media::after { animation-delay: 0.15s; }
-.spotlights .spotlight:nth-child(3) .print-banner__img img,
-.spotlights .spotlight:nth-child(3) .spotlight__media::after { animation-delay: 0.3s; }
-
-@media (max-width: 900px) {
-	.spotlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cat-chip__name { font-weight: 600; }
+.cat-chip__count {
+	color: var(--wp--preset--color--muted);
+	font-weight: 500;
+	font-size: 0.9rem;
 }
-@media (max-width: 600px) {
-	.spotlights { grid-template-columns: 1fr; }
+.cat-chip--magenta { --chip-accent: var(--wp--preset--color--magenta); }
+.cat-chip--cyan    { --chip-accent: var(--wp--preset--color--cyan); }
+.cat-chip--amber   { --chip-accent: var(--wp--preset--color--amber); }
+.cat-chip:hover {
+	background: var(--chip-accent);
+	border-color: var(--chip-accent);
+	transform: translateY(-1px);
 }
+.cat-chip:hover,
+.cat-chip:hover .cat-chip__name,
+.cat-chip:hover .cat-chip__count { color: #fff; }
+.cat-chip:hover::before { background: #fff; }
 @media (max-width: 781px) {
 	.print-banner--flagship {
 		padding: var(--wp--preset--spacing--50) !important;
@@ -469,13 +450,11 @@ a:focus-visible {
 /* The print-build reveal is decorative motion: show everything at rest
  * for visitors who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
-	.print-banner__media .print-banner__img img,
-	.spotlight__media .print-banner__img img {
+	.print-banner__media .print-banner__img img {
 		animation: none;
 		clip-path: none;
 	}
-	.print-banner__media::after,
-	.spotlight__media::after { display: none; }
+	.print-banner__media::after { display: none; }
 }
 
 /* ------------------------------------------------------------------ *
@@ -487,4 +466,233 @@ a:focus-visible {
  * dark blocks. Remove it so the footer butts flush against the content. */
 .wp-site-blocks > footer.wp-block-template-part {
 	margin-block-start: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Shop product search (archive-product header row)
+ * ------------------------------------------------------------------ */
+/* WooCommerce's product-search block ships unstyled; dress it as a joined
+ * input + button pill in the brand palette so it sits with the storefront. */
+.shop-search .wc-block-product-search__label {
+	display: block;
+	margin-bottom: 0.35rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--muted);
+}
+.shop-search .wc-block-product-search__fields {
+	display: flex;
+	align-items: stretch;
+}
+.shop-search .wc-block-product-search__field {
+	min-width: 320px;
+	padding: 0.65em 0.9em;
+	background: var(--wp--preset--color--surface);
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-right: 0;
+	border-radius: 8px 0 0 8px;
+	font-size: var(--wp--preset--font-size--small);
+}
+.shop-search .wc-block-product-search__field:focus {
+	outline: none;
+	border-color: var(--wp--preset--color--magenta);
+}
+.shop-search .wc-block-product-search__button {
+	display: flex;
+	align-items: center;
+	padding: 0 1em;
+	background: var(--wp--preset--color--ink);
+	color: var(--wp--preset--color--surface);
+	border: 0;
+	border-radius: 0 8px 8px 0;
+	cursor: pointer;
+	transition: background-color 0.18s ease;
+}
+.shop-search .wc-block-product-search__button:hover,
+.shop-search .wc-block-product-search__button:focus-visible {
+	background: var(--wp--preset--color--magenta);
+}
+
+/* ------------------------------------------------------------------ *
+ * Shop filter sidebar
+ * ------------------------------------------------------------------ */
+/* Separate each filter group and give headings the display-font treatment
+ * consistent with the rest of the storefront. */
+.shop-filters .wp-block-woocommerce-product-filter-taxonomy,
+.shop-filters .wp-block-woocommerce-product-filter-price,
+.shop-filters .wp-block-woocommerce-product-filter-status {
+	margin-bottom: var(--wp--preset--spacing--50);
+}
+.shop-filters h3 {
+	margin-bottom: var(--wp--preset--spacing--20);
+	font-family: var(--wp--preset--font-family--display);
+}
+/* Keep the category list (many terms) from dominating the column. */
+.shop-filters .wc-block-product-filter-checkbox-list {
+	max-height: 260px;
+	overflow-y: auto;
+}
+/* Magenta accent throughout the sidebar. */
+.shop-filters input[type="checkbox"],
+.shop-filters input[type="range"],
+.shop-filters .wc-block-product-filter-price-slider__range {
+	accent-color: var(--wp--preset--color--magenta);
+}
+.shop-filters .wc-block-product-filter-price-slider__range {
+	--range-color: var(--wp--preset--color--magenta);
+	background: var(--wp--preset--color--magenta);
+}
+/* Keep the price filter inside the sidebar column: the dual-range track and
+ * the two amount inputs otherwise carry a fixed width that spills past the
+ * column's right edge. Force everything to share the available width. */
+.shop-filters .wp-block-woocommerce-product-filter-price-slider,
+.shop-filters .wp-block-woocommerce-product-filter-price-slider * {
+	box-sizing: border-box;
+}
+.shop-filters .wc-block-product-filter-price-slider__content,
+.shop-filters .wc-block-product-filter-price-slider__range {
+	width: 100%;
+	max-width: 100%;
+}
+.shop-filters .wc-block-product-filter-price-slider__left,
+.shop-filters .wc-block-product-filter-price-slider__right {
+	flex: 1 1 0;
+	min-width: 0;
+}
+.shop-filters .wc-block-product-filter-price-slider__left input,
+.shop-filters .wc-block-product-filter-price-slider__right input {
+	width: 100%;
+	min-width: 0;
+}
+.shop-filters .wc-block-product-filter-checkbox-list__label:hover,
+.shop-filters li:has(input:checked) .wc-block-product-filter-checkbox-list__text {
+	color: var(--wp--preset--color--magenta);
+}
+.shop-filters .wc-block-product-filter-clear-button {
+	color: var(--wp--preset--color--magenta);
+	text-decoration-color: var(--wp--preset--color--magenta);
+}
+/* Tint the category scroll list's scrollbar to match. */
+.shop-filters .wc-block-product-filter-checkbox-list {
+	scrollbar-color: var(--wp--preset--color--magenta) transparent;
+}
+
+/* ------------------------------------------------------------------ *
+ * Shop product grid — four per row, uniform card height
+ * ------------------------------------------------------------------ */
+/* Each card is a full-height flex column so the add-to-cart button
+ * bottom-aligns no matter how tall the title or price above it is. */
+.shop-grid .wc-block-product {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+/* Fixed square media box gives every card the same image height;
+ * contain keeps the whole product visible on its white background. */
+.shop-grid .wc-block-components-product-image {
+	margin-bottom: var(--wp--preset--spacing--20);
+}
+.shop-grid .wc-block-components-product-image img {
+	aspect-ratio: 1 / 1;
+	width: 100%;
+	object-fit: contain;
+	background: #fff;
+	border-radius: 8px;
+}
+/* Reserve exactly two lines for the title so one-, two- or three-line
+ * product names all occupy the same height — long titles are clamped
+ * instead of stretching the card. */
+.shop-grid .wp-block-post-title {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	line-height: 1.3;
+	height: 2.6em; /* exactly two lines — one-, two- or three-line names all match */
+}
+/* The title's inner link must inherit the clamp so long names truncate
+ * instead of pushing the card taller. */
+.shop-grid .wp-block-post-title a {
+	display: inline;
+	overflow: hidden;
+}
+/* Push the button to the bottom edge of the card and make it span the
+ * full card width, compact (less vertical padding, single line). */
+.shop-grid .wp-block-woocommerce-product-button {
+	margin-top: auto;
+	width: 100%;
+}
+.shop-grid .wp-block-woocommerce-product-button .wc-block-components-product-button__button {
+	display: block;
+	width: 100%;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+	font-size: 0.8rem;
+	line-height: 1.2;
+	white-space: nowrap;
+	text-align: center;
+}
+/* Button colour by state, keyed off WooCommerce's own button classes:
+ *   – ajax add-to-cart  (.add_to_cart_button.ajax_add_to_cart) → magenta default
+ *   – needs options     (.add_to_cart_button, no ajax) → cyan; the product
+ *     links to its page to pick a variation or fill PPOM options, whether it's
+ *     a variable product or a simple one with options ("Selecteer opties").
+ *   – unavailable       (no .add_to_cart_button) → muted grey ("Lees meer"). */
+.shop-grid .wc-block-components-product-button__button.add_to_cart_button:not(.ajax_add_to_cart) {
+	background-color: var(--wp--preset--color--cyan);
+	border-color: var(--wp--preset--color--cyan);
+	color: #fff;
+}
+.shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button) {
+	background-color: var(--wp--preset--color--muted);
+	border-color: var(--wp--preset--color--muted);
+	color: #fff;
+}
+
+/* Pagination — cyan buttons with white text and roomy 44px tap targets. */
+.shop-grid .wp-block-query-pagination {
+	gap: 0.5rem;
+	margin-top: var(--wp--preset--spacing--50);
+}
+.shop-grid .wp-block-query-pagination-numbers {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+}
+.shop-grid .wp-block-query-pagination .page-numbers,
+.shop-grid .wp-block-query-pagination-previous,
+.shop-grid .wp-block-query-pagination-next {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.25rem;
+	min-height: 2.25rem;
+	padding: 0.4rem 0.75rem;
+	border-radius: 8px;
+	background-color: var(--wp--preset--color--cyan);
+	color: #fff;
+	font-family: var(--wp--preset--font-family--display);
+	line-height: 1;
+	text-decoration: none;
+	transition: filter 0.15s ease;
+}
+.shop-grid .wp-block-query-pagination a.page-numbers:hover,
+.shop-grid a.wp-block-query-pagination-previous:hover,
+.shop-grid a.wp-block-query-pagination-next:hover {
+	filter: brightness(0.92);
+}
+/* Current page reads as selected in brand ink. */
+.shop-grid .wp-block-query-pagination .page-numbers.current {
+	background-color: var(--wp--preset--color--ink);
+}
+/* The "…" gap is not a button. */
+.shop-grid .wp-block-query-pagination .page-numbers.dots {
+	min-width: 0;
+	padding: 0.5rem 0.25rem;
+	background: transparent;
+	color: var(--wp--preset--color--ink-soft);
 }
