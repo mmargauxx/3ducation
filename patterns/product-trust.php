@@ -33,7 +33,7 @@
 		</span>
 		<span class="trust-badge__text">
 			<strong><?php echo esc_html__( 'Officieel verkooppunt', '3ducation' ); ?></strong>
-			<?php echo esc_html__( '[Merk] partner — echte garantie', '3ducation' ); ?>
+			<?php echo esc_html__( '[Merk] partner, echte garantie', '3ducation' ); ?>
 		</span>
 	</li>
 </ul>

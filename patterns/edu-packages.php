@@ -15,7 +15,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Elk pakket is een voorbeeld en vrij combineerbaar. De keuze van de printers is volledig aan jou — wij adviseren volgens de noden van je school.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Elk pakket is een voorbeeld en vrij combineerbaar. De keuze van de printers is volledig aan jou. Wij adviseren volgens de noden van je school.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|40"} -->
@@ -34,8 +34,8 @@
 
 <!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>1 × 3D-printer naar eigen keuze</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Starterspack: 3D-LAc + 2 rollen Winkle PLA HD — keuze uit 30+ kleuren</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Installatie van printer &amp; software — klaar voor gebruik</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Starterspack: 3D-LAc + 2 rollen Winkle PLA HD, keuze uit 30+ kleuren</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Installatie van printer &amp; software, klaar voor gebruik</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Workshop 3D-printen voor 2 leerkrachten (± 2 uur)</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Support bij problemen</li><!-- /wp:list-item --></ul>
 <!-- /wp:list -->
@@ -62,8 +62,8 @@
 
 <!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>2 × 3D-printer naar eigen keuze</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Starterspack: 3D-LAc + 2 rollen Winkle PLA HD — keuze uit 30+ kleuren</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Installatie van printers &amp; software — klaar voor gebruik</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Starterspack: 3D-LAc + 2 rollen Winkle PLA HD, keuze uit 30+ kleuren</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Installatie van printers &amp; software, klaar voor gebruik</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Workshop 3D-printen voor 4 leerkrachten (± 2 uur)</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Support bij problemen</li><!-- /wp:list-item --></ul>
 <!-- /wp:list -->
@@ -90,8 +90,8 @@
 
 <!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>3 of meer 3D-printers naar eigen keuze</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Starterspack: 3D-LAc + 2 rollen Winkle PLA HD — keuze uit 30+ kleuren</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Installatie van printers &amp; software — klaar voor gebruik</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Starterspack: 3D-LAc + 2 rollen Winkle PLA HD, keuze uit 30+ kleuren</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>Installatie van printers &amp; software, klaar voor gebruik</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Workshop voor x leerkrachten, afhankelijk van het aantal printers (± 2 uur)</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Support bij problemen</li><!-- /wp:list-item --></ul>
 <!-- /wp:list -->

@@ -32,7 +32,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Educatieve pakketten voor scholen en voorgemonteerde printers voor thuis — met advies op maat en opleiding erbij. Je koopt geen doos, je koopt vertrouwen.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Educatieve pakketten voor scholen en voorgemonteerde printers voor thuis, met advies op maat en opleiding erbij. Je koopt geen doos, je koopt vertrouwen.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"pillar-link","fontFamily":"display"} -->
@@ -68,7 +68,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Vooraf gemonteerd geleverd, met lokale support. We herstellen en onderhouden alle 3D-printers — ook toestellen die je elders kocht.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Vooraf gemonteerd geleverd, met lokale support. We herstellen en onderhouden alle 3D-printers, ook toestellen die je elders kocht.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"pillar-link","fontFamily":"display"} -->

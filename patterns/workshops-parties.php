@@ -17,7 +17,7 @@
 <!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>Maximaal 8 personen per namiddag</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Woensdagnamiddag, weekend of schoolvakanties (± 13u30–16u30)</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>€ 25 per kind — inclusief geprint gadget om mee te nemen</li><!-- /wp:list-item --></ul>
+<!-- wp:list-item --><li>€ 25 per kind, inclusief geprint gadget om mee te nemen</li><!-- /wp:list-item --></ul>
 <!-- /wp:list --></div>
 <!-- /wp:group --></div>
 <!-- /wp:column -->

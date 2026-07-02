@@ -299,6 +299,33 @@ function threeducation_add_to_cart_text( $text, $product ) {
 add_filter( 'woocommerce_product_add_to_cart_text', 'threeducation_add_to_cart_text', 9999, 2 );
 
 /**
+ * Dutch fallbacks for WooCommerce strings the nl_NL language pack does not yet
+ * translate — mostly newer block / Interactivity-API strings (e.g. the shop
+ * grid's "%d in cart" button state and a few screen-reader labels). WordPress
+ * otherwise renders the English source next to already-translated copy.
+ *
+ * Gap-fill only: the override applies solely when the language pack returned
+ * the untranslated source, so a future pack translation always wins. Trim
+ * entries as upstream (translate.wordpress.org) coverage catches up.
+ */
+function threeducation_wc_string_fallbacks( $translation, $text, $domain ) {
+	if ( $translation !== $text ) {
+		return $translation; // already translated by the language pack
+	}
+
+	static $map = array(
+		'%d in cart'                                     => '%d in winkelwagen',
+		'Add to cart: &ldquo;%s&rdquo;'                  => 'In winkelwagen: &ldquo;%s&rdquo;',
+		'View products in the &ldquo;%s&rdquo; category' => 'Bekijk producten in de categorie &ldquo;%s&rdquo;',
+		'Original price was: %s.'                        => 'Oorspronkelijke prijs was: %s.',
+		'Current price is: %s.'                          => 'Huidige prijs is: %s.',
+	);
+
+	return isset( $map[ $text ] ) ? $map[ $text ] : $translation;
+}
+add_filter( 'gettext_woocommerce', 'threeducation_wc_string_fallbacks', 10, 3 );
+
+/**
  * Register a pattern category so the theme's patterns are grouped
  * together in the inserter.
  */
@@ -322,27 +349,27 @@ add_action( 'init', 'threeducation_register_pattern_categories' );
 function threeducation_pillar_seo() {
 	return array(
 		'oplossingen'          => array(
-			'title'       => __( 'Webshop & oplossingen — 3D-printers voor scholen en thuis', '3ducation' ),
+			'title'       => __( 'Webshop & oplossingen · 3D-printers voor scholen en thuis', '3ducation' ),
 			'description' => __( 'Educatieve 3D-printpakketten voor basis- en secundaire scholen, plus voorgemonteerde 3D-printers voor thuis. Advies op maat, opleiding voor leerkrachten inbegrepen.', '3ducation' ),
 			'keywords'    => __( '3D-printer kopen school, educatief pakket 3D-printen, 3D-printer basisschool, voorgemonteerde 3D-printer thuis', '3ducation' ),
 		),
 		'workshops'            => array(
-			'title'       => __( 'Workshops & opleidingen — leer 3D-printen', '3ducation' ),
+			'title'       => __( 'Workshops & opleidingen · leer 3D-printen', '3ducation' ),
 			'description' => __( 'Praktische 3D-printworkshops van ± 2 uur en originele verjaardagsfeestjes in 3D voor 10- tot 14-jarigen. Leer printen, ontwerpen in Tinkercad en slicen.', '3ducation' ),
 			'keywords'    => __( '3D-print workshop, 3D-printer leren gebruiken, Tinkercad cursus, origineel verjaardagsfeestje 10 14 jaar, workshop 3D-tekenen', '3ducation' ),
 		),
 		'service'              => array(
-			'title'       => __( 'Service & montage — 3D-printer herstelling en onderhoud', '3ducation' ),
+			'title'       => __( 'Service & montage · 3D-printer herstelling en onderhoud', '3ducation' ),
 			'description' => __( 'Herstelling, onderhoud en reserveonderdelen voor alle 3D-printers, ook als je toestel niet bij ons is gekocht. Vraag support aan via ons online formulier.', '3ducation' ),
 			'keywords'    => __( '3D-printer herstelling, 3D-printer onderhoud, 3D-printer reparatie, reserveonderdelen 3D-printer, technische support 3D-printen', '3ducation' ),
 		),
 		'educatieve-pakketten' => array(
-			'title'       => __( 'Educatieve pakketten — 3D-printen op school', '3ducation' ),
+			'title'       => __( 'Educatieve pakketten · 3D-printen op school', '3ducation' ),
 			'description' => __( 'Klaar-voor-de-klas 3D-printpakketten met installatie, lerarenopleiding en support. Op maat van basis- en secundaire scholen.', '3ducation' ),
 			'keywords'    => __( 'educatief pakket 3D-printen, 3D-printer school, 3D-printen op school, lerarenopleiding 3D-printen', '3ducation' ),
 		),
 		'over-ons'             => array(
-			'title'       => __( 'Over 3DUCATION — 3D-printen zonder zorgen, op school en thuis', '3ducation' ),
+			'title'       => __( 'Over 3DUCATION · 3D-printen zonder zorgen, op school en thuis', '3ducation' ),
 			'description' => __( '3DUCATION maakt 3D-printen praktisch en direct inzetbaar: voorgemonteerde printers, opleiding en support voor scholen en gezinnen. Je koopt geen doos, je koopt vertrouwen.', '3ducation' ),
 			'keywords'    => __( 'over 3ducation, 3D-printen op school, 3D-printer thuis, STEM onderwijs 3D-printen, 3D-printen zonder zorgen', '3ducation' ),
 		),

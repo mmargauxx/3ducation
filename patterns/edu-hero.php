@@ -17,7 +17,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Het doel is dat de implementatie van 3D-printen in de klas vlot verloopt. Daarom stelden we een educatief pakket samen — het zou jammer zijn als de 3D-printer enkele weken na aankoop ongebruikt blijft.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Het doel is dat de implementatie van 3D-printen in de klas vlot verloopt. Daarom stelden we een educatief pakket samen. Het zou jammer zijn als de 3D-printer enkele weken na aankoop ongebruikt blijft.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->

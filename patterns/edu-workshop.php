@@ -13,7 +13,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">3DUCATION biedt volledige begeleiding aan, zodat de stap naar 3D-printen in de klas kleiner en vooral gemakkelijker wordt. De workshop vindt plaats op jouw school en behandelt alle facetten van het 3D-printen — in kleine groep, zodat de kwaliteit gegarandeerd blijft (± 2 uur).</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">3DUCATION biedt volledige begeleiding aan, zodat de stap naar 3D-printen in de klas kleiner en vooral gemakkelijker wordt. De workshop vindt plaats op jouw school en behandelt alle facetten van het 3D-printen, in kleine groep, zodat de kwaliteit gegarandeerd blijft (± 2 uur).</p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 

@@ -21,7 +21,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">We voeren reparaties en onderhoud uit op alle toestellen — ook als je printer oorspronkelijk niet bij ons werd aangekocht.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">We voeren reparaties en onderhoud uit op alle toestellen, ook als je printer oorspronkelijk niet bij ons werd aangekocht.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|20"} -->
