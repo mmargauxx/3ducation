@@ -155,6 +155,7 @@
 		{ "name": "page-oplossingen", "title": "Webshop & oplossingen", "postTypes": ["page"] },
 		{ "name": "page-workshops", "title": "Workshops & educatie", "postTypes": ["page"] },
 		{ "name": "page-educatieve-pakketten", "title": "Educatieve pakketten", "postTypes": ["page"] },
-		{ "name": "page-service", "title": "Service & montage", "postTypes": ["page"] }
+		{ "name": "page-service", "title": "Service & montage", "postTypes": ["page"] },
+		{ "name": "page-over-ons", "title": "Over ons", "postTypes": ["page"] }
 	]
 }

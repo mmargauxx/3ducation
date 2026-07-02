@@ -219,14 +219,24 @@ a:focus-visible {
 /* Mini-cart trigger spacing */
 .wc-block-mini-cart__button { padding-inline: 0.4rem; }
 
-/* Sale badge ("Aanbieding!"): brand amber with dark ink text, replacing
- * WooCommerce's default green. Covers the legacy gallery flash and the
- * block-based sale badge. */
+/* Sale badge ("Aanbieding!"): a square amber box with white Space Grotesk
+ * text, replacing WooCommerce's default rounded green pill/circle. Covers the
+ * legacy gallery flash and the block-based sale badge (shop grid + product
+ * detail page). */
 .onsale,
-.wc-block-components-sale-badge {
+.wc-block-components-sale-badge,
+.wc-block-components-product-sale-badge {
 	background-color: var(--wp--preset--color--amber) !important;
-	color: var(--wp--preset--color--ink) !important;
-	border-color: var(--wp--preset--color--amber) !important;
+	color: #fff !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	font-family: var(--wp--preset--font-family--display) !important;
+	font-weight: 700 !important;
+	letter-spacing: 0.01em;
+	padding: 0.4em 0.7em !important;
+	min-height: 0 !important;
+	min-width: 0 !important;
+	line-height: 1.2 !important;
 }
 
 /* ------------------------------------------------------------------ *
@@ -347,39 +357,85 @@ a:focus-visible {
 	border-color: #fff;
 }
 
-/* --- Flagship banner --- */
-.print-banner--flagship { overflow: hidden; }
-.print-specs { margin-top: 1rem; }
-.print-spec {
-	margin: 0;
-	padding: 0.3em 0.85em;
-	border: 1px solid rgba(255, 255, 255, 0.18);
-	border-radius: 999px;
-	color: #d7d8de;
+/* --- Product spotlights (shop) ---
+ * Three hand-picked products at the top of the shop (admin-selectable), so the
+ * storefront leads with a light three-up row instead of one heavy banner. Each
+ * card carries a tricolor accent and is fully clickable. */
+.spotlights-wrap { margin-block: 0; }
+.spotlights {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	align-items: stretch;
 }
-.print-price { gap: 0; }
-.print-price__amount {
-	margin: 0;
-	line-height: 1.05;
-	font-weight: 700;
-}
-
-/* --- Flagship print-media frame --- */
-.print-banner__media {
-	position: relative;
+.spotlight-card {
+	--spot-accent: var(--wp--preset--color--magenta);
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
+	border: 1px solid var(--wp--preset--color--border);
 	border-radius: 16px;
-	isolation: isolate;
+	background: var(--wp--preset--color--surface);
+	text-decoration: none;
+	color: var(--wp--preset--color--ink);
+	transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
 }
-.print-banner__media .print-banner__img { margin: 0; }
-.print-banner__media .print-banner__img img {
+.spotlight-card:hover {
+	transform: translateY(-3px);
+	border-color: var(--spot-accent);
+	box-shadow: 0 14px 34px rgba(20, 21, 26, 0.09);
+}
+.spotlight-card--magenta { --spot-accent: var(--wp--preset--color--magenta); }
+.spotlight-card--cyan    { --spot-accent: var(--wp--preset--color--cyan); }
+.spotlight-card--amber   { --spot-accent: var(--wp--preset--color--amber); }
+.spotlight-card__media { display: block; background: #f2f2f4; }
+.spotlight-card__media img {
 	display: block;
 	width: 100%;
-	height: auto; /* let aspect-ratio set the height; a fixed height would void it */
+	height: auto;
+	aspect-ratio: 4 / 3;
 	object-fit: cover;
-	background: #1b1c22;
 }
-.print-banner__media .print-banner__img img { aspect-ratio: 16 / 9; }
+.spotlight-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding: 1rem 1.15rem 1.15rem;
+}
+.spotlight-card__eyebrow {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.72rem;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: var(--spot-accent);
+}
+.spotlight-card__title {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 700;
+	font-size: 1.05rem;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+.spotlight-card__price {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 700;
+	color: var(--wp--preset--color--ink);
+}
+.spotlight-card__price del { color: var(--wp--preset--color--muted); font-weight: 500; margin-right: 0.4em; }
+.spotlight-card__price ins { text-decoration: none; }
+.spotlight-card__cta {
+	margin-top: auto;
+	padding-top: 0.4rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.85rem;
+	color: var(--spot-accent);
+}
+@media (max-width: 781px) {
+	.spotlights { grid-template-columns: 1fr; }
+}
 
 /* --- Category chips (shop) ---
  * A slim, wrapping row of category links, so the product grid leads the
@@ -436,26 +492,6 @@ a:focus-visible {
 .cat-chip:hover .cat-chip__name,
 .cat-chip:hover .cat-chip__count { color: #fff; }
 .cat-chip:hover::before { background: #fff; }
-@media (max-width: 781px) {
-	.print-banner--flagship {
-		padding: var(--wp--preset--spacing--50) !important;
-	}
-}
-@media (max-width: 600px) {
-	.print-banner--flagship {
-		padding: var(--wp--preset--spacing--40) !important;
-	}
-}
-
-/* The print-build reveal is decorative motion: show everything at rest
- * for visitors who prefer reduced motion. */
-@media (prefers-reduced-motion: reduce) {
-	.print-banner__media .print-banner__img img {
-		animation: none;
-		clip-path: none;
-	}
-	.print-banner__media::after { display: none; }
-}
 
 /* ------------------------------------------------------------------ *
  * Pillars: three-way split value proposition (homepage)
@@ -1249,4 +1285,58 @@ a:focus-visible {
 .shop-sorting select:focus {
 	outline: none;
 	border-color: var(--wp--preset--color--cyan);
+}
+
+/* ------------------------------------------------------------------ *
+ * About page — social-proof gallery placeholder
+ *
+ * A four-up row of placeholder tiles between the "Voor scholen" and
+ * "Voor thuis" sections. The striped fill + "Foto" label signal where real
+ * workshop / classroom photos should be dropped in.
+ * ------------------------------------------------------------------ */
+.about-gallery {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 14px;
+}
+.about-gallery__item {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	background: var(--wp--preset--color--surface);
+}
+.about-gallery__ph {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 4 / 5;
+	background-color: var(--wp--preset--color--base);
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--wp--preset--color--border) 0,
+		var(--wp--preset--color--border) 1px,
+		transparent 1px,
+		transparent 11px
+	);
+	color: var(--wp--preset--color--muted);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.72rem;
+	font-weight: 500;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+.about-gallery__cap {
+	padding: 0.7rem 0.85rem 0.85rem;
+	font-size: 0.8rem;
+	line-height: 1.35;
+	color: var(--wp--preset--color--ink-soft);
+}
+@media (max-width: 781px) {
+	.about-gallery { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 460px) {
+	.about-gallery { grid-template-columns: 1fr; }
 }

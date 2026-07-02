@@ -14,7 +14,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">3ducation helpt scholen, makers en gezinnen op weg met 3D-printen: van de juiste machine tot de kennis om ermee te werken. Je koopt geen doos, je koopt vertrouwen.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">3DUCATION helpt scholen, makers en gezinnen op weg met 3D-printen: van de juiste machine tot de kennis om ermee te werken. Je koopt geen doos, je koopt vertrouwen.</p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 

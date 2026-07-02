@@ -305,7 +305,7 @@ add_filter( 'woocommerce_product_add_to_cart_text', 'threeducation_add_to_cart_t
 function threeducation_register_pattern_categories() {
 	register_block_pattern_category(
 		'3ducation',
-		array( 'label' => __( '3ducation', '3ducation' ) )
+		array( 'label' => __( '3DUCATION', '3ducation' ) )
 	);
 }
 add_action( 'init', 'threeducation_register_pattern_categories' );
@@ -340,6 +340,11 @@ function threeducation_pillar_seo() {
 			'title'       => __( 'Educatieve pakketten — 3D-printen op school', '3ducation' ),
 			'description' => __( 'Klaar-voor-de-klas 3D-printpakketten met installatie, lerarenopleiding en support. Op maat van basis- en secundaire scholen.', '3ducation' ),
 			'keywords'    => __( 'educatief pakket 3D-printen, 3D-printer school, 3D-printen op school, lerarenopleiding 3D-printen', '3ducation' ),
+		),
+		'over-ons'             => array(
+			'title'       => __( 'Over 3DUCATION — 3D-printen zonder zorgen, op school en thuis', '3ducation' ),
+			'description' => __( '3DUCATION maakt 3D-printen praktisch en direct inzetbaar: voorgemonteerde printers, opleiding en support voor scholen en gezinnen. Je koopt geen doos, je koopt vertrouwen.', '3ducation' ),
+			'keywords'    => __( 'over 3ducation, 3D-printen op school, 3D-printer thuis, STEM onderwijs 3D-printen, 3D-printen zonder zorgen', '3ducation' ),
 		),
 	);
 }
@@ -429,3 +434,154 @@ function threeducation_catalog_ordering_args( $args ) {
 	return $args;
 }
 add_filter( 'woocommerce_get_catalog_ordering_args', 'threeducation_catalog_ordering_args', 20 );
+
+/**
+ * Spotlight products (shop).
+ *
+ * Up to three products featured in the strip at the top of the shop, chosen in
+ * wp-admin under Settings -> Uitgelichte producten. Replaces the old single
+ * flagship banner so the storefront leads with three products, not one.
+ */
+
+/** The selected spotlight product IDs, in order (max three, valid ints only). */
+function threeducation_spotlight_ids() {
+	$ids = (array) get_option( 'threeducation_spotlights', array() );
+	$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+	return array_slice( $ids, 0, 3 );
+}
+
+/**
+ * Resolve the selected spotlight products. Falls back to the three newest
+ * published products so the strip is never empty out of the box.
+ *
+ * @return WC_Product[]
+ */
+function threeducation_spotlight_products() {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return array();
+	}
+	$out = array();
+	foreach ( threeducation_spotlight_ids() as $id ) {
+		$product = wc_get_product( $id );
+		if ( $product && 'publish' === $product->get_status() ) {
+			$out[] = $product;
+		}
+	}
+	if ( empty( $out ) && function_exists( 'wc_get_products' ) ) {
+		$fallback = wc_get_products(
+			array(
+				'status'     => 'publish',
+				'visibility' => 'visible',
+				'limit'      => 3,
+				'orderby'    => 'date',
+				'order'      => 'DESC',
+			)
+		);
+		$out = is_array( $fallback ) ? $fallback : array();
+	}
+	return array_slice( $out, 0, 3 );
+}
+
+/** Register the spotlights option with the Settings API. */
+function threeducation_spotlights_register_settings() {
+	register_setting(
+		'threeducation_spotlights',
+		'threeducation_spotlights',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'threeducation_spotlights_sanitize',
+			'default'           => array(),
+		)
+	);
+}
+add_action( 'admin_init', 'threeducation_spotlights_register_settings' );
+
+/** Sanitize the submitted spotlight IDs: up to three unique positive ints. */
+function threeducation_spotlights_sanitize( $input ) {
+	$ids = array();
+	foreach ( (array) $input as $value ) {
+		$value = absint( $value );
+		if ( $value ) {
+			$ids[] = $value;
+		}
+	}
+	return array_slice( array_values( array_unique( $ids ) ), 0, 3 );
+}
+
+/** Add the settings screen under the Settings menu. */
+function threeducation_spotlights_admin_menu() {
+	add_options_page(
+		__( 'Uitgelichte producten', '3ducation' ),
+		__( 'Uitgelichte producten', '3ducation' ),
+		'manage_options',
+		'threeducation-spotlights',
+		'threeducation_spotlights_render_admin_page'
+	);
+}
+add_action( 'admin_menu', 'threeducation_spotlights_admin_menu' );
+
+/** Load WooCommerce's searchable product <select> on our settings screen only. */
+function threeducation_spotlights_admin_assets( $hook ) {
+	if ( 'settings_page_threeducation-spotlights' !== $hook || ! function_exists( 'WC' ) ) {
+		return;
+	}
+	wp_enqueue_script( 'wc-enhanced-select' );
+	wp_enqueue_style( 'woocommerce_admin_styles' );
+	wp_enqueue_style( 'select2' );
+}
+add_action( 'admin_enqueue_scripts', 'threeducation_spotlights_admin_assets' );
+
+/** Render the settings screen: three searchable product pickers. */
+function threeducation_spotlights_render_admin_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$ids     = array_pad( threeducation_spotlight_ids(), 3, 0 );
+	$has_wc  = function_exists( 'wc_get_product' );
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html__( 'Uitgelichte producten', '3ducation' ); ?></h1>
+		<p><?php echo esc_html__( 'Kies tot drie producten die bovenaan de webshop worden uitgelicht. Laat een veld leeg om minder producten te tonen; laat alles leeg om automatisch de drie nieuwste producten te tonen.', '3ducation' ); ?></p>
+
+		<?php if ( ! $has_wc ) : ?>
+			<div class="notice notice-warning"><p><?php echo esc_html__( 'WooCommerce is niet actief, dus er zijn geen producten om te kiezen.', '3ducation' ); ?></p></div>
+		<?php endif; ?>
+
+		<form method="post" action="options.php">
+			<?php settings_fields( 'threeducation_spotlights' ); ?>
+			<table class="form-table" role="presentation">
+				<?php
+				for ( $i = 0; $i < 3; $i++ ) :
+					$id    = (int) $ids[ $i ];
+					$label = '';
+					if ( $id && $has_wc ) {
+						$product = wc_get_product( $id );
+						if ( $product ) {
+							$label = wp_strip_all_tags( $product->get_formatted_name() );
+						}
+					}
+					?>
+					<tr>
+						<th scope="row"><label for="tds-<?php echo esc_attr( $i ); ?>"><?php printf( esc_html__( 'Product %d', '3ducation' ), (int) $i + 1 ); ?></label></th>
+						<td>
+							<select
+								id="tds-<?php echo esc_attr( $i ); ?>"
+								class="wc-product-search"
+								style="width:400px;"
+								name="threeducation_spotlights[<?php echo esc_attr( $i ); ?>]"
+								data-placeholder="<?php echo esc_attr__( 'Zoek een product…', '3ducation' ); ?>"
+								data-action="woocommerce_json_search_products_and_variations"
+								data-allow_clear="true">
+								<?php if ( $id && '' !== $label ) : ?>
+									<option value="<?php echo esc_attr( $id ); ?>" selected="selected"><?php echo esc_html( $label ); ?></option>
+								<?php endif; ?>
+							</select>
+						</td>
+					</tr>
+				<?php endfor; ?>
+			</table>
+			<?php submit_button(); ?>
+		</form>
+	</div>
+	<?php
+}

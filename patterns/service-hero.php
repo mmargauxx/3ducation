@@ -17,7 +17,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Loop je vast met een technische storing, is je toestel toe aan onderhoud of zoek je specifieke reserveonderdelen? Het supportteam van 3ducation helpt je snel weer op weg.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Loop je vast met een technische storing, is je toestel toe aan onderhoud of zoek je specifieke reserveonderdelen? Het supportteam van 3DUCATION helpt je snel weer op weg.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
