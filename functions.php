@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.9.0' );
+	define( 'THREEDUCATION_VERSION', '0.11.0' );
 }
 
 /**
@@ -309,3 +309,123 @@ function threeducation_register_pattern_categories() {
 	);
 }
 add_action( 'init', 'threeducation_register_pattern_categories' );
+
+/**
+ * SEO metadata for the three pillar pages.
+ *
+ * The theme has no SEO plugin, so we set a hand-written <title>, meta
+ * description and meta keywords per pillar, keyed on the page slug. If an SEO
+ * plugin (Yoast, Rank Math, …) is later activated it will manage these tags
+ * itself; this is a lightweight fallback so the pillar pages ship with proper
+ * metadata out of the box.
+ */
+function threeducation_pillar_seo() {
+	return array(
+		'oplossingen'          => array(
+			'title'       => __( 'Webshop & oplossingen — 3D-printers voor scholen en thuis', '3ducation' ),
+			'description' => __( 'Educatieve 3D-printpakketten voor basis- en secundaire scholen, plus voorgemonteerde 3D-printers voor thuis. Advies op maat, opleiding voor leerkrachten inbegrepen.', '3ducation' ),
+			'keywords'    => __( '3D-printer kopen school, educatief pakket 3D-printen, 3D-printer basisschool, voorgemonteerde 3D-printer thuis', '3ducation' ),
+		),
+		'workshops'            => array(
+			'title'       => __( 'Workshops & opleidingen — leer 3D-printen', '3ducation' ),
+			'description' => __( 'Praktische 3D-printworkshops van ± 2 uur en originele verjaardagsfeestjes in 3D voor 10- tot 14-jarigen. Leer printen, ontwerpen in Tinkercad en slicen.', '3ducation' ),
+			'keywords'    => __( '3D-print workshop, 3D-printer leren gebruiken, Tinkercad cursus, origineel verjaardagsfeestje 10 14 jaar, workshop 3D-tekenen', '3ducation' ),
+		),
+		'service'              => array(
+			'title'       => __( 'Service & montage — 3D-printer herstelling en onderhoud', '3ducation' ),
+			'description' => __( 'Herstelling, onderhoud en reserveonderdelen voor alle 3D-printers, ook als je toestel niet bij ons is gekocht. Vraag support aan via ons online formulier.', '3ducation' ),
+			'keywords'    => __( '3D-printer herstelling, 3D-printer onderhoud, 3D-printer reparatie, reserveonderdelen 3D-printer, technische support 3D-printen', '3ducation' ),
+		),
+		'educatieve-pakketten' => array(
+			'title'       => __( 'Educatieve pakketten — 3D-printen op school', '3ducation' ),
+			'description' => __( 'Klaar-voor-de-klas 3D-printpakketten met installatie, lerarenopleiding en support. Op maat van basis- en secundaire scholen.', '3ducation' ),
+			'keywords'    => __( 'educatief pakket 3D-printen, 3D-printer school, 3D-printen op school, lerarenopleiding 3D-printen', '3ducation' ),
+		),
+	);
+}
+
+/** Return the SEO slug for the current page, or '' if it isn't a pillar page. */
+function threeducation_current_pillar_slug() {
+	if ( ! is_page() ) {
+		return '';
+	}
+	$object = get_queried_object();
+	$slug   = ( $object && isset( $object->post_name ) ) ? $object->post_name : '';
+	return array_key_exists( $slug, threeducation_pillar_seo() ) ? $slug : '';
+}
+
+/** Override the document <title> for pillar pages. */
+function threeducation_pillar_title_parts( $parts ) {
+	$slug = threeducation_current_pillar_slug();
+	if ( $slug ) {
+		$seo            = threeducation_pillar_seo();
+		$parts['title'] = $seo[ $slug ]['title'];
+	}
+	return $parts;
+}
+add_filter( 'document_title_parts', 'threeducation_pillar_title_parts' );
+
+/** Output <meta name="description"> and <meta name="keywords"> for pillar pages. */
+function threeducation_pillar_meta_tags() {
+	$slug = threeducation_current_pillar_slug();
+	if ( ! $slug ) {
+		return;
+	}
+	$seo = threeducation_pillar_seo();
+	printf( '<meta name="description" content="%s" />' . "\n", esc_attr( $seo[ $slug ]['description'] ) );
+	printf( '<meta name="keywords" content="%s" />' . "\n", esc_attr( $seo[ $slug ]['keywords'] ) );
+}
+add_action( 'wp_head', 'threeducation_pillar_meta_tags', 1 );
+
+/**
+ * Webshop product sorting.
+ *
+ * Replace WooCommerce's catalog "sorteer op" options with the set the shop
+ * needs — A→Z, Z→A, gemiddelde beoordeling, prijs (beide richtingen) en
+ * releasedatum — and implement the A→Z / Z→A title ordering that WooCommerce
+ * doesn't ship out of the box.
+ *
+ * The archive-product template's Product Collection block inherits the main
+ * query, so the catalog-sorting dropdown drives it via the ?orderby= param and
+ * WC_Query's catalog ordering.
+ */
+function threeducation_catalog_orderby_options( $options ) {
+	return array(
+		'title'      => __( 'Naam: A → Z', '3ducation' ),
+		'title-desc' => __( 'Naam: Z → A', '3ducation' ),
+		'rating'     => __( 'Gemiddelde beoordeling', '3ducation' ),
+		'price'      => __( 'Prijs: laag → hoog', '3ducation' ),
+		'price-desc' => __( 'Prijs: hoog → laag', '3ducation' ),
+		'date'       => __( 'Releasedatum: nieuwste eerst', '3ducation' ),
+	);
+}
+add_filter( 'woocommerce_catalog_orderby', 'threeducation_catalog_orderby_options' );
+add_filter( 'woocommerce_default_catalog_orderby_options', 'threeducation_catalog_orderby_options' );
+
+/**
+ * Default the shop to A → Z (WooCommerce's stored default is 'menu_order',
+ * which we've removed from the options list above).
+ */
+function threeducation_default_catalog_orderby() {
+	return 'title';
+}
+add_filter( 'woocommerce_default_catalog_orderby', 'threeducation_default_catalog_orderby' );
+
+/**
+ * Implement the two title-based orderings. WooCommerce splits 'title-desc' on
+ * the hyphen before this filter runs, so we read the raw request value to tell
+ * A→Z from Z→A. Runs late (priority 20) to win over WC's own args.
+ */
+function threeducation_catalog_ordering_args( $args ) {
+	$orderby = isset( $_GET['orderby'] ) ? wc_clean( wp_unslash( $_GET['orderby'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( '' === $orderby ) {
+		$orderby = 'title';
+	}
+	if ( 'title' === $orderby || 'title-desc' === $orderby ) {
+		$args['orderby']  = 'title';
+		$args['order']    = ( 'title-desc' === $orderby ) ? 'DESC' : 'ASC';
+		$args['meta_key'] = ''; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+	}
+	return $args;
+}
+add_filter( 'woocommerce_get_catalog_ordering_args', 'threeducation_catalog_ordering_args', 20 );

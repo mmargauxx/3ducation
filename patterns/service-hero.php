@@ -1,0 +1,41 @@
+<?php
+/**
+ * Title: Service hero
+ * Slug: 3ducation/service-hero
+ * Categories: 3ducation, banner
+ * Description: Lead-in for the Service & montage pillar page — repair, maintenance and spare parts for every 3D-printer.
+ */
+?>
+<!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|60"}}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
+<div class="wp-block-group alignfull" style="padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"constrained","contentSize":"760px"}} -->
+<div class="wp-block-group"><!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"3px","fontWeight":"500"},"color":{"text":"var:preset|color|amber"}},"fontSize":"small","fontFamily":"display"} -->
+<p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--amber);font-weight:500;letter-spacing:3px;text-transform:uppercase">Service &amp; montage</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":1,"style":{"typography":{"fontSize":"clamp(2.5rem, 5.5vw, 4rem)"}}} -->
+<h1 class="wp-block-heading" style="font-size:clamp(2.5rem, 5.5vw, 4rem)">Herstelling en onderhoud</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Loop je vast met een technische storing, is je toestel toe aan onderhoud of zoek je specifieke reserveonderdelen? Het supportteam van 3ducation helpt je snel weer op weg.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">We voeren reparaties en onderhoud uit op alle toestellen — ook als je printer oorspronkelijk niet bij ons werd aangekocht.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:spacer {"height":"var:preset|spacing|20"} -->
+<div style="height:var(--wp--preset--spacing--20)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}}} -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="#service-form">Vul het aanvraagformulier in</a></div>
+<!-- /wp:button -->
+
+<!-- wp:button {"className":"is-style-outline"} -->
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="mailto:info@3ducation.be?subject=Herstelling">Mail ons rechtstreeks</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->

@@ -34,7 +34,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"fontFamily":"display"} -->
-<p class="has-display-font-family"><a href="mailto:info@3ducation.be?subject=Educatief%20pakket">Vraag een offerte →</a></p>
+<p class="has-display-font-family"><a href="/educatieve-pakketten">Bekijk de pakketten →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -70,7 +70,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"fontFamily":"display"} -->
-<p class="has-display-font-family"><a href="mailto:info@3ducation.be?subject=Herstellingsaanvraag">Herstelling aanvragen →</a></p>
+<p class="has-display-font-family"><a href="/service">Herstelling aanvragen →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group --></div>

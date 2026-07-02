@@ -9,8 +9,8 @@ $img = esc_url( get_template_directory_uri() . '/assets/images/cat-printers.jpg'
 // The printers category image is the Elegoo Centauri Carbon, so the
 // flagship banner features that exact product (image matches the copy).
 ?>
-<!-- wp:group {"align":"wide","className":"print-banner print-banner--flagship","backgroundColor":"ink","style":{"border":{"radius":"24px"},"spacing":{"padding":{"top":"var:preset|spacing|60","bottom":"var:preset|spacing|60","left":"var:preset|spacing|60","right":"var:preset|spacing|60"}}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
-<div class="wp-block-group alignwide print-banner print-banner--flagship has-ink-background-color has-background" style="border-radius:24px;padding-top:var(--wp--preset--spacing--60);padding-right:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60);padding-left:var(--wp--preset--spacing--60)"><!-- wp:columns {"verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60"}}}} -->
+<!-- wp:group {"align":"wide","className":"print-banner print-banner--flagship","backgroundColor":"ink","style":{"border":{"radius":"24px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|60","right":"var:preset|spacing|60"}}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
+<div class="wp-block-group alignwide print-banner print-banner--flagship has-ink-background-color has-background" style="border-radius:24px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--60)"><!-- wp:columns {"verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60"}}}} -->
 <div class="wp-block-columns are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"52%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:52%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--amber","fontSize":"small","fontFamily":"display"} -->
 <p class="print-eyebrow print-eyebrow--amber has-display-font-family has-small-font-size">Flagship · 3D-printer</p>
@@ -38,8 +38,8 @@ $img = esc_url( get_template_directory_uri() . '/assets/images/cat-printers.jpg'
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
-<!-- wp:spacer {"height":"var:preset|spacing|30"} -->
-<div style="height:var(--wp--preset--spacing--30)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- wp:spacer {"height":"var:preset|spacing|20"} -->
+<div style="height:var(--wp--preset--spacing--20)" aria-hidden="true" class="wp-block-spacer"></div>
 <!-- /wp:spacer -->
 
 <!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|40"}},"layout":{"type":"flex","flexWrap":"wrap","verticalAlignment":"center"}} -->
