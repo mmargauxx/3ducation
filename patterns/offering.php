@@ -14,7 +14,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">3ducation helpt scholen, makers en gezinnen op weg met 3D-printen: van de juiste machine tot de kennis om ermee te werken. Je koopt geen doos, je koopt vertrouwen.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">3DUCATION helpt scholen, makers en gezinnen op weg met 3D-printen: van de juiste machine tot de kennis om ermee te werken. Je koopt geen doos, je koopt vertrouwen.</p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
@@ -34,7 +34,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"fontFamily":"display"} -->
-<p class="has-display-font-family"><a href="mailto:info@3ducation.be?subject=Educatief%20pakket">Vraag een offerte →</a></p>
+<p class="has-display-font-family"><a href="/educatieve-pakketten">Bekijk de pakketten →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -70,7 +70,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"fontFamily":"display"} -->
-<p class="has-display-font-family"><a href="mailto:info@3ducation.be?subject=Herstellingsaanvraag">Herstelling aanvragen →</a></p>
+<p class="has-display-font-family"><a href="/service">Herstelling aanvragen →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group --></div>

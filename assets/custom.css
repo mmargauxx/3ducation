@@ -219,14 +219,24 @@ a:focus-visible {
 /* Mini-cart trigger spacing */
 .wc-block-mini-cart__button { padding-inline: 0.4rem; }
 
-/* Sale badge ("Aanbieding!"): brand amber with dark ink text, replacing
- * WooCommerce's default green. Covers the legacy gallery flash and the
- * block-based sale badge. */
+/* Sale badge ("Aanbieding!"): a square amber box with white Space Grotesk
+ * text, replacing WooCommerce's default rounded green pill/circle. Covers the
+ * legacy gallery flash and the block-based sale badge (shop grid + product
+ * detail page). */
 .onsale,
-.wc-block-components-sale-badge {
+.wc-block-components-sale-badge,
+.wc-block-components-product-sale-badge {
 	background-color: var(--wp--preset--color--amber) !important;
-	color: var(--wp--preset--color--ink) !important;
-	border-color: var(--wp--preset--color--amber) !important;
+	color: #fff !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	font-family: var(--wp--preset--font-family--display) !important;
+	font-weight: 700 !important;
+	letter-spacing: 0.01em;
+	padding: 0.4em 0.7em !important;
+	min-height: 0 !important;
+	min-width: 0 !important;
+	line-height: 1.2 !important;
 }
 
 /* ------------------------------------------------------------------ *
@@ -347,39 +357,85 @@ a:focus-visible {
 	border-color: #fff;
 }
 
-/* --- Flagship banner --- */
-.print-banner--flagship { overflow: hidden; }
-.print-specs { margin-top: 1rem; }
-.print-spec {
-	margin: 0;
-	padding: 0.3em 0.85em;
-	border: 1px solid rgba(255, 255, 255, 0.18);
-	border-radius: 999px;
-	color: #d7d8de;
+/* --- Product spotlights (shop) ---
+ * Three hand-picked products at the top of the shop (admin-selectable), so the
+ * storefront leads with a light three-up row instead of one heavy banner. Each
+ * card carries a tricolor accent and is fully clickable. */
+.spotlights-wrap { margin-block: 0; }
+.spotlights {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	align-items: stretch;
 }
-.print-price { gap: 0; }
-.print-price__amount {
-	margin: 0;
-	line-height: 1.05;
-	font-weight: 700;
-}
-
-/* --- Flagship print-media frame --- */
-.print-banner__media {
-	position: relative;
+.spotlight-card {
+	--spot-accent: var(--wp--preset--color--magenta);
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
+	border: 1px solid var(--wp--preset--color--border);
 	border-radius: 16px;
-	isolation: isolate;
+	background: var(--wp--preset--color--surface);
+	text-decoration: none;
+	color: var(--wp--preset--color--ink);
+	transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease, border-color 0.18s ease;
 }
-.print-banner__media .print-banner__img { margin: 0; }
-.print-banner__media .print-banner__img img {
+.spotlight-card:hover {
+	transform: translateY(-3px);
+	border-color: var(--spot-accent);
+	box-shadow: 0 14px 34px rgba(20, 21, 26, 0.09);
+}
+.spotlight-card--magenta { --spot-accent: var(--wp--preset--color--magenta); }
+.spotlight-card--cyan    { --spot-accent: var(--wp--preset--color--cyan); }
+.spotlight-card--amber   { --spot-accent: var(--wp--preset--color--amber); }
+.spotlight-card__media { display: block; background: #f2f2f4; }
+.spotlight-card__media img {
 	display: block;
 	width: 100%;
-	height: auto; /* let aspect-ratio set the height; a fixed height would void it */
+	height: auto;
+	aspect-ratio: 4 / 3;
 	object-fit: cover;
-	background: #1b1c22;
 }
-.print-banner__media .print-banner__img img { aspect-ratio: 4 / 3; }
+.spotlight-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding: 1rem 1.15rem 1.15rem;
+}
+.spotlight-card__eyebrow {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.72rem;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: var(--spot-accent);
+}
+.spotlight-card__title {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 700;
+	font-size: 1.05rem;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+.spotlight-card__price {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 700;
+	color: var(--wp--preset--color--ink);
+}
+.spotlight-card__price del { color: var(--wp--preset--color--muted); font-weight: 500; margin-right: 0.4em; }
+.spotlight-card__price ins { text-decoration: none; }
+.spotlight-card__cta {
+	margin-top: auto;
+	padding-top: 0.4rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.85rem;
+	color: var(--spot-accent);
+}
+@media (max-width: 781px) {
+	.spotlights { grid-template-columns: 1fr; }
+}
 
 /* --- Category chips (shop) ---
  * A slim, wrapping row of category links, so the product grid leads the
@@ -436,25 +492,519 @@ a:focus-visible {
 .cat-chip:hover .cat-chip__name,
 .cat-chip:hover .cat-chip__count { color: #fff; }
 .cat-chip:hover::before { background: #fff; }
-@media (max-width: 781px) {
-	.print-banner--flagship {
-		padding: var(--wp--preset--spacing--50) !important;
-	}
+
+/* ------------------------------------------------------------------ *
+ * Pillars: three-way split value proposition (homepage)
+ *
+ * Equal, color-coded cards — webshop / workshops / service — reusing the
+ * bento's accent-bar + hover-lift language so the split reads as one family.
+ * ------------------------------------------------------------------ */
+.pillars {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	align-items: stretch;
 }
-@media (max-width: 600px) {
-	.print-banner--flagship {
-		padding: var(--wp--preset--spacing--40) !important;
-	}
+/* WordPress' flow layout adds margin-block-start to every child after the
+ * first; in a grid row that shoves cards 2+ down and leaves the first sitting
+ * higher. Zero it here — the grid `gap` owns the spacing. */
+.pillars > * { margin-block-start: 0; }
+.pillar {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: 2rem;
+	border-radius: 18px;
+	border: 1px solid var(--wp--preset--color--border);
+	background: var(--wp--preset--color--surface);
+	overflow: hidden;
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.pillar::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 5px;
+	background: var(--pillar-accent, var(--wp--preset--color--ink));
+}
+.pillar:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
+}
+.pillar--webshop   { --pillar-accent: var(--wp--preset--color--magenta); }
+.pillar--workshops { --pillar-accent: var(--wp--preset--color--cyan); }
+.pillar--service   { --pillar-accent: var(--wp--preset--color--amber); }
+.pillar-tag {
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-weight: 500;
+	color: var(--pillar-accent);
+	margin: 0.4rem 0 0.5rem;
+}
+/* Pin the CTA to the bottom so all three cards grow downward and their
+ * links bottom-align regardless of copy length. */
+.pillar-link { margin-top: auto; }
+.pillar-link a {
+	text-decoration: none;
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+/* Stretch the link across the whole card so the card is clickable */
+.pillar .stretched::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+@media (max-width: 781px) {
+	.pillars { grid-template-columns: 1fr; }
 }
 
-/* The print-build reveal is decorative motion: show everything at rest
- * for visitors who prefer reduced motion. */
+/* ------------------------------------------------------------------ *
+ * Product trust badges (single product, near add-to-cart)
+ *
+ * A compact reassurance strip under the buy button: local support,
+ * optional pre-assembly, official partner — color-coded in the tricolor.
+ * ------------------------------------------------------------------ */
+.product-trust { margin-top: var(--wp--preset--spacing--30); }
+.trust-badges {
+	list-style: none;
+	margin: 0;
+	padding: var(--wp--preset--spacing--30);
+	display: grid;
+	gap: 0.9rem;
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	background: var(--wp--preset--color--surface);
+}
+.trust-badge {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+}
+.trust-badge__icon {
+	flex: 0 0 auto;
+	display: grid;
+	place-items: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 10px;
+	background: color-mix(in srgb, var(--badge-accent, var(--wp--preset--color--ink)) 12%, #fff);
+	color: var(--badge-accent, var(--wp--preset--color--ink));
+}
+.trust-badge__text {
+	display: flex;
+	flex-direction: column;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.35;
+	color: var(--wp--preset--color--ink-soft);
+}
+.trust-badge__text strong {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+.trust-badge--magenta { --badge-accent: var(--wp--preset--color--magenta); }
+.trust-badge--cyan    { --badge-accent: var(--wp--preset--color--cyan); }
+.trust-badge--amber   { --badge-accent: var(--wp--preset--color--amber); }
+
+/* ------------------------------------------------------------------ *
+ * Product options (PPOM) — boxed like the site's info-panels
+ *
+ * For products with options, PPOM renders its fields inside the add-to-cart
+ * form as a .ppom-wrapper. Give that wrapper the same bordered, rounded,
+ * padded card chrome as the .info-panel asides used across the pillar pages,
+ * and theme the option checkboxes/radios in brand cyan at a slightly larger,
+ * easier-to-hit size.
+ * ------------------------------------------------------------------ */
+.ppom-wrapper {
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	padding: clamp(1.25rem, 3vw, 1.75rem);
+	background: var(--wp--preset--color--base);
+	margin-block: var(--wp--preset--spacing--30);
+}
+/* Field title (e.g. "Kies je kleur") reads as the panel heading. */
+.ppom-wrapper .form-control-label {
+	display: block;
+	margin-bottom: 0.6rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+/* One option per line with a comfortable target and gentle vertical rhythm. */
+.ppom-wrapper .form-check-inline,
+.ppom-wrapper .form-check {
+	display: block;
+	margin: 0.35rem 0;
+}
+.ppom-wrapper .form-check-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	cursor: pointer;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--ink-soft);
+}
+/* Brand-blue (cyan), slightly larger option controls, drawn as sharp-cornered
+ * squares with a cyan fill and white tick — echoing the brand's square sale
+ * badge — for both checkbox (multi-select) and radio (single-select) fields. */
+.ppom-wrapper input[type="checkbox"],
+.ppom-wrapper input[type="radio"] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 1.2em;
+	height: 1.2em;
+	margin: 0;
+	flex: 0 0 auto;
+	cursor: pointer;
+	display: inline-grid;
+	place-content: center;
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-radius: 0;
+	background: #fff;
+	transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.ppom-wrapper input[type="checkbox"]::before,
+.ppom-wrapper input[type="radio"]::before {
+	content: "";
+	width: 0.68em;
+	height: 0.68em;
+	transform: scale(0);
+	transition: transform 0.12s ease;
+	background-color: #fff;
+	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.ppom-wrapper input[type="checkbox"]:checked,
+.ppom-wrapper input[type="radio"]:checked {
+	background: var(--wp--preset--color--cyan);
+	border-color: var(--wp--preset--color--cyan);
+}
+.ppom-wrapper input[type="checkbox"]:checked::before,
+.ppom-wrapper input[type="radio"]:checked::before {
+	transform: scale(1);
+}
+.ppom-wrapper input[type="checkbox"]:focus-visible,
+.ppom-wrapper input[type="radio"]:focus-visible {
+	outline: 2px solid var(--wp--preset--color--cyan);
+	outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Single product: scannable specifications table
+ *
+ * The product-details "Additional information" block ships a dense
+ * bordered table. Strip the clutter to a clean two-column, zebra-striped
+ * spec sheet that stays legible for high-end printers with many attributes.
+ * ------------------------------------------------------------------ */
+.wc-block-components-product-details .woocommerce-product-attributes,
+.woocommerce-product-attributes {
+	width: 100%;
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+}
+.woocommerce-product-attributes th,
+.woocommerce-product-attributes td {
+	padding: 0.7rem 1rem;
+	border: 0;
+	border-bottom: 1px solid var(--wp--preset--color--border);
+	text-align: left;
+	vertical-align: top;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.5;
+}
+.woocommerce-product-attributes tr:last-child th,
+.woocommerce-product-attributes tr:last-child td {
+	border-bottom: 0;
+}
+.woocommerce-product-attributes th {
+	width: 38%;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+	background: var(--wp--preset--color--base);
+}
+.woocommerce-product-attributes td { color: var(--wp--preset--color--ink-soft); }
+.woocommerce-product-attributes td p { margin: 0; }
+
+/* ------------------------------------------------------------------ *
+ * Workshops page: audience grid + intake form
+ * ------------------------------------------------------------------ */
+/* Audience cards — schools / businesses / hobbyists, color-coded */
+.wsaud {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	align-items: stretch;
+}
+/* Same flow-margin reset as .pillars — keep the row top-aligned. */
+.wsaud > * { margin-block-start: 0; }
+.wsaud-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: 2rem;
+	border-radius: 18px;
+	border: 1px solid var(--wp--preset--color--border);
+	background: var(--wp--preset--color--surface);
+	overflow: hidden;
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.wsaud-card::before {
+	content: "";
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 5px;
+	background: var(--wsaud-accent, var(--wp--preset--color--ink));
+}
+.wsaud-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
+}
+.wsaud-card--magenta { --wsaud-accent: var(--wp--preset--color--magenta); }
+.wsaud-card--cyan    { --wsaud-accent: var(--wp--preset--color--cyan); }
+.wsaud-card--amber   { --wsaud-accent: var(--wp--preset--color--amber); }
+.wsaud-tag {
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-weight: 500;
+	color: var(--wsaud-accent);
+	margin: 0.4rem 0 0.5rem;
+}
+.wsaud-list {
+	list-style: none;
+	margin: 0.75rem 0 1.25rem;
+	padding: 0;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--ink-soft);
+}
+.wsaud-list li {
+	position: relative;
+	padding: 0.35rem 0 0.35rem 1.4rem;
+	border-top: 1px solid var(--wp--preset--color--border);
+}
+.wsaud-list li:first-child { border-top: 0; }
+.wsaud-list li::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.85em;
+	width: 0.55rem;
+	height: 0.55rem;
+	border-radius: 2px;
+	background: var(--wsaud-accent);
+	transform: rotate(45deg);
+}
+.wsaud-link {
+	margin-top: auto;
+}
+.wsaud-link a {
+	text-decoration: none;
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+.wsaud-card .stretched::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+@media (max-width: 781px) {
+	.wsaud { grid-template-columns: 1fr; }
+}
+
+/* Hero wayfinding link — sits opposite the eyebrow, points to the bookable
+ * product-category workshops now that the header "Workshops" item leads here. */
+.ws-hero-top { width: 100%; }
+.ws-hero-nav { margin: 0; }
+.ws-hero-nav a {
+	text-decoration: none;
+	font-weight: 500;
+	color: var(--wp--preset--color--magenta);
+	transition: color 0.15s ease;
+}
+.ws-hero-nav a:hover { color: var(--wp--preset--color--magenta-dark); }
+
+/* Intake form — clean two-up field layout on the dark band.
+ * The form width is owned by the pattern's constrained group (contentSize),
+ * so the fields line up with the heading; don't cap max-width here or it
+ * overrides that constraint and the form goes full-bleed. */
+.intake-form__row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+.intake-field {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 1rem;
+}
+.intake-form__row .intake-field { margin-bottom: 0; }
+.intake-field label {
+	margin-bottom: 0.4rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: #b9bac2;
+}
+.intake-field input,
+.intake-field select,
+.intake-field textarea {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 0.7em 0.9em;
+	border: 1.5px solid #2a2b33;
+	border-radius: 8px;
+	background: #1b1c22;
+	color: #fff;
+	font-family: inherit;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.5; /* shared line-height so <select> and inputs render the same height */
+	transition: border-color 0.15s ease;
+}
+.intake-field textarea { resize: vertical; }
+/* Strip the native <select> chrome so it matches the text inputs exactly, then
+ * draw our own chevron. With the same box-sizing, padding, border, font-size
+ * and line-height, the select is now the same height as the inputs. */
+.intake-field select {
+	appearance: none;
+	-webkit-appearance: none;
+	padding-right: 2.4em;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b9bac2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.9em center;
+	background-size: 1em;
+}
+.intake-field input::placeholder,
+.intake-field textarea::placeholder { color: #6c6e79; }
+.intake-field input:focus,
+.intake-field select:focus,
+.intake-field textarea:focus {
+	outline: none;
+	border-color: var(--wp--preset--color--cyan);
+}
+.intake-form__submit {
+	margin-top: 0.5rem;
+	padding: 0.85em 1.7em;
+	border: 0;
+	border-radius: 8px;
+	background: var(--wp--preset--color--magenta);
+	color: #fff;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: var(--wp--preset--font-size--medium);
+	cursor: pointer;
+	transition: background-color 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.intake-form__submit:hover { background: var(--wp--preset--color--magenta-dark); }
+.intake-form__submit:active { transform: translateY(1px); }
+.intake-form__note {
+	margin: 0.9rem 0 0;
+	font-size: 0.8rem;
+	color: #8a8d99;
+}
+@media (max-width: 600px) {
+	.intake-form__row { grid-template-columns: 1fr; gap: 0; }
+	.intake-form__row .intake-field { margin-bottom: 1rem; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Educatieve pakketten — package cards
+ *
+ * The cards reuse the workshops audience-card system (.wsaud-card / .wsaud-tag
+ * / .wsaud-list / .wsaud-link); only the grid, a bottom-pinned footer, and the
+ * price label are page-specific.
+ * ------------------------------------------------------------------ */
+.edu-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 16px;
+	align-items: stretch;
+}
+/* WordPress' flow layout adds margin-block-start to children after the first;
+ * zero it so the grid row stays top-aligned (the grid `gap` owns spacing). */
+.edu-grid > * { margin-block-start: 0; }
+/* Keep the price + CTA pinned to the bottom of each card so they line up
+ * across cards no matter how long the inclusions list runs. */
+.edu-foot { margin-top: auto; }
+.edu-price {
+	margin: 0 0 0.7rem;
+	color: var(--wp--preset--color--ink-soft);
+}
+.edu-price strong {
+	display: block;
+	margin-bottom: 0.15rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.72rem;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--muted);
+}
+@media (max-width: 781px) {
+	.edu-grid { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------ *
+ * 404 — "failed print" page
+ *
+ * A giant brand-gradient 404 with a subtle layer-shift on the middle digit,
+ * sitting on a faint print-bed grid, plus playful printer-diagnostic chips.
+ * ------------------------------------------------------------------ */
+.error-404 { text-align: center; }
+
+/* Print-bed stage: a faint grid that fades out toward the edges, behind
+ * the giant numerals. */
+.error-404__stage {
+	position: relative;
+	display: inline-block;
+	padding: 1.5rem 2.5rem;
+	margin-bottom: 0.5rem;
+}
+.error-404__stage::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background-image:
+		linear-gradient(var(--wp--preset--color--border) 1px, transparent 1px),
+		linear-gradient(90deg, var(--wp--preset--color--border) 1px, transparent 1px);
+	background-size: 30px 30px;
+	background-position: center;
+	-webkit-mask-image: radial-gradient(ellipse at center, #000 25%, transparent 72%);
+	        mask-image: radial-gradient(ellipse at center, #000 25%, transparent 72%);
+}
+
+/* The numerals themselves: big display font in the brand tricolor. Solid
+ * per-digit colors (not a clipped gradient) so the layer-shift transform on
+ * the middle digit can't detach it from a background-clip and vanish. */
+.error-404__code {
+	position: relative;
+	z-index: 1;
+	font-family: var(--wp--preset--font-family--display), sans-serif;
+	font-weight: 700;
+	line-height: 0.9;
+	letter-spacing: -0.04em;
+	font-size: clamp(6rem, 22vw, 14rem);
+}
+.error-404__digit { display: inline-block; }
+.error-404__digit--magenta { color: var(--wp--preset--color--magenta); }
+.error-404__digit--amber   { color: var(--wp--preset--color--amber); }
+.error-404__digit--cyan    { color: var(--wp--preset--color--cyan); }
+/* The mis-registered layer: nudge and tilt the middle digit like a print
+ * that shifted mid-job. */
+.error-404__shift {
+	transform: translate(0.04em, -0.05em) rotate(-4deg);
+}
+
+/* The layer-shift is a static nudge, but honour reduced-motion intent by
+ * settling the digit straight for those users. */
 @media (prefers-reduced-motion: reduce) {
-	.print-banner__media .print-banner__img img {
-		animation: none;
-		clip-path: none;
-	}
-	.print-banner__media::after { display: none; }
+	.error-404__shift { transform: none; }
 }
 
 /* ------------------------------------------------------------------ *
@@ -466,6 +1016,19 @@ a:focus-visible {
  * dark blocks. Remove it so the footer butts flush against the content. */
 .wp-site-blocks > footer.wp-block-template-part {
 	margin-block-start: 0;
+}
+
+/* The footer sits on the ink-dark background, but the Webshop / Klantenservice
+ * link lists inherit the theme's dark ink link colour — dark on dark, so they
+ * read as invisible. Force footer body links white; keep the brand magenta on
+ * hover (which the theme link :hover already provides). */
+.site-footer p a {
+	color: #fff;
+	text-decoration: none;
+}
+.site-footer p a:hover {
+	color: var(--wp--preset--color--magenta);
+	text-decoration: underline;
 }
 
 /* ------------------------------------------------------------------ *
@@ -621,10 +1184,14 @@ a:focus-visible {
 	overflow: hidden;
 }
 /* Push the button to the bottom edge of the card and make it span the
- * full card width, compact (less vertical padding, single line). */
+ * full card width, compact (less vertical padding, single line). The flex
+ * column lets the appended "Bekijk winkelwagen" link stack full-width
+ * beneath the button once a product is added. */
 .shop-grid .wp-block-woocommerce-product-button {
 	margin-top: auto;
 	width: 100%;
+	display: flex;
+	flex-direction: column;
 }
 .shop-grid .wp-block-woocommerce-product-button .wc-block-components-product-button__button {
 	display: block;
@@ -651,6 +1218,40 @@ a:focus-visible {
 	background-color: var(--wp--preset--color--muted);
 	border-color: var(--wp--preset--color--muted);
 	color: #fff;
+}
+
+/* Added-to-cart state — for any product already in the cart, WooCommerce
+ * appends a bare "Bekijk winkelwagen" link under the add-to-cart button.
+ * Turn that stray underlined link into a full-width cyan-outline secondary
+ * action tucked beneath the button, so the card stays tidy instead of
+ * leaking an unstyled link into the grid gap. */
+.shop-grid .added_to_cart.wc_forward {
+	display: block;
+	width: 100%;
+	margin-top: 0.4rem;
+	padding: 0.5rem 0.75rem;
+	border: 1.5px solid var(--wp--preset--color--cyan);
+	border-radius: 8px;
+	background: transparent;
+	color: var(--wp--preset--color--cyan);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.8rem;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background-color 0.15s ease, color 0.15s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.shop-grid .added_to_cart.wc_forward::after {
+	content: " →";
+}
+.shop-grid .added_to_cart.wc_forward:hover,
+.shop-grid .added_to_cart.wc_forward:focus-visible {
+	background: var(--wp--preset--color--cyan);
+	color: #fff;
+}
+.shop-grid .added_to_cart.wc_forward:active {
+	transform: translateY(1px);
 }
 
 /* Pagination — cyan buttons with white text and roomy 44px tap targets. */
@@ -695,4 +1296,167 @@ a:focus-visible {
 	padding: 0.5rem 0.25rem;
 	background: transparent;
 	color: var(--wp--preset--color--ink-soft);
+}
+
+/* ------------------------------------------------------------------ *
+ * Pillar pages — shared helpers
+ *
+ * Used across the Webshop & oplossingen, Workshops and Service & montage
+ * pillar pages. .info-panel is a light bordered aside that reuses the
+ * .wsaud-list bullet system (set its accent via a --magenta/--cyan/--amber
+ * modifier); .price-tag is the big display price; .field-hint / file input
+ * extend the dark intake form for the service request.
+ * ------------------------------------------------------------------ */
+.info-panel {
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	padding: clamp(1.25rem, 3vw, 1.75rem);
+	background: var(--wp--preset--color--base);
+}
+.info-panel > * { margin-block-start: 0; }
+.info-panel--magenta { --wsaud-accent: var(--wp--preset--color--magenta); }
+.info-panel--cyan    { --wsaud-accent: var(--wp--preset--color--cyan); }
+.info-panel--amber   { --wsaud-accent: var(--wp--preset--color--amber); }
+.info-panel__title {
+	margin: 0 0 0.4rem;
+	font-weight: 500;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: var(--wsaud-accent, var(--wp--preset--color--ink-soft));
+}
+/* The .wsaud-list inside a panel needs no top border on its first row. */
+.info-panel .wsaud-list { margin: 0; }
+
+/* Big display price used on the workshop / party offers. */
+.price-tag {
+	margin: 0.25rem 0 1.25rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 700;
+	font-size: clamp(1.75rem, 4vw, 2.25rem);
+	line-height: 1;
+	letter-spacing: -0.02em;
+	color: var(--wp--preset--color--ink);
+}
+.price-tag span {
+	display: inline-block;
+	margin-left: 0.4rem;
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	letter-spacing: 0;
+	color: var(--wp--preset--color--muted);
+}
+
+/* Service intake extras: helper text under a field, and a dark-themed file
+ * input so it matches the other fields on the ink band. */
+.intake-field .field-hint {
+	margin-top: 0.35rem;
+	font-size: 0.75rem;
+	color: #8a8d99;
+}
+.intake-field input[type="file"] {
+	padding: 0.55em 0.9em;
+	cursor: pointer;
+}
+.intake-field input[type="file"]::file-selector-button {
+	margin-right: 0.8em;
+	padding: 0.4em 0.9em;
+	border: 0;
+	border-radius: 6px;
+	background: #2a2b33;
+	color: #fff;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.8rem;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+.intake-field input[type="file"]::file-selector-button:hover {
+	background: var(--wp--preset--color--magenta);
+}
+
+/* ------------------------------------------------------------------ *
+ * Shop toolbar — "Alle producten" heading + catalog sorting dropdown
+ * ------------------------------------------------------------------ */
+.shop-toolbar { margin-bottom: var(--wp--preset--spacing--40); }
+/* Style WooCommerce's catalog-sorting <select> to match the shop search /
+ * filters: a bordered pill with our own chevron, brand-cyan focus ring. */
+.shop-toolbar .wc-block-catalog-sorting,
+.shop-toolbar .wp-block-woocommerce-catalog-sorting { margin: 0; }
+.shop-toolbar select,
+.shop-sorting select {
+	appearance: none;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	max-width: 100%;
+	padding: 0.6em 2.4em 0.6em 0.9em;
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-radius: 8px;
+	background-color: var(--wp--preset--color--surface);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8d99' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.8em center;
+	background-size: 1em;
+	color: var(--wp--preset--color--ink);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--small);
+	cursor: pointer;
+	transition: border-color 0.15s ease;
+}
+.shop-toolbar select:focus,
+.shop-sorting select:focus {
+	outline: none;
+	border-color: var(--wp--preset--color--cyan);
+}
+
+/* ------------------------------------------------------------------ *
+ * About page — social-proof gallery placeholder
+ *
+ * A four-up row of placeholder tiles between the "Voor scholen" and
+ * "Voor thuis" sections. The striped fill + "Foto" label signal where real
+ * workshop / classroom photos should be dropped in.
+ * ------------------------------------------------------------------ */
+.about-gallery {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 14px;
+}
+.about-gallery__item {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	background: var(--wp--preset--color--surface);
+}
+.about-gallery__ph {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	aspect-ratio: 4 / 5;
+	background-color: var(--wp--preset--color--base);
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--wp--preset--color--border) 0,
+		var(--wp--preset--color--border) 1px,
+		transparent 1px,
+		transparent 11px
+	);
+	color: var(--wp--preset--color--muted);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.72rem;
+	font-weight: 500;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+}
+.about-gallery__cap {
+	padding: 0.7rem 0.85rem 0.85rem;
+	font-size: 0.8rem;
+	line-height: 1.35;
+	color: var(--wp--preset--color--ink-soft);
+}
+@media (max-width: 781px) {
+	.about-gallery { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 460px) {
+	.about-gallery { grid-template-columns: 1fr; }
 }
