@@ -608,6 +608,88 @@ a:focus-visible {
 .trust-badge--amber   { --badge-accent: var(--wp--preset--color--amber); }
 
 /* ------------------------------------------------------------------ *
+ * Product options (PPOM) — boxed like the site's info-panels
+ *
+ * For products with options, PPOM renders its fields inside the add-to-cart
+ * form as a .ppom-wrapper. Give that wrapper the same bordered, rounded,
+ * padded card chrome as the .info-panel asides used across the pillar pages,
+ * and theme the option checkboxes/radios in brand cyan at a slightly larger,
+ * easier-to-hit size.
+ * ------------------------------------------------------------------ */
+.ppom-wrapper {
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	padding: clamp(1.25rem, 3vw, 1.75rem);
+	background: var(--wp--preset--color--base);
+	margin-block: var(--wp--preset--spacing--30);
+}
+/* Field title (e.g. "Kies je kleur") reads as the panel heading. */
+.ppom-wrapper .form-control-label {
+	display: block;
+	margin-bottom: 0.6rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+/* One option per line with a comfortable target and gentle vertical rhythm. */
+.ppom-wrapper .form-check-inline,
+.ppom-wrapper .form-check {
+	display: block;
+	margin: 0.35rem 0;
+}
+.ppom-wrapper .form-check-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6rem;
+	cursor: pointer;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--ink-soft);
+}
+/* Brand-blue (cyan), slightly larger option controls, drawn as sharp-cornered
+ * squares with a cyan fill and white tick — echoing the brand's square sale
+ * badge — for both checkbox (multi-select) and radio (single-select) fields. */
+.ppom-wrapper input[type="checkbox"],
+.ppom-wrapper input[type="radio"] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 1.2em;
+	height: 1.2em;
+	margin: 0;
+	flex: 0 0 auto;
+	cursor: pointer;
+	display: inline-grid;
+	place-content: center;
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-radius: 0;
+	background: #fff;
+	transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.ppom-wrapper input[type="checkbox"]::before,
+.ppom-wrapper input[type="radio"]::before {
+	content: "";
+	width: 0.68em;
+	height: 0.68em;
+	transform: scale(0);
+	transition: transform 0.12s ease;
+	background-color: #fff;
+	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.ppom-wrapper input[type="checkbox"]:checked,
+.ppom-wrapper input[type="radio"]:checked {
+	background: var(--wp--preset--color--cyan);
+	border-color: var(--wp--preset--color--cyan);
+}
+.ppom-wrapper input[type="checkbox"]:checked::before,
+.ppom-wrapper input[type="radio"]:checked::before {
+	transform: scale(1);
+}
+.ppom-wrapper input[type="checkbox"]:focus-visible,
+.ppom-wrapper input[type="radio"]:focus-visible {
+	outline: 2px solid var(--wp--preset--color--cyan);
+	outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ *
  * Single product: scannable specifications table
  *
  * The product-details "Additional information" block ships a dense
