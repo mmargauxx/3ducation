@@ -77,8 +77,8 @@
 <h2 class="wp-block-heading has-surface-color has-text-color has-x-large-font-size">Breng 3D-printen naar je school</h2>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph {"style":{"color":{"text":"#b9bac2"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:#b9bac2">Vertel ons over je klas en doelstellingen. We stellen vrijblijvend een pakket op maat samen.</p>
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|mist"}},"fontSize":"large"} -->
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--mist)">Vertel ons over je klas en doelstellingen. We stellen vrijblijvend een pakket op maat samen.</p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 

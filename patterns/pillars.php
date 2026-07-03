@@ -13,7 +13,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"typography":{"textDecoration":"underline"}},"fontSize":"small"} -->
-<p class="has-small-font-size" style="text-decoration:underline"><a href="/#over-ons">Meer over 3DUCATION</a></p>
+<p class="has-small-font-size" style="text-decoration:underline"><a href="/over-ons">Meer over 3DUCATION</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 

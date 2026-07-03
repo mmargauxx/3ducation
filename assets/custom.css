@@ -48,7 +48,7 @@ a:focus-visible {
 }
 .hero-usp li {
 	position: relative;
-	padding-left: 1.5rem;
+	padding-left: 2.25rem;
 }
 .hero-usp li::before {
 	content: "";
@@ -57,7 +57,7 @@ a:focus-visible {
 	top: 0.85em;
 	width: 0.7rem;
 	height: 0.7rem;
-	border: 2px solid #fff;
+	border: 2px solid var(--wp--preset--color--surface);
 	border-radius: 2px;
 	transform: rotate(45deg) translateY(-50%);
 }
@@ -72,11 +72,11 @@ a:focus-visible {
 .cat-bento {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 16px;
+	gap: var(--wp--preset--spacing--30);
 }
 .cat-card {
 	position: relative;
-	padding: 2rem;
+	padding: var(--wp--preset--spacing--45);
 	border-radius: 18px;
 	border: 1px solid var(--wp--preset--color--border);
 	background: var(--wp--preset--color--surface);
@@ -101,8 +101,8 @@ a:focus-visible {
 
 /* Workshops card sits on dark: invert text */
 .cat-card--workshops .wp-block-heading,
-.cat-card--workshops .cat-link a { color: #fff; }
-.cat-card--workshops p { color: #b9bac2 !important; }
+.cat-card--workshops .cat-link a { color: var(--wp--preset--color--surface); }
+.cat-card--workshops p { color: var(--wp--preset--color--mist) !important; }
 .cat-card--workshops .cat-tag { color: var(--wp--preset--color--cyan); }
 
 .cat-tag {
@@ -131,37 +131,90 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
- * Offering: divided info list (no cards), color-tagged
+ * Audience split: B2B (scholen) / B2C (thuis) two-up, color-coded.
+ * Shares the bento/pillars card language — accent bar + hover-lift.
  * ------------------------------------------------------------------ */
-.offer-list {
+.audience-split {
 	display: grid;
-	gap: 0;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--wp--preset--spacing--30);
+	align-items: stretch;
 }
-.offer-item {
-	padding: 2rem 0;
-	border-top: 1px solid var(--wp--preset--color--border);
+/* Zero WordPress' flow-layout top margin so both cards top-align; the
+ * grid `gap` owns the spacing. Same reset as .pillars. */
+.audience-split > * { margin-block-start: 0; }
+.audience-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: var(--wp--preset--spacing--45);
+	border-radius: 18px;
+	border: 1px solid var(--wp--preset--color--border);
+	background: var(--wp--preset--color--surface);
+	overflow: hidden;
+	transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
-.offer-item:first-child { border-top: 0; padding-top: 0; }
-.offer-item > * { margin-block: 0.35rem; }
-.offer-tag {
+.audience-card::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 5px;
+	background: var(--audience-accent, var(--wp--preset--color--ink));
+}
+.audience-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
+}
+.audience-card--scholen { --audience-accent: var(--wp--preset--color--magenta); }
+.audience-card--thuis   { --audience-accent: var(--wp--preset--color--cyan); }
+.audience-tag {
 	text-transform: uppercase;
 	letter-spacing: 2px;
 	font-weight: 500;
-	margin-bottom: 0.4rem !important;
+	color: var(--audience-accent);
+	margin: 0.4rem 0 0.5rem;
 }
-.offer-tag--magenta { color: var(--wp--preset--color--magenta); }
-.offer-tag--cyan    { color: var(--wp--preset--color--cyan); }
-.offer-tag--amber   { color: var(--wp--preset--color--amber); }
-.offer-item a {
-	text-decoration: none;
-	font-weight: 500;
-	color: var(--wp--preset--color--ink);
-	transition: color 0.15s ease;
+.audience-list {
+	margin: 1rem 0 0;
+	padding-left: 1.2rem;
+	color: var(--wp--preset--color--ink-soft);
 }
-.offer-item a:hover { color: var(--wp--preset--color--magenta); }
-/* Keep the intro column readable as a sticky anchor on wide screens */
-@media (min-width: 782px) {
-	.offer-list { scroll-margin-top: 6rem; }
+.audience-list li { margin-block: 0.35rem; }
+/* Pin the CTA to the bottom so both cards' buttons bottom-align
+ * regardless of copy length. */
+.audience-cta { margin-top: auto; padding-top: 1.5rem; }
+@media (max-width: 781px) {
+	.audience-split { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Social-proof placeholder (homepage) — reserved slot for real photos
+ * of teachers and smiling kids at the workshops. Striped fill + label
+ * signal where imagery drops in, matching the About gallery language.
+ * ------------------------------------------------------------------ */
+.social-proof-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 240px;
+	padding: var(--wp--preset--spacing--45);
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 18px;
+	background-color: var(--wp--preset--color--base);
+	background-image: repeating-linear-gradient(
+		-45deg,
+		var(--wp--preset--color--border) 0,
+		var(--wp--preset--color--border) 1px,
+		transparent 1px,
+		transparent 11px
+	);
+}
+.social-proof-placeholder__label {
+	margin: 0;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	color: var(--wp--preset--color--muted);
 }
 
 /* ------------------------------------------------------------------ *
@@ -212,7 +265,7 @@ a:focus-visible {
 	aspect-ratio: 1 / 1;
 	object-fit: cover;
 	width: 100%;
-	background: #f3f3f4;
+	background: var(--wp--preset--color--base-soft);
 	border-radius: 10px;
 }
 
@@ -227,7 +280,7 @@ a:focus-visible {
 .wc-block-components-sale-badge,
 .wc-block-components-product-sale-badge {
 	background-color: var(--wp--preset--color--amber) !important;
-	color: #fff !important;
+	color: var(--wp--preset--color--surface) !important;
 	border: 0 !important;
 	border-radius: 0 !important;
 	font-family: var(--wp--preset--font-family--display) !important;
@@ -246,7 +299,7 @@ a:focus-visible {
 	position: relative;
 	display: none;
 	background: var(--wp--preset--color--ink);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 }
 /* Revealed by the inline script only when the notice is not yet dismissed,
  * so dismissed visitors never see a flash of the bar. */
@@ -286,7 +339,7 @@ a:focus-visible {
 	padding: 0.32em 1em;
 	border: 1px solid rgba(255, 255, 255, 0.35);
 	border-radius: 999px;
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 	font-size: 0.9rem;
 	font-weight: 500;
 	text-decoration: none;
@@ -295,7 +348,7 @@ a:focus-visible {
 }
 .site-notice-bar__cta:hover {
 	background: rgba(255, 255, 255, 0.12);
-	border-color: #fff;
+	border-color: var(--wp--preset--color--surface);
 }
 .site-notice-bar__close {
 	position: absolute;
@@ -310,13 +363,13 @@ a:focus-visible {
 	border: 0;
 	border-radius: 6px;
 	background: transparent;
-	color: #b9bac2;
+	color: var(--wp--preset--color--mist);
 	cursor: pointer;
 	transition: background 0.15s ease, color 0.15s ease;
 }
 .site-notice-bar__close:hover {
 	background: rgba(255, 255, 255, 0.12);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 }
 @keyframes notice-drop {
 	from { opacity: 0; transform: translateY(-100%); }
@@ -348,13 +401,13 @@ a:focus-visible {
 /* Outline button tuned for dark banner grounds */
 .wp-block-button.is-style-outline--light .wp-block-button__link {
 	background: transparent;
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 	border: 1.5px solid rgba(255, 255, 255, 0.5);
 }
 .wp-block-button.is-style-outline--light .wp-block-button__link:hover {
-	background: #fff;
+	background: var(--wp--preset--color--surface);
 	color: var(--wp--preset--color--ink);
-	border-color: #fff;
+	border-color: var(--wp--preset--color--surface);
 }
 
 /* --- Product spotlights (shop) ---
@@ -365,7 +418,7 @@ a:focus-visible {
 .spotlights {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 16px;
+	gap: var(--wp--preset--spacing--30);
 	align-items: stretch;
 }
 .spotlight-card {
@@ -388,7 +441,7 @@ a:focus-visible {
 .spotlight-card--magenta { --spot-accent: var(--wp--preset--color--magenta); }
 .spotlight-card--cyan    { --spot-accent: var(--wp--preset--color--cyan); }
 .spotlight-card--amber   { --spot-accent: var(--wp--preset--color--amber); }
-.spotlight-card__media { display: block; background: #f2f2f4; }
+.spotlight-card__media { display: block; background: var(--wp--preset--color--base-soft); }
 .spotlight-card__media img {
 	display: block;
 	width: 100%;
@@ -490,8 +543,8 @@ a:focus-visible {
 }
 .cat-chip:hover,
 .cat-chip:hover .cat-chip__name,
-.cat-chip:hover .cat-chip__count { color: #fff; }
-.cat-chip:hover::before { background: #fff; }
+.cat-chip:hover .cat-chip__count { color: var(--wp--preset--color--surface); }
+.cat-chip:hover::before { background: var(--wp--preset--color--surface); }
 
 /* ------------------------------------------------------------------ *
  * Pillars: three-way split value proposition (homepage)
@@ -502,7 +555,7 @@ a:focus-visible {
 .pillars {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 16px;
+	gap: var(--wp--preset--spacing--30);
 	align-items: stretch;
 }
 /* WordPress' flow layout adds margin-block-start to every child after the
@@ -513,7 +566,7 @@ a:focus-visible {
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: 2rem;
+	padding: var(--wp--preset--spacing--45);
 	border-radius: 18px;
 	border: 1px solid var(--wp--preset--color--border);
 	background: var(--wp--preset--color--surface);
@@ -588,7 +641,7 @@ a:focus-visible {
 	width: 2.25rem;
 	height: 2.25rem;
 	border-radius: 10px;
-	background: color-mix(in srgb, var(--badge-accent, var(--wp--preset--color--ink)) 12%, #fff);
+	background: color-mix(in srgb, var(--badge-accent, var(--wp--preset--color--ink)) 12%, var(--wp--preset--color--surface));
 	color: var(--badge-accent, var(--wp--preset--color--ink));
 }
 .trust-badge__text {
@@ -661,7 +714,7 @@ a:focus-visible {
 	place-content: center;
 	border: 1.5px solid var(--wp--preset--color--border);
 	border-radius: 0;
-	background: #fff;
+	background: var(--wp--preset--color--surface);
 	transition: background-color 0.12s ease, border-color 0.12s ease;
 }
 .ppom-wrapper input[type="checkbox"]::before,
@@ -671,7 +724,7 @@ a:focus-visible {
 	height: 0.68em;
 	transform: scale(0);
 	transition: transform 0.12s ease;
-	background-color: #fff;
+	background-color: var(--wp--preset--color--surface);
 	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 .ppom-wrapper input[type="checkbox"]:checked,
@@ -736,7 +789,7 @@ a:focus-visible {
 .wsaud {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 16px;
+	gap: var(--wp--preset--spacing--30);
 	align-items: stretch;
 }
 /* Same flow-margin reset as .pillars — keep the row top-aligned. */
@@ -745,7 +798,7 @@ a:focus-visible {
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: 2rem;
+	padding: var(--wp--preset--spacing--45);
 	border-radius: 18px;
 	border: 1px solid var(--wp--preset--color--border);
 	background: var(--wp--preset--color--surface);
@@ -849,7 +902,7 @@ a:focus-visible {
 	font-weight: 500;
 	letter-spacing: 1px;
 	text-transform: uppercase;
-	color: #b9bac2;
+	color: var(--wp--preset--color--mist);
 }
 .intake-field input,
 .intake-field select,
@@ -857,10 +910,10 @@ a:focus-visible {
 	box-sizing: border-box;
 	width: 100%;
 	padding: 0.7em 0.9em;
-	border: 1.5px solid #2a2b33;
+	border: 1.5px solid var(--wp--preset--color--ink-line);
 	border-radius: 8px;
-	background: #1b1c22;
-	color: #fff;
+	background: var(--wp--preset--color--surface-dark);
+	color: var(--wp--preset--color--surface);
 	font-family: inherit;
 	font-size: var(--wp--preset--font-size--small);
 	line-height: 1.5; /* shared line-height so <select> and inputs render the same height */
@@ -880,7 +933,7 @@ a:focus-visible {
 	background-size: 1em;
 }
 .intake-field input::placeholder,
-.intake-field textarea::placeholder { color: #6c6e79; }
+.intake-field textarea::placeholder { color: var(--wp--preset--color--mist-soft); }
 .intake-field input:focus,
 .intake-field select:focus,
 .intake-field textarea:focus {
@@ -893,7 +946,7 @@ a:focus-visible {
 	border: 0;
 	border-radius: 8px;
 	background: var(--wp--preset--color--magenta);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 	font-family: var(--wp--preset--font-family--display);
 	font-weight: 500;
 	font-size: var(--wp--preset--font-size--medium);
@@ -905,7 +958,7 @@ a:focus-visible {
 .intake-form__note {
 	margin: 0.9rem 0 0;
 	font-size: 0.8rem;
-	color: #8a8d99;
+	color: var(--wp--preset--color--muted);
 }
 @media (max-width: 600px) {
 	.intake-form__row { grid-template-columns: 1fr; gap: 0; }
@@ -922,7 +975,7 @@ a:focus-visible {
 .edu-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 16px;
+	gap: var(--wp--preset--spacing--30);
 	align-items: stretch;
 }
 /* WordPress' flow layout adds margin-block-start to children after the first;
@@ -1023,7 +1076,7 @@ a:focus-visible {
  * read as invisible. Force footer body links white; keep the brand magenta on
  * hover (which the theme link :hover already provides). */
 .site-footer p a {
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 	text-decoration: none;
 }
 .site-footer p a:hover {
@@ -1162,7 +1215,7 @@ a:focus-visible {
 	aspect-ratio: 1 / 1;
 	width: 100%;
 	object-fit: contain;
-	background: #fff;
+	background: var(--wp--preset--color--surface);
 	border-radius: 8px;
 }
 /* Reserve exactly two lines for the title so one-, two- or three-line
@@ -1212,12 +1265,12 @@ a:focus-visible {
 .shop-grid .wc-block-components-product-button__button.add_to_cart_button:not(.ajax_add_to_cart) {
 	background-color: var(--wp--preset--color--cyan);
 	border-color: var(--wp--preset--color--cyan);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 }
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button) {
 	background-color: var(--wp--preset--color--muted);
 	border-color: var(--wp--preset--color--muted);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 }
 
 /* Added-to-cart state — for any product already in the cart, WooCommerce
@@ -1248,7 +1301,7 @@ a:focus-visible {
 .shop-grid .added_to_cart.wc_forward:hover,
 .shop-grid .added_to_cart.wc_forward:focus-visible {
 	background: var(--wp--preset--color--cyan);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 }
 .shop-grid .added_to_cart.wc_forward:active {
 	transform: translateY(1px);
@@ -1275,7 +1328,7 @@ a:focus-visible {
 	padding: 0.4rem 0.75rem;
 	border-radius: 8px;
 	background-color: var(--wp--preset--color--cyan);
-	color: #fff;
+	color: var(--wp--preset--color--surface);
 	font-family: var(--wp--preset--font-family--display);
 	line-height: 1;
 	text-decoration: none;
@@ -1351,7 +1404,7 @@ a:focus-visible {
 .intake-field .field-hint {
 	margin-top: 0.35rem;
 	font-size: 0.75rem;
-	color: #8a8d99;
+	color: var(--wp--preset--color--muted);
 }
 .intake-field input[type="file"] {
 	padding: 0.55em 0.9em;
@@ -1362,8 +1415,8 @@ a:focus-visible {
 	padding: 0.4em 0.9em;
 	border: 0;
 	border-radius: 6px;
-	background: #2a2b33;
-	color: #fff;
+	background: var(--wp--preset--color--ink-line);
+	color: var(--wp--preset--color--surface);
 	font-family: var(--wp--preset--font-family--display);
 	font-size: 0.8rem;
 	cursor: pointer;

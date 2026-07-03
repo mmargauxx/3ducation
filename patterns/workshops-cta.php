@@ -17,8 +17,8 @@
 <h2 class="wp-block-heading has-surface-color has-text-color has-x-large-font-size">Leer 3D-printen op één dag</h2>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph {"style":{"color":{"text":"#b9bac2"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:#b9bac2">Kleine groepen, hands-on. Van Tinkercad-ontwerp tot je eerste eigen print: je gaat naar huis met wat je zelf maakte.</p>
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|mist"}},"fontSize":"large"} -->
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--mist)">Kleine groepen, hands-on. Van Tinkercad-ontwerp tot je eerste eigen print: je gaat naar huis met wat je zelf maakte.</p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
