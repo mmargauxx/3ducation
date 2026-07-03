@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.11.2' );
+	define( 'THREEDUCATION_VERSION', '0.11.3' );
 }
 
 /**
@@ -489,6 +489,12 @@ function threeducation_spotlight_products() {
 	}
 	$out = array();
 	foreach ( threeducation_spotlight_ids() as $id ) {
+		// Spotlights load products by ID (not a WP_Query), so the visibility
+		// window's pre_get_posts filter never runs — honour it here. Managers
+		// still see out-of-window products, matching the rest of the site.
+		if ( ! current_user_can( 'edit_products' ) && ! threeducation_product_in_window( $id ) ) {
+			continue;
+		}
 		$product = wc_get_product( $id );
 		if ( $product && 'publish' === $product->get_status() ) {
 			$out[] = $product;
@@ -612,3 +618,587 @@ function threeducation_spotlights_render_admin_page() {
 	</div>
 	<?php
 }
+
+/* ------------------------------------------------------------------ *
+ * Product trust badges (Settings → Vertrouwensbadges)
+ *
+ * The three reassurance badges shown next to the Add-to-Cart button (rendered
+ * by patterns/product-trust.php). Each slot's icon and brand accent are fixed
+ * by design; only the title + description are editable here. An empty field
+ * falls back to that slot's default text, so the strip always shows three badges.
+ * Stored in option `threeducation_trust_badges`.
+ * ------------------------------------------------------------------ */
+
+/**
+ * The three badge slots with their fixed icon + accent and default copy.
+ * The SVG markup is theme-controlled (not user input), so it is echoed as-is.
+ *
+ * @return array[]
+ */
+function threeducation_trust_badge_defaults() {
+	return array(
+		array(
+			'accent' => 'magenta',
+			'icon'   => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+			'title'  => __( 'Lokale support', '3ducation' ),
+			'text'   => __( 'Advies en herstelling vanuit Vlaanderen', '3ducation' ),
+		),
+		array(
+			'accent' => 'cyan',
+			'icon'   => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+			'title'  => __( 'Vooraf gemonteerd', '3ducation' ),
+			'text'   => __( 'Optioneel klaar-om-te-printen geleverd', '3ducation' ),
+		),
+		array(
+			'accent' => 'amber',
+			'icon'   => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a5 5 0 1 0-5-5"/><circle cx="12" cy="10" r="1"/><path d="M8.5 20.5 12 15l3.5 5.5L12 19Z"/></svg>',
+			'title'  => __( 'Officieel verkooppunt', '3ducation' ),
+			'text'   => __( '[Merk] partner, echte garantie', '3ducation' ),
+		),
+	);
+}
+
+/**
+ * Resolve the three badges: saved title/text where present, defaults otherwise.
+ *
+ * @return array[]
+ */
+function threeducation_trust_badges() {
+	$defaults = threeducation_trust_badge_defaults();
+	$saved    = get_option( 'threeducation_trust_badges', array() );
+	if ( ! is_array( $saved ) ) {
+		$saved = array();
+	}
+	$badges = array();
+	foreach ( $defaults as $i => $badge ) {
+		if ( isset( $saved[ $i ]['title'] ) && '' !== trim( (string) $saved[ $i ]['title'] ) ) {
+			$badge['title'] = trim( (string) $saved[ $i ]['title'] );
+		}
+		if ( isset( $saved[ $i ]['text'] ) && '' !== trim( (string) $saved[ $i ]['text'] ) ) {
+			$badge['text'] = trim( (string) $saved[ $i ]['text'] );
+		}
+		$badges[] = $badge;
+	}
+	return $badges;
+}
+
+/** Register the trust-badges option with the Settings API. */
+function threeducation_trust_badges_register_settings() {
+	register_setting(
+		'threeducation_trust_badges',
+		'threeducation_trust_badges',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'threeducation_trust_badges_sanitize',
+			'default'           => array(),
+		)
+	);
+}
+add_action( 'admin_init', 'threeducation_trust_badges_register_settings' );
+
+/** Sanitize the submitted badge titles/descriptions (three slots, plain text). */
+function threeducation_trust_badges_sanitize( $input ) {
+	$out = array();
+	for ( $i = 0; $i < 3; $i++ ) {
+		$out[ $i ] = array(
+			'title' => isset( $input[ $i ]['title'] ) ? sanitize_text_field( wp_unslash( $input[ $i ]['title'] ) ) : '',
+			'text'  => isset( $input[ $i ]['text'] ) ? sanitize_text_field( wp_unslash( $input[ $i ]['text'] ) ) : '',
+		);
+	}
+	return $out;
+}
+
+/** Add the settings screen under the Settings menu. */
+function threeducation_trust_badges_admin_menu() {
+	add_options_page(
+		__( 'Vertrouwensbadges', '3ducation' ),
+		__( 'Vertrouwensbadges', '3ducation' ),
+		'manage_options',
+		'threeducation-trust-badges',
+		'threeducation_trust_badges_render_admin_page'
+	);
+}
+add_action( 'admin_menu', 'threeducation_trust_badges_admin_menu' );
+
+/** Render the settings screen: title + description for each of the three badges. */
+function threeducation_trust_badges_render_admin_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$badges   = threeducation_trust_badges();
+	$swatches = array(
+		'magenta' => '#e6186c',
+		'cyan'    => '#0fb1bf',
+		'amber'   => '#f7941e',
+	);
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html__( 'Vertrouwensbadges', '3ducation' ); ?></h1>
+		<p><?php echo esc_html__( 'Bewerk de drie vertrouwensbadges die naast de “In winkelwagen”-knop op productpagina’s verschijnen. Het pictogram en de kleur per badge liggen vast; laat een veld leeg om de standaardtekst te gebruiken.', '3ducation' ); ?></p>
+
+		<form method="post" action="options.php">
+			<?php settings_fields( 'threeducation_trust_badges' ); ?>
+			<table class="form-table" role="presentation">
+				<?php
+				foreach ( $badges as $i => $badge ) :
+					$swatch = isset( $swatches[ $badge['accent'] ] ) ? $swatches[ $badge['accent'] ] : '#8c8f94';
+					?>
+					<tr>
+						<th scope="row">
+							<span style="display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:baseline;margin-right:6px;background:<?php echo esc_attr( $swatch ); ?>;"></span>
+							<?php printf( esc_html__( 'Badge %d', '3ducation' ), (int) $i + 1 ); ?>
+						</th>
+						<td>
+							<p style="margin:0 0 .5rem;">
+								<label for="tdt-<?php echo esc_attr( $i ); ?>-title" style="display:block;font-weight:600;"><?php echo esc_html__( 'Titel', '3ducation' ); ?></label>
+								<input type="text" id="tdt-<?php echo esc_attr( $i ); ?>-title" class="regular-text"
+									name="threeducation_trust_badges[<?php echo esc_attr( $i ); ?>][title]"
+									value="<?php echo esc_attr( $badge['title'] ); ?>">
+							</p>
+							<p style="margin:0;">
+								<label for="tdt-<?php echo esc_attr( $i ); ?>-text" style="display:block;font-weight:600;"><?php echo esc_html__( 'Omschrijving', '3ducation' ); ?></label>
+								<input type="text" id="tdt-<?php echo esc_attr( $i ); ?>-text" class="regular-text"
+									name="threeducation_trust_badges[<?php echo esc_attr( $i ); ?>][text]"
+									value="<?php echo esc_attr( $badge['text'] ); ?>">
+							</p>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+			<?php submit_button(); ?>
+		</form>
+	</div>
+	<?php
+}
+
+/**
+ * Pre-order integration — "Pre-Orders for WooCommerce" (XootiX).
+ *
+ * On the single product page the plugin echoes its "Available on {date}" line
+ * as bare text on woocommerce_before_add_to_cart_form. Wrap it in our branded
+ * .preorder-availability-notice panel (styled in custom.css) so it reads as a
+ * deliberate reassurance about dispatch rather than a stray sentence.
+ *
+ * Uses the plugin's own filter (note the plugin's spelling, "avaiable"). If the
+ * plugin is inactive the filter never fires — harmless. Enable the line itself
+ * under Pre-Orders → available-date position = single product.
+ */
+function threeducation_wrap_preorder_available_date( $text ) {
+	if ( '' === trim( wp_strip_all_tags( (string) $text ) ) ) {
+		return $text;
+	}
+	return '<p class="preorder-availability-notice">' . $text . '</p>';
+}
+add_filter( 'preorder_avaiable_date_text', 'threeducation_wrap_preorder_available_date' );
+
+/**
+ * Place the pre-order flag ON the product image (single product), matching the
+ * Aanbieding (sale) badge. By default the plugin prints it on
+ * woocommerce_before_single_product_summary — at the top of the product group,
+ * away from the image. We suppress that instance and inject an identical
+ * <span class="onsale on-preorder"> inside the product-image-gallery block,
+ * where WooCommerce's sale flash sits, so both flags share the same corner.
+ */
+function threeducation_is_single_preorder_product( $product ) {
+	if ( ! $product instanceof WC_Product ) {
+		return false;
+	}
+	$id = $product->get_id();
+	if ( 'yes' !== get_post_meta( $id, '_is_pre_order', true ) ) {
+		return false;
+	}
+	$date = get_post_meta( $id, '_pre_order_date', true );
+	return $date && strtotime( $date ) > time();
+}
+
+/**
+ * Suppress the plugin's single-product badge (the one printed at the top of the
+ * product summary); it is re-rendered inside the gallery instead. The loop/shop
+ * badge — same filter, different context — is left untouched.
+ */
+function threeducation_suppress_single_preorder_badge( $html ) {
+	if ( is_product() && doing_action( 'woocommerce_before_single_product_summary' ) ) {
+		return '';
+	}
+	return $html;
+}
+add_filter( 'woocommerce_preorder_badge', 'threeducation_suppress_single_preorder_badge', 20 );
+
+/**
+ * Inject the pre-order flag just inside the product-image-gallery wrapper so it
+ * overlays the image exactly like the sale badge.
+ */
+function threeducation_inject_preorder_badge_in_gallery( $content, $block ) {
+	if ( empty( $block['blockName'] ) || 'woocommerce/product-image-gallery' !== $block['blockName'] ) {
+		return $content;
+	}
+	global $product;
+	$p = ( $product instanceof WC_Product ) ? $product : wc_get_product( get_queried_object_id() );
+	if ( ! threeducation_is_single_preorder_product( $p ) ) {
+		return $content;
+	}
+	$badge = '<span class="onsale on-preorder">' . esc_html( get_option( 'wc_preorders_badge_text', 'Preorder' ) ) . '</span>';
+	return preg_replace(
+		'/(<div\b[^>]*\bwp-block-woocommerce-product-image-gallery\b[^>]*>)/',
+		'$1' . $badge,
+		$content,
+		1
+	);
+}
+add_filter( 'render_block', 'threeducation_inject_preorder_badge_in_gallery', 10, 2 );
+
+/* ------------------------------------------------------------------ *
+ * Product visibility window — show a product only between two dates
+ *
+ * Adds "Zichtbaar vanaf" / "Zichtbaar tot" date fields to each product
+ * (Product data → Algemeen). Outside that window the product is FULLY hidden:
+ * dropped from the shop grid, search and Store API (AJAX filter) results, its
+ * single page 404s, and it can't be added to the cart. Shop managers
+ * (edit_products capability) always see everything so they can preview/manage.
+ *
+ * Dates are inclusive and compared as site-local Y-m-d strings; an empty field
+ * means "no bound on that side". Empty values are deleted (never stored as ''),
+ * so the out-of-window query can rely on key existence + a non-empty value.
+ * ------------------------------------------------------------------ */
+
+/**
+ * Render the two date inputs in the General product-data tab.
+ */
+function threeducation_visibility_fields() {
+	echo '<div class="options_group">';
+	woocommerce_wp_text_input( array(
+		'id'          => '_visible_from',
+		'label'       => __( 'Zichtbaar vanaf', '3ducation' ),
+		'description' => __( 'Laat leeg voor geen startdatum. Vóór deze datum is het product volledig verborgen.', '3ducation' ),
+		'desc_tip'    => true,
+		'type'        => 'date',
+	) );
+	woocommerce_wp_text_input( array(
+		'id'          => '_visible_until',
+		'label'       => __( 'Zichtbaar tot', '3ducation' ),
+		'description' => __( 'Laat leeg voor geen einddatum. Ná deze datum is het product volledig verborgen.', '3ducation' ),
+		'desc_tip'    => true,
+		'type'        => 'date',
+	) );
+	echo '</div>';
+}
+add_action( 'woocommerce_product_options_general_product_data', 'threeducation_visibility_fields' );
+
+/**
+ * Persist the fields (CRUD hook). Keep only valid Y-m-d values; delete the meta
+ * when empty so an empty string is never mistaken for an ancient date.
+ */
+function threeducation_visibility_save( $product ) {
+	foreach ( array( '_visible_from', '_visible_until' ) as $key ) {
+		$val = isset( $_POST[ $key ] ) ? sanitize_text_field( wp_unslash( $_POST[ $key ] ) ) : '';
+		if ( $val && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $val ) ) {
+			$product->update_meta_data( $key, $val );
+		} else {
+			$product->delete_meta_data( $key );
+		}
+	}
+}
+add_action( 'woocommerce_admin_process_product_object', 'threeducation_visibility_save' );
+
+/**
+ * True when today falls inside a product's visibility window (or it has none).
+ */
+function threeducation_product_in_window( $product_id ) {
+	$from  = get_post_meta( $product_id, '_visible_from', true );
+	$until = get_post_meta( $product_id, '_visible_until', true );
+	if ( empty( $from ) && empty( $until ) ) {
+		return true;
+	}
+	$today = current_time( 'Y-m-d' );
+	if ( ! empty( $from ) && $today < $from ) {
+		return false;
+	}
+	if ( ! empty( $until ) && $today > $until ) {
+		return false;
+	}
+	return true;
+}
+
+/**
+ * IDs of products currently OUTSIDE their window. Direct SQL (no WP_Query, so it
+ * can't recurse through pre_get_posts); memoised per request and cached per day.
+ */
+function threeducation_hidden_product_ids() {
+	static $ids = null;
+	if ( null !== $ids ) {
+		return $ids;
+	}
+	$today = current_time( 'Y-m-d' );
+	$cache = get_transient( 'threeducation_hidden_products' );
+	if ( is_array( $cache ) && isset( $cache['day'] ) && $cache['day'] === $today ) {
+		$ids = $cache['ids'];
+		return $ids;
+	}
+	global $wpdb;
+	$rows = $wpdb->get_col( $wpdb->prepare(
+		"SELECT DISTINCT p.ID FROM {$wpdb->posts} p
+		 INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID
+		 WHERE p.post_type = 'product'
+		   AND ( ( m.meta_key = '_visible_from'  AND m.meta_value <> '' AND m.meta_value > %s )
+		      OR ( m.meta_key = '_visible_until' AND m.meta_value <> '' AND m.meta_value < %s ) )",
+		$today,
+		$today
+	) );
+	$ids = array_map( 'intval', $rows );
+	set_transient( 'threeducation_hidden_products', array( 'day' => $today, 'ids' => $ids ), DAY_IN_SECONDS );
+	return $ids;
+}
+
+/**
+ * Flush the cache whenever a product is saved so window edits take effect at once.
+ */
+function threeducation_clear_hidden_cache() {
+	delete_transient( 'threeducation_hidden_products' );
+}
+add_action( 'woocommerce_update_product', 'threeducation_clear_hidden_cache' );
+add_action( 'woocommerce_new_product', 'threeducation_clear_hidden_cache' );
+
+/**
+ * Exclude out-of-window products from front-end product queries — the shop grid,
+ * category/tag archives, search, and the Store API (its internal WP_Query fires
+ * pre_get_posts too). Managers are exempt so they can still browse/manage.
+ */
+function threeducation_filter_product_queries( $query ) {
+	if ( is_admin() && ! wp_doing_ajax() ) {
+		return;
+	}
+	if ( current_user_can( 'edit_products' ) ) {
+		return;
+	}
+	$pt         = $query->get( 'post_type' );
+	$is_product = ( 'product' === $pt )
+		|| ( is_array( $pt ) && in_array( 'product', $pt, true ) )
+		|| ( empty( $pt ) && ( $query->is_post_type_archive( 'product' ) || $query->is_tax( get_object_taxonomies( 'product' ) ) ) );
+	if ( ! $is_product ) {
+		return;
+	}
+	$hidden = threeducation_hidden_product_ids();
+	if ( empty( $hidden ) ) {
+		return;
+	}
+	$existing = (array) $query->get( 'post__not_in' );
+	$query->set( 'post__not_in', array_values( array_unique( array_merge( $existing, $hidden ) ) ) );
+}
+add_action( 'pre_get_posts', 'threeducation_filter_product_queries' );
+
+/**
+ * 404 the single product page when it is out of window (non-managers only).
+ */
+function threeducation_404_hidden_product() {
+	if ( ! is_product() || current_user_can( 'edit_products' ) ) {
+		return;
+	}
+	if ( ! threeducation_product_in_window( get_queried_object_id() ) ) {
+		global $wp_query;
+		$wp_query->set_404();
+		status_header( 404 );
+		nocache_headers();
+	}
+}
+add_action( 'template_redirect', 'threeducation_404_hidden_product' );
+
+/**
+ * Belt-and-braces: make an out-of-window product non-purchasable and reject a
+ * direct add-to-cart, in case one is reached outside the normal catalog path.
+ */
+function threeducation_purchasable_window( $purchasable, $product ) {
+	if ( current_user_can( 'edit_products' ) ) {
+		return $purchasable;
+	}
+	return $purchasable && threeducation_product_in_window( $product->get_id() );
+}
+add_filter( 'woocommerce_is_purchasable', 'threeducation_purchasable_window', 10, 2 );
+
+function threeducation_add_to_cart_window( $passed, $product_id ) {
+	if ( current_user_can( 'edit_products' ) ) {
+		return $passed;
+	}
+	if ( ! threeducation_product_in_window( $product_id ) ) {
+		wc_add_notice( __( 'Dit product is momenteel niet beschikbaar.', '3ducation' ), 'error' );
+		return false;
+	}
+	return $passed;
+}
+add_filter( 'woocommerce_add_to_cart_validation', 'threeducation_add_to_cart_window', 10, 2 );
+
+/**
+ * Keep hidden products out of the "related products" strip as well.
+ */
+function threeducation_filter_related_products( $related ) {
+	if ( current_user_can( 'edit_products' ) ) {
+		return $related;
+	}
+	return array_values( array_diff( (array) $related, threeducation_hidden_product_ids() ) );
+}
+add_filter( 'woocommerce_related_products', 'threeducation_filter_related_products', 10, 1 );
+
+/**
+ * Admin Products list: a "Zichtbaarheid" column that summarises each product's
+ * visibility window at a glance — an "Actief" / "Ingepland" / "Verlopen" badge
+ * plus the date range — so scheduled products are scannable without opening each.
+ */
+function threeducation_visibility_admin_column( $columns ) {
+	$new = array();
+	foreach ( $columns as $key => $label ) {
+		$new[ $key ] = $label;
+		if ( 'price' === $key ) {
+			$new['visibility_window'] = __( 'Zichtbaarheid', '3ducation' );
+		}
+	}
+	if ( ! isset( $new['visibility_window'] ) ) {
+		$new['visibility_window'] = __( 'Zichtbaarheid', '3ducation' );
+	}
+	return $new;
+}
+add_filter( 'manage_edit-product_columns', 'threeducation_visibility_admin_column' );
+
+function threeducation_visibility_admin_column_content( $column, $post_id ) {
+	if ( 'visibility_window' !== $column ) {
+		return;
+	}
+	$from  = get_post_meta( $post_id, '_visible_from', true );
+	$until = get_post_meta( $post_id, '_visible_until', true );
+
+	if ( empty( $from ) && empty( $until ) ) {
+		echo '<span aria-hidden="true">&mdash;</span><span class="screen-reader-text">' . esc_html__( 'Altijd zichtbaar', '3ducation' ) . '</span>';
+		return;
+	}
+
+	$fmt   = get_option( 'date_format' );
+	$today = current_time( 'Y-m-d' );
+
+	// Status badge — muted admin tints (wp-admin chrome, not front-end theme).
+	if ( ! empty( $from ) && $today < $from ) {
+		$label = __( 'Ingepland', '3ducation' );
+		$bg    = '#fcf0e0';
+		$fg    = '#8a5300';
+	} elseif ( ! empty( $until ) && $today > $until ) {
+		$label = __( 'Verlopen', '3ducation' );
+		$bg    = '#e9e9ec';
+		$fg    = '#646970';
+	} else {
+		$label = __( 'Actief', '3ducation' );
+		$bg    = '#e3f4ef';
+		$fg    = '#0a7a66';
+	}
+
+	if ( ! empty( $from ) && ! empty( $until ) ) {
+		$range = date_i18n( $fmt, strtotime( $from ) ) . ' &ndash; ' . date_i18n( $fmt, strtotime( $until ) );
+	} elseif ( ! empty( $from ) ) {
+		/* translators: %s: date */
+		$range = sprintf( __( 'vanaf %s', '3ducation' ), date_i18n( $fmt, strtotime( $from ) ) );
+	} else {
+		/* translators: %s: date */
+		$range = sprintf( __( 'tot %s', '3ducation' ), date_i18n( $fmt, strtotime( $until ) ) );
+	}
+
+	printf(
+		'<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;line-height:1.6;background:%1$s;color:%2$s;">%3$s</span><br><span style="color:#50575e;font-size:12px;">%4$s</span>',
+		esc_attr( $bg ),
+		esc_attr( $fg ),
+		esc_html( $label ),
+		wp_kses( $range, array() )
+	);
+}
+add_action( 'manage_product_posts_custom_column', 'threeducation_visibility_admin_column_content', 10, 2 );
+
+/**
+ * Give the column an explicit width. WP admin list tables are table-layout:fixed,
+ * so without a width the "Zichtbaarheid" header collapses and wraps one letter
+ * per line on column-heavy screens. Scoped to the Products list.
+ */
+function threeducation_visibility_admin_column_css() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'edit-product' !== $screen->id ) {
+		return;
+	}
+	echo '<style>
+		.wp-list-table th.column-visibility_window { width: 11em; white-space: nowrap; }
+		.wp-list-table td.column-visibility_window { width: 11em; }
+	</style>' . "\n";
+}
+add_action( 'admin_head', 'threeducation_visibility_admin_column_css' );
+
+/**
+ * Resolve a product's visibility-window status for admin display.
+ * Returns null when the product has no window (always visible), else an array
+ * of { key: active|scheduled|expired, label, range }.
+ */
+function threeducation_visibility_status( $product_id ) {
+	$from  = get_post_meta( $product_id, '_visible_from', true );
+	$until = get_post_meta( $product_id, '_visible_until', true );
+	if ( empty( $from ) && empty( $until ) ) {
+		return null;
+	}
+	$fmt   = get_option( 'date_format' );
+	$today = current_time( 'Y-m-d' );
+
+	if ( ! empty( $from ) && $today < $from ) {
+		$key = 'scheduled';
+		$label = __( 'Ingepland', '3ducation' );
+	} elseif ( ! empty( $until ) && $today > $until ) {
+		$key = 'expired';
+		$label = __( 'Verlopen', '3ducation' );
+	} else {
+		$key = 'active';
+		$label = __( 'Actief', '3ducation' );
+	}
+
+	if ( ! empty( $from ) && ! empty( $until ) ) {
+		$range = date_i18n( $fmt, strtotime( $from ) ) . ' &ndash; ' . date_i18n( $fmt, strtotime( $until ) );
+	} elseif ( ! empty( $from ) ) {
+		/* translators: %s: date */
+		$range = sprintf( __( 'vanaf %s', '3ducation' ), date_i18n( $fmt, strtotime( $from ) ) );
+	} else {
+		/* translators: %s: date */
+		$range = sprintf( __( 'tot %s', '3ducation' ), date_i18n( $fmt, strtotime( $until ) ) );
+	}
+
+	return array( 'key' => $key, 'label' => $label, 'range' => $range );
+}
+
+/**
+ * Show the visibility-window status inside the Publiceren (submit) box on the
+ * product edit screen — right next to WordPress' own Status/Zichtbaarheid lines
+ * — so it's obvious when a product is currently hidden from visitors. (Core's
+ * Status/Zichtbaarheid stay Gepubliceerd/Openbaar: this window is a runtime
+ * overlay, not a post-status change.)
+ */
+function threeducation_visibility_submitbox() {
+	global $post;
+	if ( ! $post || 'product' !== $post->post_type ) {
+		return;
+	}
+	$status = threeducation_visibility_status( $post->ID );
+
+	echo '<div class="misc-pub-section" style="border-top:1px solid #dcdcde;">';
+	echo '<span class="dashicons dashicons-visibility" style="color:#8c8f94;vertical-align:middle;"></span> ';
+
+	if ( null === $status ) {
+		echo esc_html__( 'Zichtbaarheidsvenster: altijd zichtbaar', '3ducation' );
+	} else {
+		$colors = array(
+			'active'    => '#0a7a66',
+			'scheduled' => '#8a5300',
+			'expired'   => '#b32d2e',
+		);
+		printf(
+			'%1$s: <strong style="color:%2$s">%3$s</strong><br><span style="margin-left:24px;color:#50575e;">%4$s</span>',
+			esc_html__( 'Zichtbaarheidsvenster', '3ducation' ),
+			esc_attr( $colors[ $status['key'] ] ),
+			esc_html( $status['label'] ),
+			wp_kses( $status['range'], array() )
+		);
+		if ( 'active' !== $status['key'] ) {
+			echo '<br><span style="margin-left:24px;color:#b32d2e;font-style:italic;">'
+				. esc_html__( 'Nu verborgen voor bezoekers.', '3ducation' ) . '</span>';
+		}
+	}
+	echo '</div>';
+}
+add_action( 'post_submitbox_misc_actions', 'threeducation_visibility_submitbox' );

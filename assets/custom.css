@@ -661,6 +661,77 @@ a:focus-visible {
 .trust-badge--amber   { --badge-accent: var(--wp--preset--color--amber); }
 
 /* ------------------------------------------------------------------ *
+ * Pre-order states — "Pre-Orders for WooCommerce" (XootiX) plugin
+ *
+ * Styles verified against the plugin's ACTUAL frontend output (its own class
+ * names — not invented ones):
+ *   .onsale.on-preorder   — the pre-order flag. The plugin REUSES WooCommerce's
+ *                           .onsale class, which this theme already paints amber
+ *                           for sales, so without the override below a pre-order
+ *                           product looks discounted. Repaint it magenta.
+ *   .preorder-availability-notice — OUR wrapper around the single-product
+ *                           "Available on {date}" line. The plugin echoes that
+ *                           text bare on woocommerce_before_add_to_cart_form; a
+ *                           small filter in functions.php wraps it in this class
+ *                           (enable it under Pre-Orders → available-date position
+ *                           = single product for it to render at all).
+ *   .preoder-span-block    — the plugin's shop-loop available-date text
+ *                           (sic: the plugin misspells "preoder" — matched as-is).
+ *   .preorder-cart-notice  — the per-item cart notice; see the cart section for
+ *                           its block-cart caveat.
+ * ------------------------------------------------------------------ */
+
+/* Repaint the pre-order flag magenta so it reads as an action, not a discount.
+ * The .onsale co-selector + !important are needed to beat the amber sale-badge
+ * rule (which itself uses !important). White-on-magenta clears AA. Positioning,
+ * size and shape are inherited from .onsale, so on the single product page (where
+ * functions.php injects it into the image gallery) it overlays the same corner
+ * as the Aanbieding badge with an identical layout. */
+.onsale.on-preorder {
+	background-color: var(--wp--preset--color--magenta) !important;
+	color: var(--wp--preset--color--surface) !important;
+	text-transform: uppercase;
+}
+/* Both flags at once (a discounted pre-order): the pre-order span is injected
+ * before the sale span, so stack it just below the amber badge instead of
+ * overlapping in the shared top-left corner. */
+.wp-block-woocommerce-product-image-gallery .onsale.on-preorder:has(~ .onsale:not(.on-preorder)) {
+	top: 2.2em;
+}
+
+/* Single-product availability panel (wrapped via functions.php): a soft
+ * magenta-tinted card under the price announcing the dispatch date. Reuses the
+ * trust-strip tint recipe + a magenta accent bar so it joins the buy-area family. */
+.preorder-availability-notice {
+	display: block;
+	margin-block: var(--wp--preset--spacing--30);
+	padding: var(--wp--preset--spacing--20);
+	border: 1px solid var(--wp--preset--color--border);
+	border-left: 4px solid var(--wp--preset--color--magenta);
+	border-radius: 10px;
+	background: color-mix(in srgb, var(--wp--preset--color--magenta) 8%, var(--wp--preset--color--surface));
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.45;
+	color: var(--wp--preset--color--ink-soft);
+}
+/* The date itself (or any lead-in the plugin bolds) reads in brand ink. */
+.preorder-availability-notice strong,
+.preorder-availability-notice time {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+
+/* Shop-loop available-date line (plugin class, sic "preoder"): a quiet muted
+ * caption under the loop price so it doesn't fight the product title. */
+.preoder-span-block {
+	display: block;
+	margin-top: 0.25rem;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--muted);
+}
+
+/* ------------------------------------------------------------------ *
  * Product options (PPOM) — boxed like the site's info-panels
  *
  * For products with options, PPOM renders its fields inside the add-to-cart
@@ -1218,6 +1289,22 @@ a:focus-visible {
 	background: var(--wp--preset--color--surface);
 	border-radius: 8px;
 }
+/* Pre-order loop badge: the plugin outputs it as an absolutely-positioned
+ * .onsale span, but the block product card is not a positioning context, so it
+ * escapes to the page corner. Make the card the anchor and sit the badge over
+ * the image's top-RIGHT corner, mirroring the amber AANBIEDING sale badge. */
+.shop-grid .wc-block-product { position: relative; }
+.shop-grid .onsale.on-preorder {
+	position: absolute;
+	inset: 8px 8px auto auto;
+	margin: 0;
+	z-index: 3;
+}
+/* Both at once (a discounted pre-order): the amber sale badge owns the top-right
+ * corner, so drop the pre-order flag just below it instead of overlapping. */
+.shop-grid .wc-block-product:has(.wc-block-components-product-sale-badge) .onsale.on-preorder {
+	top: 2.6em;
+}
 /* Reserve exactly two lines for the title so one-, two- or three-line
  * product names all occupy the same height — long titles are clamped
  * instead of stretching the card. */
@@ -1512,4 +1599,67 @@ a:focus-visible {
 }
 @media (max-width: 460px) {
 	.about-gallery { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------------ *
+ * Cart & checkout — long item meta + pre-order dispatch notice
+ *
+ * IMPORTANT (verified): the Pre-Orders plugin prints its per-item cart notice
+ * (.preorder-cart-notice) via the CLASSIC hook woocommerce_after_cart_item_name,
+ * which does NOT fire in this theme's block-based cart (wp:woocommerce/cart) —
+ * so the delivery-date line will NOT show in the block cart out of the box. It
+ * DOES appear in the classic shortcode cart and the legacy widget mini-cart.
+ * To surface it in the block cart you must integrate via the Store API
+ * (woocommerce_store_api_product_query / a checkout block integration) — out of
+ * scope for a pure theme. The rule below brands the notice wherever it renders.
+ *
+ * Separately, the wrapping rules keep any long line-item meta (PPOM options,
+ * variations, a dispatch date) from overflowing the product column and shoving
+ * the price/quantity out of line — useful regardless of the pre-order plugin. */
+
+/* Brand the plugin's cart notice, overriding its inline style="color:red" with
+ * a calmer brand magenta (needs !important to beat the inline style). */
+.preorder-cart-notice {
+	display: inline-block;
+	margin-top: 0.3rem;
+	color: var(--wp--preset--color--magenta) !important;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.4;
+}
+
+/* Block cart/checkout: allow the product name + metadata to wrap instead of
+ * forcing the column wider. */
+.wc-block-cart-item__product,
+.wc-block-components-product-metadata,
+.wc-block-components-product-details {
+	min-width: 0;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+/* Each injected meta line (e.g. "Verwachte levering: 15 sept. 2026") reads as
+ * a soft secondary detail under the title, with comfortable line spacing. */
+.wc-block-components-product-details__item {
+	margin-block: 0.2rem;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.4;
+	color: var(--wp--preset--color--ink-soft);
+}
+.wc-block-components-product-details__name {
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+
+/* Classic .woocommerce-cart table fallback: same graceful wrapping so a long
+ * pre-order date never widens the row or clips. */
+.woocommerce-cart table.cart td.product-name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+.woocommerce-cart table.cart td.product-name .variation,
+.woocommerce-cart table.cart td.product-name dl.variation {
+	margin-block: 0.3rem 0;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.4;
+	color: var(--wp--preset--color--ink-soft);
 }

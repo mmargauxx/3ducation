@@ -17,6 +17,8 @@
 <!-- wp:column {"width":"48%"} -->
 <div class="wp-block-column" style="flex-basis:48%"><!-- wp:post-title {"level":1,"fontSize":"x-large"} /-->
 
+<!-- PRE-ORDER: plugin renders the pre-order flag (.preorder-badge) near the title/price for pre-orderable products. -->
+
 <!-- wp:woocommerce/product-price {"fontSize":"large"} /-->
 
 <!-- wp:woocommerce/product-rating /-->
@@ -27,9 +29,13 @@
 
 <!-- wp:post-excerpt {"showMoreOnNewLine":false} /-->
 
+<!-- PRE-ORDER: plugin injects the availability notice (.preorder-availability-notice) with the expected dispatch/delivery date here, above the buy button. -->
+
 <!-- wp:woocommerce/add-to-cart-form /-->
 
 <!-- wp:pattern {"slug":"3ducation/product-trust"} /-->
+
+<!-- PRE-ORDER: product-meta is where the plugin may surface pre-order status alongside SKU/categories; styled via .preorder-availability-notice / product-details meta. -->
 
 <!-- wp:woocommerce/product-meta /--></div>
 <!-- /wp:column --></div>
