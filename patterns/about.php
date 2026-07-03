@@ -148,8 +148,8 @@
 <h2 class="wp-block-heading has-surface-color has-text-color has-x-large-font-size">Klaar om de stap te zetten?</h2>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph {"style":{"color":{"text":"#b9bac2"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:#b9bac2">Kies hieronder wat het beste bij jouw situatie past en ontdek wat 3DUCATION voor jou kan betekenen.</p>
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|mist"}},"fontSize":"large"} -->
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--mist)">Kies hieronder wat het beste bij jouw situatie past en ontdek wat 3DUCATION voor jou kan betekenen.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|30"} -->
