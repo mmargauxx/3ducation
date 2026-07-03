@@ -23,9 +23,21 @@
 <!-- /wp:query-pagination -->
 
 <!-- wp:query-no-results -->
-<!-- wp:paragraph -->
-<p>No results found. Try a different search.</p>
-<!-- /wp:paragraph -->
+<!-- wp:pattern {"slug":"3ducation/empty-state"} /-->
+
+<!-- wp:spacer {"height":"var:preset|spacing|40"} -->
+<div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"},"style":{"spacing":{"blockGap":"var:preset|spacing|30"}}} -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/shop">Naar de webshop</a></div>
+<!-- /wp:button -->
+
+<!-- wp:button {"className":"is-style-outline"} -->
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="/">Naar de homepage</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
 <!-- /wp:query-no-results --></div>
 <!-- /wp:query --></main>
 <!-- /wp:group -->
