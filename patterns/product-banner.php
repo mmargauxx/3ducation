@@ -3,13 +3,25 @@
  * Title: Product spotlight (drie producten)
  * Slug: 3ducation/product-banner
  * Categories: 3ducation, banner, woocommerce
- * Description: A three-up spotlight of hand-picked products at the top of the shop. Choose the products in wp-admin under Instellingen -> Uitgelichte producten; falls back to the three newest products.
+ * Description: A three-up spotlight of hand-picked products at the top of the shop. On a category archive it shows that category's own spotlights (Producten -> Categorieen), otherwise the global picks (Instellingen -> Uitgelichte producten); falls back to the three newest products.
  */
 
 if ( ! function_exists( 'wc_get_product' ) ) {
 	return;
 }
+// Op een categorie-archief tonen we de spotlights van díe categorie (met
+// terugval op de globale selectie); overal elders de globale selectie.
 $spotlights = threeducation_spotlight_products();
+// De sectie-eyebrow: op een categorie-archief prefixen we de categorienaam
+// ("Filamenten Uitgelicht"), overal elders gewoon "Uitgelicht".
+$eyebrow_label = esc_html__( 'Uitgelicht', '3ducation' );
+if ( function_exists( 'is_product_category' ) && is_product_category() ) {
+	$queried = get_queried_object();
+	if ( $queried instanceof WP_Term ) {
+		$spotlights    = threeducation_get_category_spotlight_products( $queried->term_id );
+		$eyebrow_label = esc_html( $queried->name ) . ' ' . esc_html__( 'Uitgelicht', '3ducation' );
+	}
+}
 if ( empty( $spotlights ) ) {
 	return;
 }
@@ -17,7 +29,7 @@ $accents = array( 'magenta', 'cyan', 'amber' );
 ?>
 <!-- wp:group {"align":"wide","className":"spotlights-wrap","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"blockGap":"var:preset|spacing|30"}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
 <div class="wp-block-group alignwide spotlights-wrap" style="padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Uitgelicht</p>
+<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size"><?php echo $eyebrow_label; // reeds ge-escaped ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->

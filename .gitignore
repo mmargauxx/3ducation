@@ -12,6 +12,10 @@ node_modules/
 # Build / temp
 *.zip
 
+# Local audit / review artifacts (not theme source)
+*.pdf
+placeholder-review.pdf
+
 # Skill / agent tooling artifacts (not theme source)
 .agents/
 .claude/
