@@ -487,7 +487,23 @@ a:focus-visible {
 	color: var(--spot-accent);
 }
 @media (max-width: 781px) {
-	.spotlights { grid-template-columns: 1fr; }
+	/* Op mobiel niet drie volle kaarten onder elkaar (dat duwt het
+	 * productraster ver onder de vouw): toon ze als een horizontale swipe-rij
+	 * met scroll-snap, zodat één kaart mooi vult en de volgende zichtbaar
+	 * "gluurt" — de bezoeker ziet zo sneller producten en de sorteerbalk. */
+	.spotlights {
+		grid-template-columns: none;
+		display: flex;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	.spotlights::-webkit-scrollbar { display: none; }
+	.spotlights .spotlight-card {
+		flex: 0 0 80%;
+		scroll-snap-align: start;
+	}
 }
 
 /* --- Category chips (shop) ---
@@ -566,6 +582,25 @@ a:focus-visible {
 .cat-chip[aria-current="page"] .cat-chip__count { color: var(--wp--preset--color--surface); }
 .cat-chip.is-active::before,
 .cat-chip[aria-current="page"]::before { background: var(--wp--preset--color--surface); }
+
+/* On phones, shrink the chips so at least two fit on every line. Desktop keeps
+ * the larger, roomier chips above. A tight column-gap keeps two per line, while
+ * a roomier row-gap gives vertical breathing room between the wrapped lines. */
+@media (max-width: 781px) {
+	.cat-chips,
+	.category-chips-container {
+		column-gap: var(--wp--preset--spacing--20);
+		row-gap: var(--wp--preset--spacing--30);
+	}
+	/* Taller chips (more vertical padding); width is unchanged so two still fit. */
+	.cat-chip {
+		gap: 0.45rem;
+		padding: 0.65rem 0.85rem;
+		font-size: 0.9rem;
+	}
+	.cat-chip::before { width: 9px; height: 9px; }
+	.cat-chip__count { font-size: 0.8rem; }
+}
 
 /* ------------------------------------------------------------------ *
  * Pillars: three-way split value proposition (homepage)
@@ -1153,6 +1188,29 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
+ * Header — compact mobile navbar
+ *
+ * The full "3DUCATION" wordmark logo is wide; on phones it crowds the row and
+ * squeezes the Webshop button until its text breaks one letter per line. On
+ * mobile we swap the wordmark for the compact cube mark (freeing space) and
+ * keep the button text on a single line. The cube lives in the theme assets and
+ * is referenced relative to this file (assets/images/logo-cube.png).
+ * ------------------------------------------------------------------ */
+@media (max-width: 781px) {
+	.site-header .wp-block-site-logo { width: auto; margin: 0; }
+	/* Hide the wide wordmark image, draw the square cube mark on its home link. */
+	.site-header .custom-logo { display: none; }
+	.site-header .custom-logo-link {
+		display: block;
+		width: 38px;
+		height: 46px; /* 4:5, matches the 160×200 cube mark */
+		background: url("images/logo-cube.png") left center / contain no-repeat;
+	}
+	/* Never let the Webshop button wrap or stack characters vertically. */
+	.site-header .wp-block-button__link { white-space: nowrap; }
+}
+
+/* ------------------------------------------------------------------ *
  * Footer flush with preceding section
  * ------------------------------------------------------------------ */
 /* The site footer is ink-dark, like the homepage workshops CTA that
@@ -1307,6 +1365,15 @@ a:focus-visible {
 	flex-direction: column;
 	height: 100%;
 }
+/* Two per row on mobile. WooCommerce's flex template ships 1 column below
+ * 600px (each li 100%) and jumps straight to 4 above it; force 2-up across the
+ * whole ≤781px range so phones show a pair and small tablets don't cram four.
+ * (calc mirrors WC's own .columns-2 formula for the 1.25em flex gap.) */
+@media (max-width: 781px) {
+	.shop-grid .wc-block-product-template.is-flex-container > li {
+		width: calc(50% - 0.625em);
+	}
+}
 /* Fixed square media box gives every card the same image height;
  * contain keeps the whole product visible on its white background. */
 .shop-grid .wc-block-components-product-image {
@@ -1335,6 +1402,14 @@ a:focus-visible {
 .shop-grid .wc-block-product:has(.wc-block-components-product-sale-badge) .onsale.on-preorder {
 	top: 2.6em;
 }
+/* Price reads as a soft-grey secondary detail so the product title and the
+ * add-to-cart button lead the card. Shop grid only — the single-product page,
+ * cart and related products keep the price in strong display ink (theme.json). */
+.shop-grid .wp-block-woocommerce-product-price,
+.shop-grid .wp-block-woocommerce-product-price .wc-block-components-product-price__value {
+	color: var(--wp--preset--color--ink-soft);
+}
+
 /* Reserve exactly two lines for the title so one-, two- or three-line
  * product names all occupy the same height — long titles are clamped
  * instead of stretching the card. */
@@ -1507,6 +1582,68 @@ a:focus-visible {
 /* The .wsaud-list inside a panel needs no top border on its first row. */
 .info-panel .wsaud-list { margin: 0; }
 
+/* ------------------------------------------------------------------ *
+ * Shop help panel — customer-service aside beside the archive H1
+ *
+ * The panel floats to the RIGHT of the title + search bar, so those stack
+ * together on the left with no gap between the H1 and the search bar (instead of
+ * the search being pushed below a tall side column). The intro wrapper contains
+ * the float; the header and search boxes establish their own formatting context
+ * so they sit beside the panel rather than running underneath it. Amber-tinted
+ * card + accent bar; the CTA is a secondary outline button so it never competes
+ * with the primary, solid-magenta Add-to-Cart action.
+ * ------------------------------------------------------------------ */
+.shop-intro { display: flow-root; }
+.shop-intro .shop-header,
+.shop-intro .shop-search-row { display: flow-root; }
+.shop-intro .shop-search-row { margin-top: var(--wp--preset--spacing--40); }
+.shop-help {
+	float: right;
+	width: 38%;
+	margin: 0 0 var(--wp--preset--spacing--40) var(--wp--preset--spacing--50);
+	border-left: 4px solid var(--wp--preset--color--amber);
+	background: color-mix(in srgb, var(--wp--preset--color--amber) 8%, var(--wp--preset--color--surface));
+}
+.shop-help__title {
+	margin: 0 0 0.5rem;
+	font-size: 1.05rem;
+	line-height: 1.25;
+	color: var(--wp--preset--color--ink);
+}
+.shop-help__text {
+	margin: 0 0 1.1rem;
+	color: var(--wp--preset--color--ink-soft);
+	line-height: 1.5;
+}
+/* Secondary CTA: amber outline that fills on hover — never a solid primary.
+ * Label stays in ink (amber-on-light text would fail contrast). */
+.shop-help .wp-block-button__link {
+	background: transparent;
+	border: 1.5px solid var(--wp--preset--color--amber);
+	color: var(--wp--preset--color--ink);
+}
+.shop-help .wp-block-button__link:hover,
+.shop-help .wp-block-button__link:focus-visible {
+	background: var(--wp--preset--color--amber);
+	border-color: var(--wp--preset--color--amber);
+	color: var(--wp--preset--color--ink);
+}
+/* Phones/tablets: single column, panel last (below title + search). */
+@media (max-width: 781px) {
+	.shop-intro {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wp--preset--spacing--40);
+	}
+	.shop-intro .shop-search-row { margin-top: 0; }
+	.shop-help {
+		float: none;
+		order: 1;
+		width: auto;
+		margin: 0;
+	}
+}
+
 /* Big display price used on the workshop / party offers. */
 .price-tag {
 	margin: 0.25rem 0 1.25rem;
@@ -1596,6 +1733,14 @@ a:focus-visible {
 .shop-sorting select:focus {
 	outline: none;
 	border-color: var(--wp--preset--color--cyan);
+}
+/* On mobile the sort control spans the full row (same width as the product
+ * grid below), instead of hugging its content on the right. */
+@media (max-width: 781px) {
+	.shop-toolbar .shop-sorting { flex: 1 1 100%; }
+	.shop-toolbar .shop-sorting .woocommerce-ordering { width: 100%; }
+	.shop-toolbar .shop-sorting select,
+	.shop-toolbar select { width: 100%; }
 }
 
 /* ------------------------------------------------------------------ *

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.11.5' );
+	define( 'THREEDUCATION_VERSION', '0.11.16' );
 }
 
 /**
@@ -496,17 +496,22 @@ function threeducation_spotlight_ids() {
 }
 
 /**
- * Resolve the selected spotlight products. Falls back to the three newest
- * published products so the strip is never empty out of the box.
+ * Resolve a list of spotlight product IDs into published, in-window products.
+ * Shared by the global and the per-category spotlight resolvers.
  *
+ * @param int[] $ids Ordered product IDs (max three are used).
  * @return WC_Product[]
  */
-function threeducation_spotlight_products() {
+function threeducation_resolve_spotlight_products( array $ids ) {
 	if ( ! function_exists( 'wc_get_product' ) ) {
 		return array();
 	}
 	$out = array();
-	foreach ( threeducation_spotlight_ids() as $id ) {
+	foreach ( $ids as $id ) {
+		$id = absint( $id );
+		if ( ! $id ) {
+			continue;
+		}
 		// Spotlights load products by ID (not a WP_Query), so the visibility
 		// window's pre_get_posts filter never runs — honour it here. Managers
 		// still see out-of-window products, matching the rest of the site.
@@ -518,6 +523,17 @@ function threeducation_spotlight_products() {
 			$out[] = $product;
 		}
 	}
+	return array_slice( $out, 0, 3 );
+}
+
+/**
+ * Resolve the globally selected spotlight products. Falls back to the three
+ * newest published products so the strip is never empty out of the box.
+ *
+ * @return WC_Product[]
+ */
+function threeducation_spotlight_products() {
+	$out = threeducation_resolve_spotlight_products( threeducation_spotlight_ids() );
 	if ( empty( $out ) && function_exists( 'wc_get_products' ) ) {
 		$fallback = wc_get_products(
 			array(
@@ -636,6 +652,188 @@ function threeducation_spotlights_render_admin_page() {
 	</div>
 	<?php
 }
+
+/* ------------------------------------------------------------------ *
+ * Uitgelichte producten per categorie (product_cat term meta)
+ *
+ * Elke productcategorie kan drie eigen uitgelichte producten kiezen op het
+ * bewerkscherm van de categorie (Producten → Categorieën). Zo tonen we op een
+ * categorie-archief de meest relevante toppers voor díe categorie — handig om
+ * bijvoorbeeld het ideale starterspakket voor scholen of een topfilament voor
+ * thuis vooraan te zetten. Zijn er geen producten gekozen, dan valt de webshop
+ * in cascade terug: eerst op de producten die met WooCommerce's ⭐-ster als
+ * "Uitgelicht" zijn gemarkeerd én in deze categorie zitten, dan op de globale
+ * selectie (Instellingen → Uitgelichte producten), en ten slotte op de nieuwste
+ * producten — zo staat de spotlight-strip nooit leeg. De handmatige keuze wordt
+ * opgeslagen in term meta `threeducation_spotlights`.
+ * ------------------------------------------------------------------ */
+
+/** De per-categorie gekozen product-ID's (max drie, alleen geldige ints). */
+function threeducation_category_spotlight_ids( $term_id ) {
+	$ids = get_term_meta( (int) $term_id, 'threeducation_spotlights', true );
+	$ids = array_values( array_filter( array_map( 'absint', (array) $ids ) ) );
+	return array_slice( $ids, 0, 3 );
+}
+
+/**
+ * De product-ID's die met WooCommerce's ⭐-ster als "Uitgelicht" zijn gemarkeerd
+ * én in de gegeven categorie vallen. Max drie, op sorteervolgorde (menu_order)
+ * zodat de beheerder de volgorde kan sturen. Leeg als WooCommerce ontbreekt of
+ * de categorie geen sterproducten heeft.
+ *
+ * @param int $term_id Term-ID van de productcategorie.
+ * @return int[]
+ */
+function threeducation_category_featured_ids( $term_id ) {
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return array();
+	}
+	$term = get_term( (int) $term_id, 'product_cat' );
+	if ( ! $term || is_wp_error( $term ) ) {
+		return array();
+	}
+	$ids = wc_get_products(
+		array(
+			'status'     => 'publish',
+			'visibility' => 'visible',
+			'featured'   => true,
+			'category'   => array( $term->slug ),
+			'limit'      => 3,
+			'orderby'    => 'menu_order',
+			'order'      => 'ASC',
+			'return'     => 'ids',
+		)
+	);
+	return is_array( $ids ) ? array_map( 'absint', $ids ) : array();
+}
+
+/**
+ * Bepaal de uitgelichte producten voor één categorie, in cascade:
+ *   1. de eigen keuze van de categorie (term meta) — precieze, geordende controle;
+ *   2. anders de "Uitgelicht"-sterproducten (⭐) uit deze categorie — zo kan een
+ *      beheerder de vertrouwde sterknop gebruiken zonder de custom velden te openen;
+ *   3. anders de globale spotlight-selectie (die zelf terugvalt op de nieuwste
+ *      producten).
+ * Elke stap wordt door dezelfde resolver gehaald, dus zichtbaarheidsvensters en
+ * publicatiestatus blijven overal gerespecteerd.
+ *
+ * @param int $term_id Term-ID van de productcategorie.
+ * @return WC_Product[]
+ */
+function threeducation_get_category_spotlight_products( $term_id ) {
+	// 1. Handmatig gekozen producten voor deze categorie.
+	$out = threeducation_resolve_spotlight_products( threeducation_category_spotlight_ids( $term_id ) );
+	if ( ! empty( $out ) ) {
+		return $out;
+	}
+
+	// 2. WooCommerce "Uitgelicht" (ster) ∩ deze categorie.
+	$out = threeducation_resolve_spotlight_products( threeducation_category_featured_ids( $term_id ) );
+	if ( ! empty( $out ) ) {
+		return $out;
+	}
+
+	// 3. Globale selectie (met eigen terugval op de nieuwste producten).
+	return threeducation_spotlight_products();
+}
+
+/** Laad WooCommerce's zoekbare product-<select> op het categorie-bewerkscherm. */
+function threeducation_cat_spotlights_admin_assets( $hook ) {
+	if ( ! in_array( $hook, array( 'term.php', 'edit-tags.php' ), true ) ) {
+		return;
+	}
+	$taxonomy = isset( $_REQUEST['taxonomy'] ) ? sanitize_key( wp_unslash( $_REQUEST['taxonomy'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen check, no data mutated.
+	if ( 'product_cat' !== $taxonomy || ! function_exists( 'WC' ) ) {
+		return;
+	}
+	wp_enqueue_script( 'wc-enhanced-select' );
+	wp_enqueue_style( 'woocommerce_admin_styles' );
+	wp_enqueue_style( 'select2' );
+}
+add_action( 'admin_enqueue_scripts', 'threeducation_cat_spotlights_admin_assets' );
+
+/** Render drie zoekbare product-selects, voorgevuld met de huidige keuze. */
+function threeducation_cat_spotlights_selects( $ids ) {
+	$ids    = array_pad( array_slice( array_map( 'absint', (array) $ids ), 0, 3 ), 3, 0 );
+	$has_wc = function_exists( 'wc_get_product' );
+	for ( $i = 0; $i < 3; $i++ ) {
+		$id    = (int) $ids[ $i ];
+		$label = '';
+		if ( $id && $has_wc ) {
+			$product = wc_get_product( $id );
+			if ( $product ) {
+				$label = wp_strip_all_tags( $product->get_formatted_name() );
+			}
+		}
+		echo '<p style="margin:0 0 8px;">';
+		printf(
+			'<select id="tds-cat-%1$d" class="wc-product-search" style="width:400px;max-width:100%%;" name="threeducation_cat_spotlights[%1$d]" data-placeholder="%2$s" data-action="woocommerce_json_search_products_and_variations" data-allow_clear="true">',
+			(int) $i,
+			esc_attr__( 'Zoek een product…', '3ducation' )
+		);
+		if ( $id && '' !== $label ) {
+			printf( '<option value="%d" selected="selected">%s</option>', $id, esc_html( $label ) );
+		}
+		echo '</select></p>';
+	}
+}
+
+/** Veld op het "categorie toevoegen"-scherm. */
+function threeducation_cat_spotlights_add_field() {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return;
+	}
+	?>
+	<div class="form-field">
+		<label><?php esc_html_e( 'Uitgelichte producten (deze categorie)', '3ducation' ); ?></label>
+		<?php threeducation_cat_spotlights_selects( array() ); ?>
+		<p class="description"><?php esc_html_e( 'Kies tot drie producten die bovenaan deze categorie worden uitgelicht. Laat alles leeg om automatisch de globale selectie (Instellingen → Uitgelichte producten) te gebruiken.', '3ducation' ); ?></p>
+	</div>
+	<?php
+}
+add_action( 'product_cat_add_form_fields', 'threeducation_cat_spotlights_add_field' );
+
+/** Veld op het "categorie bewerken"-scherm. */
+function threeducation_cat_spotlights_edit_field( $term ) {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return;
+	}
+	$ids = threeducation_category_spotlight_ids( $term->term_id );
+	?>
+	<tr class="form-field">
+		<th scope="row"><label><?php esc_html_e( 'Uitgelichte producten (deze categorie)', '3ducation' ); ?></label></th>
+		<td>
+			<?php threeducation_cat_spotlights_selects( $ids ); ?>
+			<p class="description"><?php esc_html_e( 'Kies tot drie producten die bovenaan deze categorie worden uitgelicht. Laat alles leeg om automatisch de globale selectie (Instellingen → Uitgelichte producten) te gebruiken.', '3ducation' ); ?></p>
+		</td>
+	</tr>
+	<?php
+}
+add_action( 'product_cat_edit_form_fields', 'threeducation_cat_spotlights_edit_field' );
+
+/**
+ * Sla de per-categorie keuze op als term meta. De core term-controller heeft de
+ * nonce (add-tag / update-tag_{id}) al gecontroleerd voordat deze hooks vuren;
+ * hier checken we nog de capability en saniteren we de invoer (max drie unieke
+ * positieve ints, hergebruik van de globale sanitizer). Een lege keuze wissen we,
+ * zodat de terugval naar de globale selectie schoon werkt.
+ */
+function threeducation_save_cat_spotlights( $term_id ) {
+	if ( ! current_user_can( 'manage_product_terms' ) ) {
+		return;
+	}
+	if ( ! isset( $_POST['threeducation_cat_spotlights'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- core term controller already verified the nonce before this hook fires.
+		return;
+	}
+	$ids = threeducation_spotlights_sanitize( wp_unslash( $_POST['threeducation_cat_spotlights'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	if ( empty( $ids ) ) {
+		delete_term_meta( $term_id, 'threeducation_spotlights' );
+	} else {
+		update_term_meta( $term_id, 'threeducation_spotlights', $ids );
+	}
+}
+add_action( 'created_product_cat', 'threeducation_save_cat_spotlights' );
+add_action( 'edited_product_cat', 'threeducation_save_cat_spotlights' );
 
 /* ------------------------------------------------------------------ *
  * Product trust badges (Settings → Vertrouwensbadges)
