@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.11.3' );
+	define( 'THREEDUCATION_VERSION', '0.11.5' );
 }
 
 /**
@@ -297,6 +297,24 @@ function threeducation_add_to_cart_text( $text, $product ) {
 		: __( 'Selecteer opties', '3ducation' );
 }
 add_filter( 'woocommerce_product_add_to_cart_text', 'threeducation_add_to_cart_text', 9999, 2 );
+
+/**
+ * Shop search placeholder — the woocommerce/product-search block ships no
+ * `placeholder` attribute (only className/style/lock/metadata), so we can't set
+ * the hint from block markup. Rewrite the rendered input's placeholder to a
+ * concrete, on-brand prompt instead of the generic "Producten zoeken…".
+ */
+function threeducation_product_search_placeholder( $content, $block ) {
+	if ( 'woocommerce/product-search' !== ( $block['blockName'] ?? '' ) ) {
+		return $content;
+	}
+	$placeholder = esc_attr__( 'Zoek naar printers, filament of onderdelen...', '3ducation' );
+	if ( preg_match( '/placeholder="[^"]*"/', $content ) ) {
+		return preg_replace( '/placeholder="[^"]*"/', 'placeholder="' . $placeholder . '"', $content, 1 );
+	}
+	return preg_replace( '/<input\b/', '<input placeholder="' . $placeholder . '"', $content, 1 );
+}
+add_filter( 'render_block', 'threeducation_product_search_placeholder', 10, 2 );
 
 /**
  * Dutch fallbacks for WooCommerce strings the nl_NL language pack does not yet

@@ -495,11 +495,15 @@ a:focus-visible {
  * page instead of a tall bank of image cards. One tricolor accent per chip;
  * hover fills the pill for a punchy, on-brand state. */
 .cat-chips-wrap { margin-block: 0; }
-.cat-chips {
+/* .category-chips-container is an alias class the pattern also prints on this
+ * same <nav>, so the flex row can be targeted by either name. Gap is a
+ * standardized design token, not a raw px value. */
+.cat-chips,
+.category-chips-container {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
-	gap: 14px;
+	gap: var(--wp--preset--spacing--30);
 }
 .cat-chip {
 	--chip-accent: var(--wp--preset--color--ink);
@@ -545,6 +549,23 @@ a:focus-visible {
 .cat-chip:hover .cat-chip__name,
 .cat-chip:hover .cat-chip__count { color: var(--wp--preset--color--surface); }
 .cat-chip:hover::before { background: var(--wp--preset--color--surface); }
+
+/* Active state — the chip for the category currently being viewed stays filled
+ * with its accent (the hover fill, made persistent) so shoppers can see where
+ * they are. Set via .is-active + aria-current="page" in the pattern. */
+.cat-chip.is-active,
+.cat-chip[aria-current="page"] {
+	background: var(--chip-accent);
+	border-color: var(--chip-accent);
+}
+.cat-chip.is-active,
+.cat-chip.is-active .cat-chip__name,
+.cat-chip.is-active .cat-chip__count,
+.cat-chip[aria-current="page"],
+.cat-chip[aria-current="page"] .cat-chip__name,
+.cat-chip[aria-current="page"] .cat-chip__count { color: var(--wp--preset--color--surface); }
+.cat-chip.is-active::before,
+.cat-chip[aria-current="page"]::before { background: var(--wp--preset--color--surface); }
 
 /* ------------------------------------------------------------------ *
  * Pillars: three-way split value proposition (homepage)
@@ -1170,12 +1191,17 @@ a:focus-visible {
 	text-transform: uppercase;
 	color: var(--wp--preset--color--muted);
 }
+/* Span the full content width above the product grid; the input flexes to
+ * fill the row and the button stays its natural size on the right. */
+.shop-search { width: 100%; }
 .shop-search .wc-block-product-search__fields {
 	display: flex;
 	align-items: stretch;
+	width: 100%;
 }
 .shop-search .wc-block-product-search__field {
-	min-width: 320px;
+	flex: 1 1 auto;
+	min-width: 0;
 	padding: 0.65em 0.9em;
 	background: var(--wp--preset--color--surface);
 	border: 1.5px solid var(--wp--preset--color--border);
@@ -1270,8 +1296,12 @@ a:focus-visible {
 /* ------------------------------------------------------------------ *
  * Shop product grid — four per row, uniform card height
  * ------------------------------------------------------------------ */
-/* Each card is a full-height flex column so the add-to-cart button
- * bottom-aligns no matter how tall the title or price above it is. */
+/* Stretch every card in a row to the tallest card's height, then make each
+ * card a full-height flex column so the add-to-cart button bottom-aligns no
+ * matter how tall the title or price above it is. */
+.shop-grid .wp-block-woocommerce-product-template {
+	align-items: stretch;
+}
 .shop-grid .wc-block-product {
 	display: flex;
 	flex-direction: column;
@@ -1344,17 +1374,27 @@ a:focus-visible {
 	text-align: center;
 }
 /* Button colour by state, keyed off WooCommerce's own button classes:
- *   – ajax add-to-cart  (.add_to_cart_button.ajax_add_to_cart) → magenta default
+ *   – ajax add-to-cart  (.add_to_cart_button.ajax_add_to_cart) → solid magenta
+ *     (the theme.json button default) — the primary buy action.
  *   – needs options     (.add_to_cart_button, no ajax) → cyan; the product
  *     links to its page to pick a variation or fill PPOM options, whether it's
  *     a variable product or a simple one with options ("Selecteer opties").
- *   – unavailable       (no .add_to_cart_button) → muted grey ("Lees meer"). */
+ *   – read more          (no .add_to_cart_button) → grey OUTLINE ("Lees meer").
+ *     A secondary button (transparent fill, muted-grey border + text) that
+ *     fills grey on hover — quieter than the magenta/cyan buy actions, but
+ *     still clearly a live button rather than a dead greyed-out one. */
 .shop-grid .wc-block-components-product-button__button.add_to_cart_button:not(.ajax_add_to_cart) {
 	background-color: var(--wp--preset--color--cyan);
 	border-color: var(--wp--preset--color--cyan);
 	color: var(--wp--preset--color--surface);
 }
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button) {
+	background-color: transparent;
+	border: 1.5px solid var(--wp--preset--color--muted);
+	color: var(--wp--preset--color--muted);
+}
+.shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):hover,
+.shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):focus-visible {
 	background-color: var(--wp--preset--color--muted);
 	border-color: var(--wp--preset--color--muted);
 	color: var(--wp--preset--color--surface);
@@ -1514,9 +1554,20 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
- * Shop toolbar — "Alle producten" heading + catalog sorting dropdown
+ * Shop toolbar — result count + catalog sorting dropdown
+ *
+ * The category H1 + description now lead the page in .shop-header; this bar
+ * sits above the grid with the "x resultaten" count on the left and the
+ * sorting <select> on the right.
  * ------------------------------------------------------------------ */
 .shop-toolbar { margin-bottom: var(--wp--preset--spacing--40); }
+/* Result-count line reads as a quiet caption next to the sorting control. */
+.shop-toolbar .wc-block-product-results-count,
+.shop-toolbar .woocommerce-result-count {
+	margin: 0;
+	color: var(--wp--preset--color--ink-soft);
+	font-size: var(--wp--preset--font-size--small);
+}
 /* Style WooCommerce's catalog-sorting <select> to match the shop search /
  * filters: a bordered pill with our own chevron, brand-cyan focus ring. */
 .shop-toolbar .wc-block-catalog-sorting,
