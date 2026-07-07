@@ -1643,13 +1643,104 @@ a:focus-visible {
 .shop-intro .shop-header,
 .shop-intro .shop-search-row { display: flow-root; }
 .shop-intro .shop-search-row { margin-top: var(--wp--preset--spacing--40); }
+
+/* --- Category intro (product-category archive) ---
+ * Category "Thumbnail" image + SEO description (markdown via Parsedown).
+ * Long copy clamps to ~3 lines with a soft fade and a CSS-only "Lees meer"
+ * chevron toggle (a visually-hidden checkbox drives the expanded state). */
+.category-intro { margin-block: 0; }
+.category-intro__inner.has-image {
+	display: grid;
+	grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+	gap: var(--wp--preset--spacing--50);
+	align-items: start;
+}
+.category-intro__img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: 16px;
+	border: 1px solid var(--wp--preset--color--border);
+}
+.cat-desc { position: relative; }
+/* Off-screen but focusable, so the toggle stays keyboard-operable without JS. */
+.cat-desc__cb { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cat-desc__body { color: var(--wp--preset--color--ink-soft); }
+.cat-desc__body > :first-child { margin-top: 0; }
+.cat-desc__body > :last-child { margin-bottom: 0; }
+.cat-desc__body h2,
+.cat-desc__body h3,
+.cat-desc__body h4 {
+	font-family: var(--wp--preset--font-family--display);
+	color: var(--wp--preset--color--ink);
+	line-height: 1.25;
+	margin-block: 1em 0.35em;
+}
+/* Keep in-description headings as subheadings — they must not rival the page H1. */
+.cat-desc__body h2 { font-size: 1.2rem; }
+.cat-desc__body h3 { font-size: 1.05rem; }
+.cat-desc__body h4 { font-size: 0.95rem; }
+.cat-desc__body ul,
+.cat-desc__body ol { padding-left: 1.2em; }
+.cat-desc__body li { margin-block: 0.2em; }
+.cat-desc__body a {
+	color: var(--wp--preset--color--magenta);
+	text-underline-offset: 2px;
+}
+/* Collapsed: ~3 lines with a fade-out mask, until the checkbox is checked. */
+.cat-desc.is-clamped .cat-desc__body {
+	max-height: 4.9em;
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+	        mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+.cat-desc.is-clamped .cat-desc__cb:checked ~ .cat-desc__body {
+	max-height: none;
+	-webkit-mask-image: none;
+	        mask-image: none;
+}
+.cat-desc__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.55rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: var(--wp--preset--color--magenta);
+	cursor: pointer;
+	user-select: none;
+}
+.cat-desc__toggle-less { display: none; }
+.cat-desc__cb:checked ~ .cat-desc__toggle .cat-desc__toggle-more { display: none; }
+.cat-desc__cb:checked ~ .cat-desc__toggle .cat-desc__toggle-less { display: inline; }
+.cat-desc__chev { transition: transform 0.2s ease; }
+.cat-desc__cb:checked ~ .cat-desc__toggle .cat-desc__chev { transform: rotate(180deg); }
+.cat-desc__cb:focus-visible ~ .cat-desc__toggle {
+	outline: 2px solid var(--wp--preset--color--magenta);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+@media (max-width: 781px) {
+	.category-intro__inner.has-image { grid-template-columns: 1fr; }
+	.category-intro__img { max-width: 320px; }
+}
+/* Full-width "can't find it?" band at the foot of the shop/category archive:
+ * copy on the left, secondary CTA on the right; wraps on narrow screens. */
 .shop-help {
-	float: right;
-	width: 38%;
-	margin: 0 0 var(--wp--preset--spacing--40) var(--wp--preset--spacing--50);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--wp--preset--spacing--50);
 	border-left: 4px solid var(--wp--preset--color--amber);
 	background: color-mix(in srgb, var(--wp--preset--color--amber) 8%, var(--wp--preset--color--surface));
 }
+.shop-help__body { flex: 1 1 460px; }
+.shop-help__body > :last-child { margin-bottom: 0; }
+.shop-help .wp-block-buttons { flex: 0 0 auto; margin-block: 0; }
 .shop-help__title {
 	margin: 0 0 0.5rem;
 	font-size: 1.05rem;
@@ -1682,12 +1773,6 @@ a:focus-visible {
 		gap: var(--wp--preset--spacing--40);
 	}
 	.shop-intro .shop-search-row { margin-top: 0; }
-	.shop-help {
-		float: none;
-		order: 1;
-		width: auto;
-		margin: 0;
-	}
 }
 
 /* Big display price used on the workshop / party offers. */

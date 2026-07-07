@@ -1117,6 +1117,38 @@ function threeducation_visibility_save( $product ) {
 add_action( 'woocommerce_admin_process_product_object', 'threeducation_visibility_save' );
 
 /**
+ * Render a markdown string to HTML via the vendored Parsedown (inc/Parsedown.php).
+ *
+ * Used for the SEO-rich product-category descriptions (see the category-intro
+ * pattern). Category descriptions are authored by trusted admins, so raw HTML in
+ * the source is allowed. Falls back to wpautop() if Parsedown is not present yet,
+ * so nothing fatals before the library is added.
+ */
+function threeducation_render_markdown( $markdown ) {
+	$markdown = trim( (string) $markdown );
+	if ( '' === $markdown ) {
+		return '';
+	}
+
+	$parsedown_file = get_theme_file_path( 'inc/Parsedown.php' );
+	if ( ! class_exists( 'Parsedown' ) && is_readable( $parsedown_file ) ) {
+		require_once $parsedown_file;
+	}
+
+	if ( class_exists( 'Parsedown' ) ) {
+		static $parser = null;
+		if ( null === $parser ) {
+			$parser = new Parsedown();
+			$parser->setBreaksEnabled( true );
+		}
+		return $parser->text( $markdown );
+	}
+
+	// Parsedown not installed yet — keep the page working with plain paragraphs.
+	return wpautop( wp_kses_post( $markdown ) );
+}
+
+/**
  * True when today falls inside a product's visibility window (or it has none).
  */
 function threeducation_product_in_window( $product_id ) {
