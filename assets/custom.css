@@ -165,8 +165,8 @@ a:focus-visible {
 	transform: translateY(-3px);
 	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
 }
-.audience-card--scholen { --audience-accent: var(--wp--preset--color--magenta); }
-.audience-card--thuis   { --audience-accent: var(--wp--preset--color--cyan); }
+.audience-card--scholen { --audience-accent: var(--wp--preset--color--cyan); }
+.audience-card--thuis   { --audience-accent: var(--wp--preset--color--magenta); }
 .audience-tag {
 	text-transform: uppercase;
 	letter-spacing: 2px;

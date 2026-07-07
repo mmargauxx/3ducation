@@ -9,8 +9,8 @@
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|60"}}},"backgroundColor":"surface","className":"solutions-section","layout":{"type":"constrained","wideSize":"1240px"}} -->
 <div class="wp-block-group alignfull solutions-section has-surface-background-color has-background" id="scholen" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:columns {"align":"wide","verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Voor scholen</p>
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Voor scholen</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
@@ -23,8 +23,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"verticalAlignment":"center","width":"45%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:45%"><!-- wp:group {"className":"info-panel info-panel--magenta","layout":{"type":"constrained"}} -->
-<div class="wp-block-group info-panel info-panel--magenta"><!-- wp:list {"className":"wsaud-list"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:45%"><!-- wp:group {"className":"info-panel info-panel--cyan","layout":{"type":"constrained"}} -->
+<div class="wp-block-group info-panel info-panel--cyan"><!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li><strong>Kennismaking met technologie:</strong> leerlingen ontdekken dat 3D-printen niet moeilijk is, maar juist ontzettend veelzijdig en leuk.</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li><strong>Vaardigheden voor de toekomst:</strong> we stimuleren creatief denkvermogen en technisch inzicht, ter voorbereiding op een wereld waarin 3D-printen onmisbaar is.</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li><strong>Leerkrachtentraining:</strong> we laten docenten niet aan hun lot over. Via praktische workshops leggen we precies uit hoe de printer werkt en hoe je eenvoudig ontwerpt in programma's zoals Tinkercad.</li><!-- /wp:list-item --></ul>
@@ -64,8 +64,8 @@
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|60"}}},"backgroundColor":"surface","className":"solutions-section","layout":{"type":"constrained","wideSize":"1240px"}} -->
 <div class="wp-block-group alignfull solutions-section has-surface-background-color has-background" id="thuis" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:columns {"align":"wide","verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"45%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:45%"><!-- wp:group {"className":"info-panel info-panel--cyan","layout":{"type":"constrained"}} -->
-<div class="wp-block-group info-panel info-panel--cyan"><!-- wp:list {"className":"wsaud-list"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:45%"><!-- wp:group {"className":"info-panel info-panel--magenta","layout":{"type":"constrained"}} -->
+<div class="wp-block-group info-panel info-panel--magenta"><!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li><strong>Praktische oplossingen:</strong> print eenvoudig vervangende onderdelen en geef kapotte spullen uit het dagelijks leven een tweede leven.</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li><strong>Hobby en creativiteit:</strong> ontwerp unieke hebbedingetjes of maak samen met de kinderen het leukste creatieve speelgoed.</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li><strong>Direct aan de slag:</strong> kies je voor onze installatieservice? Dan stellen we de printer voor je in en leggen we alles haarfijn uit, zodat je thuis meteen je eerste object print.</li><!-- /wp:list-item --></ul>
@@ -74,8 +74,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"verticalAlignment":"center","width":"55%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Voor thuis</p>
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:55%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Voor thuis</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->

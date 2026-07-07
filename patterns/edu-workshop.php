@@ -69,8 +69,8 @@
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"backgroundColor":"ink","textColor":"base","className":"workshops-cta","layout":{"type":"constrained","wideSize":"1240px"}} -->
 <div class="wp-block-group alignfull workshops-cta has-base-color has-ink-background-color has-text-color has-background" style="padding-top:var(--wp--preset--spacing--70);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--70);padding-left:var(--wp--preset--spacing--40)"><!-- wp:columns {"verticalAlignment":"center","align":"wide"} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"66%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:66%"><!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"2px","fontWeight":"500"},"color":{"text":"var:preset|color|magenta"}},"fontSize":"small","fontFamily":"display"} -->
-<p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--magenta);font-weight:500;letter-spacing:2px;text-transform:uppercase">Klaar voor de klas</p>
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:66%"><!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"2px","fontWeight":"500"},"color":{"text":"var:preset|color|cyan"}},"fontSize":"small","fontFamily":"display"} -->
+<p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--cyan);font-weight:500;letter-spacing:2px;text-transform:uppercase">Klaar voor de klas</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2,"textColor":"surface","fontSize":"x-large"} -->
