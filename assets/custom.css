@@ -1511,13 +1511,16 @@ a:focus-visible {
 }
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button) {
 	background-color: transparent;
-	border: 1.5px solid var(--wp--preset--color--muted);
+	/* Inset ring rather than a real border, so this outline button keeps the
+	 * exact same box size as the solid magenta/cyan buttons beside it (a real
+	 * 1.5px border would make "Lees meer" taller/wider than its neighbours). */
+	box-shadow: inset 0 0 0 1.5px var(--wp--preset--color--muted);
 	color: var(--wp--preset--color--muted);
 }
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):hover,
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):focus-visible {
 	background-color: var(--wp--preset--color--muted);
-	border-color: var(--wp--preset--color--muted);
+	box-shadow: none;
 	color: var(--wp--preset--color--surface);
 }
 
@@ -1531,7 +1534,9 @@ a:focus-visible {
 	width: 100%;
 	margin-top: 0.4rem;
 	padding: 0.5rem 0.75rem;
-	border: 1.5px solid var(--wp--preset--color--cyan);
+	/* Inset ring (see the "Lees meer" button above): keeps this secondary link
+	 * the same box size as the primary button it sits beneath. */
+	box-shadow: inset 0 0 0 1.5px var(--wp--preset--color--cyan);
 	border-radius: 8px;
 	background: transparent;
 	color: var(--wp--preset--color--cyan);
@@ -1541,7 +1546,7 @@ a:focus-visible {
 	text-align: center;
 	text-decoration: none;
 	white-space: nowrap;
-	transition: background-color 0.15s ease, color 0.15s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .shop-grid .added_to_cart.wc_forward::after {
 	content: " →";
