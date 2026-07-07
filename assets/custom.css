@@ -165,8 +165,8 @@ a:focus-visible {
 	transform: translateY(-3px);
 	box-shadow: 0 24px 40px -24px rgba(20, 21, 26, 0.22);
 }
-.audience-card--scholen { --audience-accent: var(--wp--preset--color--magenta); }
-.audience-card--thuis   { --audience-accent: var(--wp--preset--color--cyan); }
+.audience-card--scholen { --audience-accent: var(--wp--preset--color--cyan); }
+.audience-card--thuis   { --audience-accent: var(--wp--preset--color--magenta); }
 .audience-tag {
 	text-transform: uppercase;
 	letter-spacing: 2px;
@@ -504,6 +504,52 @@ a:focus-visible {
 		flex: 0 0 80%;
 		scroll-snap-align: start;
 	}
+}
+
+/* --- Workshop sessions (workshops page) ---
+ * Bookable workshop products as a filling, wrapping card grid (not the 3-up
+ * spotlight swipe row). Reuses the .spotlight-card chrome; adds a dimmed,
+ * non-clickable "verlopen" (expired) state and a lightweight show/hide toolbar. */
+.workshop-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: var(--wp--preset--spacing--30);
+	align-items: stretch;
+	margin-block: var(--wp--preset--spacing--30) 0;
+}
+.workshop-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	margin-block: var(--wp--preset--spacing--20) 0;
+}
+.workshop-toolbar a {
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.85rem;
+	color: var(--wp--preset--color--ink-soft);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.workshop-toolbar a:hover,
+.workshop-toolbar a:focus-visible { color: var(--wp--preset--color--magenta); }
+/* Verlopen sessie: gedimd en niet-interactief (de card is dan geen <a>). */
+.spotlight-card--expired { opacity: 0.6; }
+.spotlight-card--expired:hover {
+	transform: none;
+	border-color: var(--wp--preset--color--border);
+	box-shadow: none;
+}
+.workshop-badge {
+	margin-top: auto;
+	align-self: flex-start;
+	padding: 0.2rem 0.6rem;
+	border-radius: 999px;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.72rem;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	background: var(--wp--preset--color--base-soft);
+	color: var(--wp--preset--color--muted);
 }
 
 /* --- Category chips (shop) ---
@@ -1352,6 +1398,57 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
+ * Mobile filter overlay — WooCommerce breakpoint-overlap fix
+ * ------------------------------------------------------------------ */
+/* WooCommerce's Product Filters ship the "Filter producten" overlay trigger up
+ * to 782px, but reset the overlay to position:relative (inline filters) from
+ * 601px up. Those ranges OVERLAP: at 601–782px the overlay opens in mobile mode
+ * yet is positioned relative, so it renders inline and lands on top of the
+ * product grid instead of covering it (a full-screen dialog). It looks fine
+ * below 601px (phones) and above 782px (inline desktop filters), so only the
+ * tablet / narrow-window band is broken. Re-assert the fixed full-screen dialog
+ * for that band when the overlay is open. Real class specificity (0,3,0) beats
+ * WooCommerce's :where()-wrapped rules, so this wins regardless of load order. */
+@media (min-width: 601px) and (max-width: 782px) {
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay {
+		position: fixed;
+		top: var(--top-padding, 0px);
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 9999;
+		background-color: rgba(95, 95, 95, 0.35);
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-wrapper {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-dialog {
+		position: absolute;
+		inset: 0;
+		max-height: 100%;
+		display: flex;
+		flex-direction: column;
+		transform: none;
+		background-color: var(--wp--preset--color--surface);
+		color: var(--wp--preset--color--ink);
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-content {
+		flex-grow: 1;
+		overflow-y: auto;
+	}
+	/* The desktop reset hides the dialog's header (Sluiten) and footer
+	 * (Toepassen); bring them back so the open dialog is operable. */
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-header {
+		display: flex;
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-footer {
+		display: block;
+	}
+}
+
+/* ------------------------------------------------------------------ *
  * Shop product grid — four per row, uniform card height
  * ------------------------------------------------------------------ */
 /* Stretch every card in a row to the tallest card's height, then make each
@@ -1465,13 +1562,16 @@ a:focus-visible {
 }
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button) {
 	background-color: transparent;
-	border: 1.5px solid var(--wp--preset--color--muted);
+	/* Inset ring rather than a real border, so this outline button keeps the
+	 * exact same box size as the solid magenta/cyan buttons beside it (a real
+	 * 1.5px border would make "Lees meer" taller/wider than its neighbours). */
+	box-shadow: inset 0 0 0 1.5px var(--wp--preset--color--muted);
 	color: var(--wp--preset--color--muted);
 }
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):hover,
 .shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):focus-visible {
 	background-color: var(--wp--preset--color--muted);
-	border-color: var(--wp--preset--color--muted);
+	box-shadow: none;
 	color: var(--wp--preset--color--surface);
 }
 
@@ -1485,7 +1585,9 @@ a:focus-visible {
 	width: 100%;
 	margin-top: 0.4rem;
 	padding: 0.5rem 0.75rem;
-	border: 1.5px solid var(--wp--preset--color--cyan);
+	/* Inset ring (see the "Lees meer" button above): keeps this secondary link
+	 * the same box size as the primary button it sits beneath. */
+	box-shadow: inset 0 0 0 1.5px var(--wp--preset--color--cyan);
 	border-radius: 8px;
 	background: transparent;
 	color: var(--wp--preset--color--cyan);
@@ -1495,7 +1597,7 @@ a:focus-visible {
 	text-align: center;
 	text-decoration: none;
 	white-space: nowrap;
-	transition: background-color 0.15s ease, color 0.15s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+	transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .shop-grid .added_to_cart.wc_forward::after {
 	content: " →";
@@ -1597,13 +1699,104 @@ a:focus-visible {
 .shop-intro .shop-header,
 .shop-intro .shop-search-row { display: flow-root; }
 .shop-intro .shop-search-row { margin-top: var(--wp--preset--spacing--40); }
+
+/* --- Category intro (product-category archive) ---
+ * Category "Thumbnail" image + SEO description (markdown via Parsedown).
+ * Long copy clamps to ~3 lines with a soft fade and a CSS-only "Lees meer"
+ * chevron toggle (a visually-hidden checkbox drives the expanded state). */
+.category-intro { margin-block: 0; }
+.category-intro__inner.has-image {
+	display: grid;
+	grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+	gap: var(--wp--preset--spacing--50);
+	align-items: start;
+}
+.category-intro__img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: 16px;
+	border: 1px solid var(--wp--preset--color--border);
+}
+.cat-desc { position: relative; }
+/* Off-screen but focusable, so the toggle stays keyboard-operable without JS. */
+.cat-desc__cb { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.cat-desc__body { color: var(--wp--preset--color--ink-soft); }
+.cat-desc__body > :first-child { margin-top: 0; }
+.cat-desc__body > :last-child { margin-bottom: 0; }
+.cat-desc__body h2,
+.cat-desc__body h3,
+.cat-desc__body h4 {
+	font-family: var(--wp--preset--font-family--display);
+	color: var(--wp--preset--color--ink);
+	line-height: 1.25;
+	margin-block: 1em 0.35em;
+}
+/* Keep in-description headings as subheadings — they must not rival the page H1. */
+.cat-desc__body h2 { font-size: 1.2rem; }
+.cat-desc__body h3 { font-size: 1.05rem; }
+.cat-desc__body h4 { font-size: 0.95rem; }
+.cat-desc__body ul,
+.cat-desc__body ol { padding-left: 1.2em; }
+.cat-desc__body li { margin-block: 0.2em; }
+.cat-desc__body a {
+	color: var(--wp--preset--color--magenta);
+	text-underline-offset: 2px;
+}
+/* Collapsed: ~3 lines with a fade-out mask, until the checkbox is checked. */
+.cat-desc.is-clamped .cat-desc__body {
+	max-height: 4.9em;
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+	        mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+.cat-desc.is-clamped .cat-desc__cb:checked ~ .cat-desc__body {
+	max-height: none;
+	-webkit-mask-image: none;
+	        mask-image: none;
+}
+.cat-desc__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.55rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: var(--wp--preset--color--magenta);
+	cursor: pointer;
+	user-select: none;
+}
+.cat-desc__toggle-less { display: none; }
+.cat-desc__cb:checked ~ .cat-desc__toggle .cat-desc__toggle-more { display: none; }
+.cat-desc__cb:checked ~ .cat-desc__toggle .cat-desc__toggle-less { display: inline; }
+.cat-desc__chev { transition: transform 0.2s ease; }
+.cat-desc__cb:checked ~ .cat-desc__toggle .cat-desc__chev { transform: rotate(180deg); }
+.cat-desc__cb:focus-visible ~ .cat-desc__toggle {
+	outline: 2px solid var(--wp--preset--color--magenta);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+@media (max-width: 781px) {
+	.category-intro__inner.has-image { grid-template-columns: 1fr; }
+	.category-intro__img { max-width: 320px; }
+}
+/* Full-width "can't find it?" band at the foot of the shop/category archive:
+ * copy on the left, secondary CTA on the right; wraps on narrow screens. */
 .shop-help {
-	float: right;
-	width: 38%;
-	margin: 0 0 var(--wp--preset--spacing--40) var(--wp--preset--spacing--50);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: var(--wp--preset--spacing--50);
 	border-left: 4px solid var(--wp--preset--color--amber);
 	background: color-mix(in srgb, var(--wp--preset--color--amber) 8%, var(--wp--preset--color--surface));
 }
+.shop-help__body { flex: 1 1 460px; }
+.shop-help__body > :last-child { margin-bottom: 0; }
+.shop-help .wp-block-buttons { flex: 0 0 auto; margin-block: 0; }
 .shop-help__title {
 	margin: 0 0 0.5rem;
 	font-size: 1.05rem;
@@ -1636,12 +1829,6 @@ a:focus-visible {
 		gap: var(--wp--preset--spacing--40);
 	}
 	.shop-intro .shop-search-row { margin-top: 0; }
-	.shop-help {
-		float: none;
-		order: 1;
-		width: auto;
-		margin: 0;
-	}
 }
 
 /* Big display price used on the workshop / party offers. */

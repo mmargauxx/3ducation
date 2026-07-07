@@ -9,8 +9,8 @@
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|60"}}},"backgroundColor":"surface","className":"solutions-section","layout":{"type":"constrained","wideSize":"1240px"}} -->
 <div class="wp-block-group alignfull solutions-section has-surface-background-color has-background" id="scholen" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:columns {"align":"wide","verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"58%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:58%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Voor scholen</p>
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:58%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Voor scholen</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
@@ -41,8 +41,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"verticalAlignment":"center","width":"42%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:42%"><!-- wp:group {"className":"info-panel info-panel--magenta","layout":{"type":"constrained"}} -->
-<div class="wp-block-group info-panel info-panel--magenta"><!-- wp:paragraph {"className":"info-panel__title","fontSize":"small","fontFamily":"display"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:42%"><!-- wp:group {"className":"info-panel info-panel--cyan","layout":{"type":"constrained"}} -->
+<div class="wp-block-group info-panel info-panel--cyan"><!-- wp:paragraph {"className":"info-panel__title","fontSize":"small","fontFamily":"display"} -->
 <p class="info-panel__title has-display-font-family has-small-font-size">In een pakket</p>
 <!-- /wp:paragraph -->
 
@@ -60,8 +60,8 @@
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|60","bottom":"var:preset|spacing|60"}}},"className":"solutions-section","layout":{"type":"constrained","wideSize":"1240px"}} -->
 <div class="wp-block-group alignfull solutions-section" id="thuis" style="padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:columns {"align":"wide","verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60"}}}} -->
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"42%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:42%"><!-- wp:group {"className":"info-panel info-panel--cyan","layout":{"type":"constrained"}} -->
-<div class="wp-block-group info-panel info-panel--cyan"><!-- wp:paragraph {"className":"info-panel__title","fontSize":"small","fontFamily":"display"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:42%"><!-- wp:group {"className":"info-panel info-panel--magenta","layout":{"type":"constrained"}} -->
+<div class="wp-block-group info-panel info-panel--magenta"><!-- wp:paragraph {"className":"info-panel__title","fontSize":"small","fontFamily":"display"} -->
 <p class="info-panel__title has-display-font-family has-small-font-size">Meteen printklaar</p>
 <!-- /wp:paragraph -->
 
@@ -75,8 +75,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"verticalAlignment":"center","width":"58%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:58%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Voor thuis</p>
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:58%"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Voor thuis</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
