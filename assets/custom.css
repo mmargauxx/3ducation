@@ -506,6 +506,52 @@ a:focus-visible {
 	}
 }
 
+/* --- Workshop sessions (workshops page) ---
+ * Bookable workshop products as a filling, wrapping card grid (not the 3-up
+ * spotlight swipe row). Reuses the .spotlight-card chrome; adds a dimmed,
+ * non-clickable "verlopen" (expired) state and a lightweight show/hide toolbar. */
+.workshop-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: var(--wp--preset--spacing--30);
+	align-items: stretch;
+	margin-block: var(--wp--preset--spacing--30) 0;
+}
+.workshop-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	margin-block: var(--wp--preset--spacing--20) 0;
+}
+.workshop-toolbar a {
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 0.85rem;
+	color: var(--wp--preset--color--ink-soft);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.workshop-toolbar a:hover,
+.workshop-toolbar a:focus-visible { color: var(--wp--preset--color--magenta); }
+/* Verlopen sessie: gedimd en niet-interactief (de card is dan geen <a>). */
+.spotlight-card--expired { opacity: 0.6; }
+.spotlight-card--expired:hover {
+	transform: none;
+	border-color: var(--wp--preset--color--border);
+	box-shadow: none;
+}
+.workshop-badge {
+	margin-top: auto;
+	align-self: flex-start;
+	padding: 0.2rem 0.6rem;
+	border-radius: 999px;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	font-size: 0.72rem;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	background: var(--wp--preset--color--base-soft);
+	color: var(--wp--preset--color--muted);
+}
+
 /* --- Category chips (shop) ---
  * A slim, wrapping row of category links, so the product grid leads the
  * page instead of a tall bank of image cards. One tricolor accent per chip;
