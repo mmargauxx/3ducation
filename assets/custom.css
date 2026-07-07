@@ -2046,3 +2046,90 @@ a:focus-visible {
 	line-height: 1.4;
 	color: var(--wp--preset--color--ink-soft);
 }
+
+/* ------------------------------------------------------------------ *
+ * Mobiele sweep — overflow-guard, responsieve media & tik-doelen
+ *
+ * Sluitstuk van de volledige mobiele designsweep. Twee grote lagen zitten
+ * al goed en hoefden hier niets extra:
+ *   • Vloeiende ruimte: de grote sectie-paddings (spacing-tokens 60/70/80)
+ *     gebruiken nu clamp() in theme.json, dus élke sectie krimpt netjes mee
+ *     op smalle schermen en blijft identiek op desktop.
+ *   • Responsief stapelen: de kaartrasters (.pillars, .audience-split,
+ *     .wsaud, .edu-grid, .cat-bento, .spotlights) en de core-kolommen
+ *     klappen al naar één kolom onder 782px.
+ * Hieronder vangen we de laatste drie mobiele risico's af die theme.json
+ * niet kan uitdrukken: horizontaal scrollen, te brede media en te kleine
+ * tik-doelen op knoppen.
+ * ------------------------------------------------------------------ */
+
+/* 1. Overflow-guard — de pagina scrollt nooit horizontaal op mobiel.
+ * `clip` i.p.v. `hidden`: het snijdt overloop af zonder een scroll-context
+ * te maken, dus het breekt geen position:sticky/fixed en laat de bewuste
+ * swipe-rij van .spotlights (met z'n eigen scroll-container) intact. De
+ * verticale as blijft `visible`, zodat niets verticaal wordt afgekapt. */
+.wp-site-blocks {
+	overflow-x: clip;
+}
+
+/* 2. Responsieve media — beeld, video en embeds blijven altijd binnen hun
+ * kolom en veroorzaken zo nooit overloop op een smal scherm. */
+img,
+video {
+	max-width: 100%;
+	height: auto;
+}
+iframe,
+embed,
+object {
+	max-width: 100%;
+}
+
+/* 3. Tik-doelen — elke primaire CTA is minstens 48px hoog, zodat hij op
+ * touch comfortabel en foutloos aan te tikken is (WCAG 2.5.5 / Apple HIG,
+ * 44–48px). inline-flex + centreren houdt het label mooi gecentreerd nu de
+ * knop een minimumhoogte krijgt. De compacte knoppen in het productraster
+ * zijn hier bewust uitgesloten en krijgen hun eigen mobiele maat verderop. */
+.wp-block-button__link,
+.wp-element-button,
+.intake-form__submit,
+.single_add_to_cart_button,
+.wc-block-components-button {
+	min-height: 48px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (max-width: 781px) {
+	/* Ruimere onderlinge afstand tussen gestapelde knoppen, zodat twee
+	 * CTA's onder elkaar niet per ongeluk samen worden aangetikt. */
+	.wp-block-buttons {
+		gap: 0.75rem;
+	}
+
+	/* Hamburger-menu en het sluitkruis van de mobiele navigatie: een royaal
+	 * vierkant tik-doel i.p.v. enkel het kleine icoon. */
+	.wp-block-navigation__responsive-container-open,
+	.wp-block-navigation__responsive-container-close {
+		min-width: 44px;
+		min-height: 44px;
+	}
+
+	/* Winkelwagen- en accountknop in de header krijgen hetzelfde comfortabele
+	 * tik-oppervlak. */
+	.wc-block-mini-cart__button,
+	.wc-block-customer-account {
+		min-height: 44px;
+	}
+
+	/* Productraster: de bewust compacte knop (In winkelwagen / Selecteer
+	 * opties / Lees meer) groeit op mobiel mee naar een volwaardig 48px
+	 * tik-doel — de kaart is dan tweekoloms, dus daar is ruimte voor. */
+	.shop-grid .wp-block-woocommerce-product-button .wc-block-components-product-button__button,
+	.shop-grid .added_to_cart.wc_forward {
+		min-height: 48px;
+		padding-top: 0.7rem;
+		padding-bottom: 0.7rem;
+	}
+}

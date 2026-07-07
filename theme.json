@@ -86,9 +86,9 @@
 				{ "slug": "40", "name": "3", "size": "1.5rem" },
 				{ "slug": "45", "name": "3.5", "size": "2rem" },
 				{ "slug": "50", "name": "4", "size": "2.5rem" },
-				{ "slug": "60", "name": "5", "size": "4rem" },
-				{ "slug": "70", "name": "6", "size": "6rem" },
-				{ "slug": "80", "name": "7", "size": "8rem" }
+				{ "slug": "60", "name": "5", "size": "clamp(2.25rem, 6.5vw, 4rem)" },
+				{ "slug": "70", "name": "6", "size": "clamp(3rem, 10vw, 6rem)" },
+				{ "slug": "80", "name": "7", "size": "clamp(3.5rem, 13vw, 8rem)" }
 			]
 		},
 		"border": { "color": true, "radius": true, "style": true, "width": true }
