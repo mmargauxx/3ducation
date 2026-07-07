@@ -1398,6 +1398,57 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
+ * Mobile filter overlay — WooCommerce breakpoint-overlap fix
+ * ------------------------------------------------------------------ */
+/* WooCommerce's Product Filters ship the "Filter producten" overlay trigger up
+ * to 782px, but reset the overlay to position:relative (inline filters) from
+ * 601px up. Those ranges OVERLAP: at 601–782px the overlay opens in mobile mode
+ * yet is positioned relative, so it renders inline and lands on top of the
+ * product grid instead of covering it (a full-screen dialog). It looks fine
+ * below 601px (phones) and above 782px (inline desktop filters), so only the
+ * tablet / narrow-window band is broken. Re-assert the fixed full-screen dialog
+ * for that band when the overlay is open. Real class specificity (0,3,0) beats
+ * WooCommerce's :where()-wrapped rules, so this wins regardless of load order. */
+@media (min-width: 601px) and (max-width: 782px) {
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay {
+		position: fixed;
+		top: var(--top-padding, 0px);
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 9999;
+		background-color: rgba(95, 95, 95, 0.35);
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-wrapper {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-dialog {
+		position: absolute;
+		inset: 0;
+		max-height: 100%;
+		display: flex;
+		flex-direction: column;
+		transform: none;
+		background-color: var(--wp--preset--color--surface);
+		color: var(--wp--preset--color--ink);
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-content {
+		flex-grow: 1;
+		overflow-y: auto;
+	}
+	/* The desktop reset hides the dialog's header (Sluiten) and footer
+	 * (Toepassen); bring them back so the open dialog is operable. */
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-header {
+		display: flex;
+	}
+	.wc-block-product-filters.is-overlay-opened .wc-block-product-filters__overlay-footer {
+		display: block;
+	}
+}
+
+/* ------------------------------------------------------------------ *
  * Shop product grid — four per row, uniform card height
  * ------------------------------------------------------------------ */
 /* Stretch every card in a row to the tallest card's height, then make each
