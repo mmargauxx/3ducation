@@ -1,0 +1,89 @@
+# Go-live checklist — 3DUCATION theme
+
+The theme is **source only**: no products, pages, or content travel with it. Everything
+under **"On the server"** must be set up on each WordPress install (dev / test / live).
+There is **no build step** — the files you upload are what runs.
+
+---
+
+## 1. Deploy the theme files
+
+Ship theme source only — never upload `node_modules/`, `.git/`, `.claude/`,
+`.wp-env.json`, or `package*.json`.
+
+```bash
+# clean zip of committed files (run from repo root)
+git archive --format=zip -o 3ducation.zip HEAD
+```
+
+Then either:
+- **Appearance → Themes → Add New → Upload** the zip (atomic, simplest), or
+- **SFTP** the files into `wp-content/themes/3ducation/` (faster for single-file tweaks).
+
+### After every upload — flush caches
+Patterns are cached separately from the object cache, so a plain `wp cache flush`
+is **not enough** after editing/adding any `patterns/*.php`:
+
+```bash
+wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
+```
+No WP-CLI on the host? Deactivate + reactivate the theme instead.
+`THREEDUCATION_VERSION` (in `style.css` + `functions.php`) busts the browser CSS
+cache but **not** the pattern cache — bump it on every release and still flush.
+
+---
+
+## 2. On the server — Pages (or nav links 404)
+
+Create a **Page** for each of these slugs and assign the matching template
+(Page → **Page Attributes → Template**). WooCommerce creates `/shop`, `/cart`,
+`/checkout`, `/my-account` itself.
+
+| Page slug                | Template to assign        | Linked from |
+|--------------------------|---------------------------|-------------|
+| `oplossingen`            | Webshop & oplossingen     | nav "3D-printen" |
+| `workshops`              | Workshops & educatie      | nav |
+| `service`                | Service & montage         | nav |
+| `over-ons`               | Over ons                  | nav |
+| `contact`                | Contact                   | nav + footer |
+| `educatieve-pakketten`   | Educatieve pakketten      | CTAs |
+
+---
+
+## 3. On the server — WooCommerce & settings
+
+- [ ] `wp option update woocommerce_coming_soon no` (else `/shop` shows a placeholder)
+- [ ] Import / enter **products** and **product categories**
+- [ ] Create the **`kleur`** and **`type`** product attributes **and assign them to
+      products** — otherwise the shop's Kleur/Type filters render empty. (The pattern
+      resolves the attribute ID by label per environment, so no code change is needed —
+      the attributes just have to exist.)
+- [ ] **Settings → Uitgelichte producten** — pick up to 3 spotlight products
+      (falls back to the 3 newest published products)
+- [ ] Per **product category**: markdown description + thumbnail image
+- [ ] Create **workshop session** products (they appear on `/workshops`)
+- [ ] **Settings → Site melding** — configure or disable the announcement bar
+      (the "Aangepaste openingsuren…" banner is test content)
+- [ ] Configure a **payment gateway** (e.g. Mollie)
+
+---
+
+## 4. Before launch — code TODOs still in the theme
+
+- [ ] **Wire up the three intake forms** — `contact-form.php`, `service-intake.php`,
+      `workshops-intake.php` use `action="#"` and submit nowhere. Connect to a form
+      plugin (Contact Form 7 / WPForms) or a POST-to-email handler.
+- [ ] **`workshops-audiences.php`** — replace the `[Placeholder]` audience-card copy
+      (headings, body, bullets) with real Dutch content.
+- [ ] Replace remaining `[Placeholder]` intro copy in `about.php` and `workshops-intake.php`.
+- [ ] Add real photos to the homepage `social-proof-placeholder` and the
+      About-page gallery tiles.
+
+---
+
+## 5. Env parity — do NOT
+
+- Hard-code product-attribute IDs (they differ per environment; the theme resolves
+  them at render time on purpose).
+- Copy the local wp-env database to the server — enter content on the target site.
+- Upload `.wp-env.json` — it's local-only and will confuse a managed host.
