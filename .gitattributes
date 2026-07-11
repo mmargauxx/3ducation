@@ -1,0 +1,9 @@
+# Keep dev tooling, internal docs, and planning artifacts out of `git archive`
+# deploy zips — the theme must ship source only. See GO-LIVE.md.
+/.gitignore        export-ignore
+/.gitattributes    export-ignore
+/.wp-env.json      export-ignore
+/package.json      export-ignore
+/package-lock.json export-ignore
+/CLAUDE.md         export-ignore
+/PLAN.pdf          export-ignore
