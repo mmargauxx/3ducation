@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.12.0' );
+	define( 'THREEDUCATION_VERSION', '0.12.1' );
 }
 
 /**
@@ -390,6 +390,11 @@ function threeducation_pillar_seo() {
 			'title'       => __( 'Over 3DUCATION · 3D-printen zonder zorgen, op school en thuis', '3ducation' ),
 			'description' => __( '3DUCATION maakt 3D-printen praktisch en direct inzetbaar: voorgemonteerde printers, opleiding en support voor scholen en gezinnen. Je koopt geen doos, je koopt vertrouwen.', '3ducation' ),
 			'keywords'    => __( 'over 3ducation, 3D-printen op school, 3D-printer thuis, STEM onderwijs 3D-printen, 3D-printen zonder zorgen', '3ducation' ),
+		),
+		'contact'              => array(
+			'title'       => __( 'Contact & bezoek · 3DUCATION in Nieuwkerken-Waas', '3ducation' ),
+			'description' => __( 'Contacteer 3DUCATION: bezoek onze showroom in Nieuwkerken-Waas, bel +32 468 11 82 42, mail info@3ducation.be of laat een bericht na. Bekijk openingsuren en route.', '3ducation' ),
+			'keywords'    => __( '3ducation contact, 3D-printen winkel Nieuwkerken-Waas, showroom 3D-printer, 3D-printen Waasland, contact 3D-printshop', '3ducation' ),
 		),
 	);
 }
