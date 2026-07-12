@@ -20,8 +20,8 @@
 <!-- /wp:spacer -->
 
 <!-- wp:group {"className":"wsaud","layout":{"type":"default"}} -->
-<div class="wp-block-group wsaud"><!-- wp:group {"className":"wsaud-card wsaud-card--magenta","layout":{"type":"constrained"}} -->
-<div class="wp-block-group wsaud-card wsaud-card--magenta"><!-- wp:paragraph {"className":"wsaud-tag","fontSize":"small","fontFamily":"display"} -->
+<div class="wp-block-group wsaud"><!-- wp:group {"className":"wsaud-card wsaud-card--cyan","layout":{"type":"constrained"}} -->
+<div class="wp-block-group wsaud-card wsaud-card--cyan"><!-- wp:paragraph {"className":"wsaud-tag","fontSize":"small","fontFamily":"display"} -->
 <p class="wsaud-tag has-display-font-family has-small-font-size">Scholen</p>
 <!-- /wp:paragraph -->
 
@@ -68,8 +68,8 @@
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
-<!-- wp:group {"className":"wsaud-card wsaud-card--amber","layout":{"type":"constrained"}} -->
-<div class="wp-block-group wsaud-card wsaud-card--amber"><!-- wp:paragraph {"className":"wsaud-tag","fontSize":"small","fontFamily":"display"} -->
+<!-- wp:group {"className":"wsaud-card wsaud-card--cyan","layout":{"type":"constrained"}} -->
+<div class="wp-block-group wsaud-card wsaud-card--cyan"><!-- wp:paragraph {"className":"wsaud-tag","fontSize":"small","fontFamily":"display"} -->
 <p class="wsaud-tag has-display-font-family has-small-font-size">Hobbyisten</p>
 <!-- /wp:paragraph -->
 

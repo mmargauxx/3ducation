@@ -1047,10 +1047,10 @@ a:focus-visible {
 .ws-hero-nav a {
 	text-decoration: none;
 	font-weight: 500;
-	color: var(--wp--preset--color--magenta);
-	transition: color 0.15s ease;
+	color: var(--wp--preset--color--cyan);
+	transition: filter 0.15s ease;
 }
-.ws-hero-nav a:hover { color: var(--wp--preset--color--magenta-dark); }
+.ws-hero-nav a:hover { filter: brightness(0.9); }
 
 /* Intake form — clean two-up field layout on the dark band.
  * The form width is owned by the pattern's constrained group (contentSize),
@@ -1179,8 +1179,62 @@ a:focus-visible {
 	text-transform: uppercase;
 	color: var(--wp--preset--color--muted);
 }
+/* Offerte-CTA — a solid cyan pill button, mirroring the site button (8px
+ * radius, display font) but in the educatie pillar's cyan. The anchor keeps
+ * .stretched so the whole card stays clickable; the pill is the affordance. */
+.edu-cta { margin: 0; text-align: center; }
+.edu-cta a {
+	display: inline-block;
+	padding: 0.85em 1.7em;
+	background: var(--wp--preset--color--cyan);
+	color: var(--wp--preset--color--surface);
+	border-radius: 8px;
+	font-weight: 500;
+	text-decoration: none;
+	transition: filter 0.15s ease;
+}
+.edu-cta a:hover,
+.edu-cta a:focus-visible { filter: brightness(0.92); }
+/* Package-inclusion illustration — a framed thumbnail on the card's base tint
+ * so the (white-background) product image reads as a panel rather than blending
+ * into the white card. */
+.edu-thumb {
+	margin: 0.25rem 0 1.1rem;
+	border-radius: 12px;
+	overflow: hidden;
+	background: var(--wp--preset--color--base);
+	border: 1px solid var(--wp--preset--color--border);
+}
+.edu-thumb img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+/* Hero photo alongside a pillar-page intro (educatie / oplossingen / workshops)
+ * — a tall rounded panel that balances the text column; object-fit cover keeps
+ * it filled at any source ratio. */
+.hero-photo { margin: 0; }
+.hero-photo img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 5;
+	object-fit: cover;
+	border-radius: 18px;
+	box-shadow: 0 30px 50px -30px rgba(20, 21, 26, 0.35);
+}
+/* Striped "Foto volgt" placeholder standing in for a hero photo (Service &
+ * montage) — reuses .social-proof-placeholder but takes the same 4/5 panel
+ * proportions as a real .hero-photo so the layout matches the other pillars. */
+.hero-photo-placeholder {
+	aspect-ratio: 4 / 5;
+	min-height: 0;
+}
 @media (max-width: 781px) {
 	.edu-grid { grid-template-columns: 1fr; }
+	/* Stacked under the text on mobile — relax to a landscape crop so it isn't
+	 * an over-tall column. */
+	.hero-photo img,
+	.hero-photo-placeholder { aspect-ratio: 3 / 2; }
 }
 
 /* ------------------------------------------------------------------ *
@@ -1263,6 +1317,30 @@ a:focus-visible {
 	/* Never let the Webshop button wrap or stack characters vertically. */
 	.site-header .wp-block-button__link { white-space: nowrap; }
 }
+
+/* ------------------------------------------------------------------ *
+ * Tablet & small-laptop navigation
+ *
+ * The nav labels "Workshops & Educatie" and "Service & Montage" are too long
+ * to sit inline next to the logo, Webshop button and icons below ~1200px: the
+ * row wrapped to two lines and stacked the button's characters vertically.
+ * WordPress' "mobile" overlay only collapses the nav below 600px, so the whole
+ * tablet band was left broken. Extend the hamburger overlay up through 1199px
+ * (higher-specificity overrides beat core's min-width:600px inline rule); the
+ * inline nav returns at >=1200px, where it fits on one line.
+ * ------------------------------------------------------------------ */
+@media (min-width: 600px) and (max-width: 1199px) {
+	.site-header .wp-block-navigation__responsive-container-open:not(.always-shown) {
+		display: flex;
+		min-width: 44px;
+		min-height: 44px;
+	}
+	.site-header .wp-block-navigation__responsive-container:not(.hidden-by-default):not(.is-menu-open) {
+		display: none;
+	}
+}
+/* Belt-and-braces: the header Webshop button never wraps at any width. */
+.site-header .wp-block-button__link { white-space: nowrap; }
 
 /* ------------------------------------------------------------------ *
  * Footer flush with preceding section
@@ -1672,6 +1750,15 @@ a:focus-visible {
  * modifier); .price-tag is the big display price; .field-hint / file input
  * extend the dark intake form for the service request.
  * ------------------------------------------------------------------ */
+/* Two consecutive full-width surface (white) bands — e.g. verjaardagsfeestjes →
+ * voor scholen on the workshops page — should read as one continuous white area.
+ * Collapse the blockGap between them so the page's base background no longer
+ * shows through as a thin grey line. Scoped to surface→surface pairs so the
+ * intentional white→base transitions (e.g. scholen → thuis on /oplossingen)
+ * keep their separation. */
+.solutions-section.has-surface-background-color + .solutions-section.has-surface-background-color {
+	margin-block-start: 0;
+}
 .info-panel {
 	border: 1px solid var(--wp--preset--color--border);
 	border-radius: 14px;
@@ -2010,6 +2097,36 @@ a:focus-visible {
 }
 @media (max-width: 460px) {
 	.about-gallery { grid-template-columns: 1fr; }
+}
+
+/* Team grid — reuses the .about-gallery__item / __ph tile (striped "Foto"
+ * placeholder) with a name + role caption. Three-up, collapsing on smaller
+ * screens. Swap the placeholders for real portraits before go-live. */
+.about-team {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 14px;
+}
+.about-team__cap {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	padding: 0.85rem 0.95rem 1rem;
+}
+.about-team__name {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+.about-team__role {
+	font-size: 0.82rem;
+	color: var(--wp--preset--color--ink-soft);
+}
+@media (max-width: 600px) {
+	.about-team { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+	.about-team { grid-template-columns: 1fr; }
 }
 
 /* ------------------------------------------------------------------ *

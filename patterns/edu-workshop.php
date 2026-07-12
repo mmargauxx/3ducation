@@ -23,8 +23,8 @@
 
 <!-- wp:columns {"align":"wide","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|50"}}}} -->
 <div class="wp-block-columns alignwide"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--magenta","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--magenta has-display-font-family has-small-font-size">Stap 1 · Voorbereiding</p>
+<div class="wp-block-column"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Stap 1 · Voorbereiding</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3,"fontSize":"large"} -->
@@ -51,8 +51,8 @@
 <!-- /wp:column -->
 
 <!-- wp:column -->
-<div class="wp-block-column"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--amber","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--amber has-display-font-family has-small-font-size">Stap 3 · De software</p>
+<div class="wp-block-column"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size">Stap 3 · De software</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3,"fontSize":"large"} -->

@@ -3,11 +3,13 @@
  * Title: Educatie hero
  * Slug: 3ducation/edu-hero
  * Categories: 3ducation, banner
- * Description: Intro for the Educatieve pakketten page — 3D-printen op school.
+ * Description: Intro for the Educatieve pakketten page — 3D-printen op school, with a classroom photo alongside.
  */
 ?>
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|60"}}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
-<div class="wp-block-group alignfull" style="padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"constrained","contentSize":"760px"}} -->
+<div class="wp-block-group alignfull" style="padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:columns {"align":"wide","verticalAlignment":"center","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|70"}}}} -->
+<div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"54%"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:54%"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"constrained","contentSize":"640px"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"3px","fontWeight":"500"},"color":{"text":"var:preset|color|cyan"}},"fontSize":"small","fontFamily":"display"} -->
 <p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--cyan);font-weight:500;letter-spacing:3px;text-transform:uppercase">Voor scholen · Educatieve pakketten</p>
 <!-- /wp:paragraph -->
@@ -38,4 +40,12 @@
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:group --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"verticalAlignment":"center","width":"46%"} -->
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:image {"className":"hero-photo","sizeSlug":"large"} -->
+<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/edu-hero.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Leerlingen ontwerpen 3D-modellen op een laptop naast een 3D-printer tijdens een workshop.', '3ducation' ); ?>"/></figure>
+<!-- /wp:image --></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns --></div>
 <!-- /wp:group -->
