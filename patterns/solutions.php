@@ -18,11 +18,11 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Breng de technologie van de toekomst naar je klaslokaal. Wij bieden complete educatieve pakketten aan, gecombineerd met gerichte opleidingen voor leerkrachten. Zo garanderen we een vlotte implementatie in het lesprogramma van basis- en secundaire scholen en voorkomen we dat het toestel na aankoop ongebruikt blijft staan.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Breng de technologie van de toekomst naar je klaslokaal. Complete educatieve pakketten, gecombineerd met opleidingen voor leerkrachten — zodat de printer meteen zijn plek vindt in het lesprogramma.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">De keuze van de 3D-printer is volledig vrij. Wij adviseren je graag op maat van de specifieke noden van jouw school. Neem vrijblijvend contact op om de combinatiemogelijkheden te bespreken.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Alles over de aanpak, de pakketten en de lerarenopleiding vind je op <strong>Workshops &amp; Educatie</strong>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|20"} -->
@@ -31,7 +31,7 @@
 
 <!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}}} -->
 <div class="wp-block-buttons"><!-- wp:button -->
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="mailto:info@3ducation.be?subject=Educatief%20pakket%20op%20maat">Neem vrijblijvend contact op</a></div>
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/workshops">Naar Workshops &amp; Educatie</a></div>
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-outline"} -->
