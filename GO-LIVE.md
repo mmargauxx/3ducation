@@ -28,8 +28,9 @@ is **not enough** after editing/adding any `patterns/*.php`:
 wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
 ```
 No WP-CLI on the host? Deactivate + reactivate the theme instead.
-`THREEDUCATION_VERSION` (in `style.css` + `functions.php`) busts the browser CSS
-cache but **not** the pattern cache — bump it on every release and still flush.
+`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.13.0`)
+busts the browser CSS cache but **not** the pattern cache — bump both in lockstep on
+every release and still flush.
 
 ---
 
@@ -70,14 +71,27 @@ Create a **Page** for each of these slugs and assign the matching template
 
 ## 4. Before launch — code TODOs still in the theme
 
+**Forms**
 - [ ] **Wire up the three intake forms** — `contact-form.php`, `service-intake.php`,
       `workshops-intake.php` use `action="#"` and submit nowhere. Connect to a form
-      plugin (Contact Form 7 / WPForms) or a POST-to-email handler.
+      plugin (Contact Form 7 / WPForms) or a POST-to-email handler. Each carries a
+      visible `[Placeholder]` note reminding you to do so — drop the note once wired.
+
+**Placeholder copy** (search the codebase for `[Placeholder]`)
 - [ ] **`workshops-audiences.php`** — replace the `[Placeholder]` audience-card copy
       (headings, body, bullets) with real Dutch content.
-- [ ] Replace remaining `[Placeholder]` intro copy in `about.php` and `workshops-intake.php`.
-- [ ] Add real photos to the homepage `social-proof-placeholder` and the
-      About-page gallery tiles.
+- [ ] Replace remaining `[Placeholder]` intro copy in `workshops-intake.php`,
+      `about.php`, and `about-team.php`.
+
+**Photos** — some pillar heroes now ship real photos; others still show a
+"Foto volgt" tile (`.social-proof-placeholder`). Swap the remaining tiles for real images:
+- [ ] Heroes **with** real photos already: `/oplossingen`, `/workshops`,
+      `/educatieve-pakketten`.
+- [ ] Still "Foto volgt": `about-hero.php` (`/over-ons`), `service-hero.php`
+      (`/service`), and the homepage `audience-split.php` tile.
+- [ ] **About page team tiles** (`about-team.php`) — replace the placeholder tiles
+      with real team photos + names/roles.
+- [ ] **About page gallery tiles** (`about.php` social-proof) — real workshop/classroom photos.
 
 ---
 
