@@ -1337,6 +1337,21 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
+ * Hamburger vertical centering
+ *
+ * The overlay-open button is a plain <button>; core gives it no height, so
+ * inside the center-aligned header row it hugs the top of the tallest
+ * neighbour (the cube logo / Webshop button) instead of sitting on the row's
+ * mid-line. Make the button a full-height flex box that centers its icon so
+ * the hamburger lines up with the logo and Webshop button. Applies wherever
+ * the overlay is active (phone <600px and the 600–1199px tablet band). */
+.site-header .wp-block-navigation__responsive-container-open:not(.always-shown) {
+	align-self: stretch;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------------ *
  * Tablet & small-laptop navigation
  *
  * The nav labels "Workshops & Educatie" and "Service & Montage" are too long
