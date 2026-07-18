@@ -28,7 +28,7 @@ is **not enough** after editing/adding any `patterns/*.php`:
 wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
 ```
 No WP-CLI on the host? Deactivate + reactivate the theme instead.
-`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.13.0`)
+`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.15.0`)
 busts the browser CSS cache but **not** the pattern cache — bump both in lockstep on
 every release and still flush.
 
@@ -90,10 +90,13 @@ Create a **Page** for each of these slugs and assign the matching template
       visible `[Placeholder]` note reminding you to do so — drop the note once wired.
 
 **Placeholder copy** (search the codebase for `[Placeholder]`)
-- [ ] **`workshops-audiences.php`** — replace the `[Placeholder]` audience-card copy
-      (headings, body, bullets) with real Dutch content.
-- [ ] Replace remaining `[Placeholder]` intro copy in `workshops-intake.php`,
-      `about.php`, and `about-team.php`.
+- [x] **`workshops-audiences.php`** — audience-card body + bullets finalised (v0.15.0).
+- [x] Intro copy in `workshops-intake.php`, `about.php`, and `about-team.php` finalised;
+      `edu-packages.php` "x leerkrachten" filler resolved.
+- [ ] **Team names** — `about-team.php` tile 1 is "Patrick Smet"; tiles 2 & 3 still hold
+      `[Naam 2]` / `[Naam 3]` placeholders — fill the two remaining names (+ real photos).
+- [ ] The only `[Placeholder]` markers left are the three form dev-notes
+      ("Koppel dit formulier…"); they disappear once the forms below are wired.
 
 **Photos** — some pillar heroes now ship real photos; others still show a
 "Foto volgt" tile (`.social-proof-placeholder`). Swap the remaining tiles for real images:

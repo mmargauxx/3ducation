@@ -44,7 +44,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Lachende kinderen tijdens een workshop, leerkrachten die trots hun eerste geprinte model tonen. [Placeholder] Vervang de tegels hieronder door echte foto's uit je workshops en klasbezoeken.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Lachende kinderen tijdens een verjaardagsfeestje en leerkrachten die trots hun eerste geprinte model aan de klas tonen. Dat is precies waar we het voor doen! Bekijk hieronder hoe 3D-printen zonder zorgen er in de praktijk uitziet.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|40"} -->

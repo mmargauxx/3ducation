@@ -20,7 +20,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">De mensen die je verder helpen — op school, thuis en aan de werkbank. [Placeholder] Vervang de tegels hieronder door echte teamfoto's en vul de namen en rollen aan.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Maak kennis met de mensen die jou met veel enthousiasme verder helpen op school, thuis en aan de werkbank.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|40"} -->
@@ -29,9 +29,9 @@
 
 <!-- wp:html -->
 <div class="about-team">
-	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Naam teamlid', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Oprichter &amp; 3D-expert', '3ducation' ); ?></span></figcaption></figure>
-	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Naam teamlid', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Workshops &amp; educatie', '3ducation' ); ?></span></figcaption></figure>
-	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Naam teamlid', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Service &amp; montage', '3ducation' ); ?></span></figcaption></figure>
+	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Patrick Smet', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Oprichter &amp; 3D-expert', '3ducation' ); ?></span></figcaption></figure>
+	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( '[Naam 2]', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Workshops &amp; Educatie', '3ducation' ); ?></span></figcaption></figure>
+	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( '[Naam 3]', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Service &amp; Montage', '3ducation' ); ?></span></figcaption></figure>
 </div>
 <!-- /wp:html --></div>
 <!-- /wp:group -->

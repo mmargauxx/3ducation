@@ -12,7 +12,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">[Placeholder] Elk traject stemmen we af op de groep. Kies het profiel dat past.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Elk leertraject stemmen we perfect af op jouw groep. Kies het profiel dat het beste bij jullie past.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|40"} -->
@@ -30,13 +30,13 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">[Placeholder] Voor leerkrachten en leerlingen: klaar-voor-de-klas materiaal en begeleiding.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Praktische bijscholing en direct inzetbaar lesmateriaal om STEM succesvol tot leven te brengen in de klas.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list {"className":"wsaud-list"} -->
-<ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>[Placeholder] Lerarenopleiding</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>[Placeholder] Lesmateriaal &amp; projecten</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>[Placeholder] Begeleiding op locatie</li><!-- /wp:list-item --></ul>
+<ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>✓ Praktische lerarentraining</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>✓ Direct inzetbaar lesmateriaal</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>✓ Begeleiding op school</li><!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
@@ -54,13 +54,13 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">[Placeholder] Voor teams die prototyping of productie willen inzetten: praktijkgericht en op maat.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Praktijkgerichte trainingen op maat voor teams die 3D-printen en prototyping zakelijk willen inzetten.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list {"className":"wsaud-list"} -->
-<ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>[Placeholder] In-house training</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>[Placeholder] Materiaal- &amp; machinekeuze</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>[Placeholder] Workflow &amp; slicing</li><!-- /wp:list-item --></ul>
+<ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>✓ In-house teamtraining</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>✓ Advies in materiaalkeuze</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>✓ Optimalisatie van workflows</li><!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
@@ -78,13 +78,13 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
-<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">[Placeholder] Voor beginners én gevorderden die zelf aan de slag willen: van eerste print tot eigen ontwerp.</p>
+<p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Van je allereerste 3D-print tot je eigen unieke ontwerp: leer alles om thuis creatief aan de slag te gaan.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list {"className":"wsaud-list"} -->
-<ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>[Placeholder] Starterworkshop</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>[Placeholder] Ontwerpen in Tinkercad</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>[Placeholder] Verdieping &amp; troubleshooting</li><!-- /wp:list-item --></ul>
+<ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>✓ Inspirerende startersworkshop</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>✓ Ontwerpen met Tinkercad</li><!-- /wp:list-item -->
+<!-- wp:list-item --><li>✓ Hulp bij troubleshooting</li><!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 
 <!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
