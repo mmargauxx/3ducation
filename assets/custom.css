@@ -417,7 +417,10 @@ a:focus-visible {
 .spotlights-wrap { margin-block: 0; }
 .spotlights {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	/* auto-fit so 1 or 2 admin-picked products still fill the row instead of
+	 * leaving an empty trailing cell; three picks (the default/fallback) render
+	 * identically to a fixed three-up at the 1240px content width. */
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: var(--wp--preset--spacing--30);
 	align-items: stretch;
 }
@@ -799,6 +802,21 @@ a:focus-visible {
  * overlapping in the shared top-left corner. */
 .wp-block-woocommerce-product-image-gallery .onsale.on-preorder:has(~ .onsale:not(.on-preorder)) {
 	top: 2.2em;
+}
+
+/* Related products: a product with no related items renders the block as an
+ * empty <div> (present but childless), which strands the "Gerelateerde
+ * producten" heading and its spacer above blank space before the footer. Hide
+ * the block, its heading, and the preceding spacer when there is no product
+ * card to show. (Confirmed against the plugin's actual empty output.) */
+.wp-block-woocommerce-related-products:empty {
+	display: none;
+}
+.wp-block-heading:has(+ .wp-block-woocommerce-related-products:empty) {
+	display: none;
+}
+.wp-block-spacer:has(+ .wp-block-heading + .wp-block-woocommerce-related-products:empty) {
+	display: none;
 }
 
 /* Single-product availability panel (wrapped via functions.php): a soft
@@ -1319,6 +1337,21 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
+ * Hamburger vertical centering
+ *
+ * The overlay-open button is a plain <button>; core gives it no height, so
+ * inside the center-aligned header row it hugs the top of the tallest
+ * neighbour (the cube logo / Webshop button) instead of sitting on the row's
+ * mid-line. Make the button a full-height flex box that centers its icon so
+ * the hamburger lines up with the logo and Webshop button. Applies wherever
+ * the overlay is active (phone <600px and the 600–1199px tablet band). */
+.site-header .wp-block-navigation__responsive-container-open:not(.always-shown) {
+	align-self: stretch;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------------ *
  * Tablet & small-laptop navigation
  *
  * The nav labels "Workshops & Educatie" and "Service & Montage" are too long
@@ -1364,6 +1397,22 @@ a:focus-visible {
 .site-footer p a:hover {
 	color: var(--wp--preset--color--magenta);
 	text-decoration: underline;
+}
+/* A phone number must never break across digits. */
+.site-footer a[href^="tel:"] { white-space: nowrap; }
+/* Tablet band (782–900px): core columns only stack below 782px, so the 4-up
+ * footer stays side-by-side here and squeezes the narrow Contact column —
+ * wrapping the address and phone number mid-token. Wrap the columns two-up into
+ * a tidy 2×2 grid. The !important overrides the brand column's inline 38% basis;
+ * the calc keeps the existing spacing|50 gutter between the two columns. */
+@media (min-width: 782px) and (max-width: 900px) {
+	/* Core pins columns to `flex-wrap: nowrap !important` above 782px, so this
+	 * must be !important too to let the footer wrap into a 2×2 grid. */
+	.site-footer .wp-block-columns { flex-wrap: wrap !important; }
+	.site-footer .wp-block-columns > .wp-block-column {
+		flex-basis: calc(50% - var(--wp--preset--spacing--50) / 2) !important;
+		min-width: 0;
+	}
 }
 
 /* ------------------------------------------------------------------ *
@@ -1551,10 +1600,25 @@ a:focus-visible {
 /* Two per row on mobile. WooCommerce's flex template ships 1 column below
  * 600px (each li 100%) and jumps straight to 4 above it; force 2-up across the
  * whole ≤781px range so phones show a pair and small tablets don't cram four.
- * (calc mirrors WC's own .columns-2 formula for the 1.25em flex gap.) */
+ * (calc mirrors WC's own .columns-2 formula for the 1.25em flex gap.)
+ * !important is required because WC pins the width with a specificity hack —
+ * `.is-flex-container.is-flex-container.columns-4 > li` (0,4,1), a duplicated
+ * class — which otherwise outranks a normal theme selector from 600px up. */
 @media (max-width: 781px) {
 	.shop-grid .wc-block-product-template.is-flex-container > li {
-		width: calc(50% - 0.625em);
+		width: calc(50% - 0.625em) !important;
+	}
+}
+/* Tablet band (782–1023px): WooCommerce keeps its 4-up desktop layout here,
+ * cramming cards to ~150px so product titles clamp and truncate mid-word — worse
+ * on the shop archive where the filter sidebar narrows the grid column further.
+ * Force 3-up so titles have room to breathe. (calc mirrors WC's .columns-3
+ * formula for the 1.25em flex gap: (N-1)*gap/N = 2*1.25em/3 ≈ 0.834em.)
+ * !important for the same reason as the ≤781px rule above — beat WC's
+ * duplicated-class specificity hack on .columns-4. */
+@media (min-width: 782px) and (max-width: 1023px) {
+	.shop-grid .wc-block-product-template.is-flex-container > li {
+		width: calc(33.333% - 0.834em) !important;
 	}
 }
 /* Fixed square media box gives every card the same image height;
@@ -2097,6 +2161,10 @@ a:focus-visible {
 }
 @media (max-width: 460px) {
 	.about-gallery { grid-template-columns: 1fr; }
+	/* Full-width 4/5 portrait tiles get ~490px tall when stacked one-up, making a
+	 * long striped scroll. Relax to a landscape crop (mirrors the hero-photo
+	 * placeholder's 3/2 mobile treatment). */
+	.about-gallery .about-gallery__ph { aspect-ratio: 3 / 2; }
 }
 
 /* Team grid — reuses the .about-gallery__item / __ph tile (striped "Foto"
@@ -2127,6 +2195,8 @@ a:focus-visible {
 }
 @media (max-width: 400px) {
 	.about-team { grid-template-columns: 1fr; }
+	/* Same landscape relax as the gallery once team tiles stack one-up. */
+	.about-team .about-gallery__ph { aspect-ratio: 3 / 2; }
 }
 
 /* ------------------------------------------------------------------ *

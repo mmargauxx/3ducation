@@ -66,6 +66,18 @@ Create a **Page** for each of these slugs and assign the matching template
 - [ ] **Settings → Site melding** — configure or disable the announcement bar
       (the "Aangepaste openingsuren…" banner is test content)
 - [ ] Configure a **payment gateway** (e.g. Mollie)
+- [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
+      the per-product option selectors (e.g. the printer workshop's "Kies hier uw
+      optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The
+      option copy itself is product data entered per product, not theme source.
+- [ ] **Translate Product Add-Ons UI strings to Dutch** — the plugin ships no nl_NL for a
+      few labels, so the option block shows English **"Product Price"** and **"Total"**.
+      These live in the `woocommerce-product-addons` text domain (a *different* domain
+      from the theme's `gettext_woocommerce` fallback filter, which only covers core
+      WooCommerce). Fix with **Loco Translate** → Plugins → WooCommerce Product Add-Ons
+      → Dutch: "Product Price" → "Productprijs", "Total" → "Totaal" (check also
+      "Grand total" / "Options total"). Loco writes an update-safe `.mo` into
+      `wp-content/languages/plugins/`.
 
 ---
 
