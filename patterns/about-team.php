@@ -29,9 +29,9 @@
 
 <!-- wp:html -->
 <div class="about-team">
-	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Patrick Smet', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Oprichter &amp; 3D-expert', '3ducation' ); ?></span></figcaption></figure>
-	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( '[Naam 2]', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Workshops &amp; Educatie', '3ducation' ); ?></span></figcaption></figure>
-	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( '[Naam 3]', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Service &amp; Montage', '3ducation' ); ?></span></figcaption></figure>
+	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Natalie Verbeke', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Winkelmedewerker', '3ducation' ); ?></span></figcaption></figure>
+	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Patrick Smet', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Zaakvoerder', '3ducation' ); ?></span></figcaption></figure>
+	<figure class="about-gallery__item about-team__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Cato Smet', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( '3D-print expert onderwijs', '3ducation' ); ?></span></figcaption></figure>
 </div>
 <!-- /wp:html --></div>
 <!-- /wp:group -->
