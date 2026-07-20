@@ -2242,6 +2242,12 @@ a:focus-visible {
 	grid-template-columns: repeat(3, 1fr);
 	gap: 14px;
 }
+.about-team__photo {
+	display: block;
+	width: 100%;
+	aspect-ratio: 3 / 4;
+	object-fit: cover;
+}
 .about-team__cap {
 	display: flex;
 	flex-direction: column;

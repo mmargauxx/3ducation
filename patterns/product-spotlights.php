@@ -24,7 +24,7 @@ if ( is_wp_error( $terms ) || empty( $terms ) ) {
 	return;
 }
 
-$accents = array( 'magenta', 'cyan', 'amber' );
+$accents = array( 'cyan', 'cyan', 'cyan' );
 
 // Highlight the chip for the category currently being viewed (if any), so the
 // row doubles as a "you are here" wayfinder on category archives.

@@ -28,7 +28,7 @@ is **not enough** after editing/adding any `patterns/*.php`:
 wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
 ```
 No WP-CLI on the host? Deactivate + reactivate the theme instead.
-`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.15.3`)
+`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.15.4`)
 busts the browser CSS cache but **not** the pattern cache — bump both in lockstep on
 every release and still flush.
 
