@@ -108,24 +108,22 @@ Create a **Page** for each of these slugs and assign the matching template
       plugin (Contact Form 7 / WPForms) or a POST-to-email handler. Each carries a
       visible `[Placeholder]` note reminding you to do so — drop the note once wired.
 
-**Placeholder copy** (search the codebase for `[Placeholder]`)
-- [x] **`workshops-audiences.php`** — audience-card body + bullets finalised (v0.15.0).
-- [x] Intro copy in `workshops-intake.php`, `about.php`, and `about-team.php` finalised;
-      `edu-packages.php` "x leerkrachten" filler resolved.
-- [ ] **Team names** — `about-team.php` tile 1 is "Patrick Smet"; tiles 2 & 3 still hold
-      `[Naam 2]` / `[Naam 3]` placeholders — fill the two remaining names (+ real photos).
-- [ ] The only `[Placeholder]` markers left are the three form dev-notes
-      ("Koppel dit formulier…"); they disappear once the forms below are wired.
+**Copy**
+- [x] Audience-card, intake, about and package copy finalised.
+- [x] **Team names filled** — Natalie Verbeke / Patrick Smet / Cato Smet (`about-team.php`).
+- [ ] The only `[Placeholder]` markers left are the **three form dev-notes**
+      ("Koppel dit formulier…"); they disappear once the forms above are wired.
 
-**Photos** — some pillar heroes now ship real photos; others still show a
-"Foto volgt" tile (`.social-proof-placeholder`). Swap the remaining tiles for real images:
-- [ ] Heroes **with** real photos already: `/oplossingen`, `/workshops`,
-      `/educatieve-pakketten`.
-- [ ] Still "Foto volgt": `about-hero.php` (`/over-ons`), `service-hero.php`
-      (`/service`), and the homepage `audience-split.php` tile.
-- [ ] **About page team tiles** (`about-team.php`) — replace the placeholder tiles
-      with real team photos + names/roles.
-- [ ] **About page gallery tiles** (`about.php` social-proof) — real workshop/classroom photos.
+**Photos** — every "Foto"/"Foto volgt" placeholder tile is now gone; all heroes,
+gallery and team tiles ship a real image. Several are **stock stand-ins**, so
+before (or shortly after) launch swap these for genuine 3DUCATION photos:
+- [ ] **Team portraits** (`about-team.php` — `team-natalie/-patrick/-cato.jpg`)
+      are stock people — replace with real photos of the team.
+- [ ] **"Uit de praktijk" gallery** (`about.php`) + some section photos reuse
+      generic 3D-print stock — swap for real workshop/classroom/party shots.
+- Real photos already in place across: homepage hero, `/oplossingen`, `/workshops`,
+  `/educatieve-pakketten`, `/service`, `/over-ons`. (To revert the homepage hero to a
+  different image, point `.home-hero` in `hero.php` at another file in `assets/images/`.)
 
 ---
 
