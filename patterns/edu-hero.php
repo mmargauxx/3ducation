@@ -44,7 +44,7 @@
 
 <!-- wp:column {"verticalAlignment":"center","width":"46%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:image {"className":"hero-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/edu-hero.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Leerlingen ontwerpen 3D-modellen op een laptop naast een 3D-printer tijdens een workshop.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Leerlingen ontwerpen 3D-modellen op een laptop naast een 3D-printer tijdens een workshop.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>

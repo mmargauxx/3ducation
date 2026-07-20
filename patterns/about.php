@@ -79,7 +79,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":2} -->
-<h2 class="wp-block-heading">Maak het, repareer het en beleef het</h2>
+<h2 class="wp-block-heading">Maken, repareren, beleven</h2>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
@@ -110,6 +110,10 @@
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
 <p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Wij leveren voorgemonteerde printers en complete pakketten, zodat jij je kunt focussen op het ontwerpen en printen.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
+<p class="wsaud-link has-display-font-family"><a class="stretched" href="/oplossingen">Bekijk de oplossingen →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -124,6 +128,10 @@
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
 <p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Via onze workshops en (kinder)feestjes leren we jong en oud op een speelse manier omgaan met 3D-software en printers.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
+<p class="wsaud-link has-display-font-family"><a class="stretched" href="/workshops">Ontdek de workshops →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -138,6 +146,10 @@
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}}} -->
 <p class="has-text-color" style="color:var(--wp--preset--color--ink-soft)">Loopt er toch iets vast? Wij staan klaar voor technische ondersteuning, onderhoud, reparaties en reserveonderdelen.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
+<p class="wsaud-link has-display-font-family"><a class="stretched" href="/service">Naar service & montage →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group --></div>

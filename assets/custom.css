@@ -35,35 +35,77 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
- * Hero panel: brand-gradient card with a gentle float
+ * Homepage hero: full-bleed photo background with a legibility scrim.
+ * Placeholder look (dark + faint stripes + "FOTO" tag) until a real image
+ * is set — drop the photo in via a background-image on .home-hero; the
+ * ::after scrim keeps the light text readable over any photo.
  * ------------------------------------------------------------------ */
-.hero-panel {
-	box-shadow: 0 30px 60px -30px rgba(230, 24, 108, 0.45);
-	animation: float 7s ease-in-out infinite;
-}
-.hero-usp {
-	list-style: none;
-	margin: 0.75rem 0 0;
-	padding: 0;
-}
-.hero-usp li {
+.home-hero {
 	position: relative;
-	padding-left: 2.25rem;
+	isolation: isolate;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: clamp(440px, 60vh, 640px);
+	/* Gutter cancels out of the band-centring math on wide screens (so the text
+	   still lines up with the page), and keeps content off the edge on mobile. */
+	padding-inline: var(--wp--preset--spacing--40);
+	background-color: var(--wp--preset--color--surface-dark);
+	background-image: repeating-linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.05) 0,
+		rgba(255, 255, 255, 0.05) 1px,
+		transparent 1px,
+		transparent 13px
+	);
+	background-size: cover;
+	background-position: center;
 }
-.hero-usp li::before {
+/* Scrim: darkens the photo left→right so the text column stays legible. */
+.home-hero::after {
 	content: "";
 	position: absolute;
-	left: 0;
-	top: 0.85em;
-	width: 0.7rem;
-	height: 0.7rem;
-	border: 2px solid var(--wp--preset--color--surface);
-	border-radius: 2px;
-	transform: rotate(45deg) translateY(-50%);
+	inset: 0;
+	z-index: -1;
+	background: linear-gradient(
+		90deg,
+		rgba(15, 16, 22, 0.82) 0%,
+		rgba(15, 16, 22, 0.6) 45%,
+		rgba(15, 16, 22, 0.2) 100%
+	);
 }
-@keyframes float {
-	0%, 100% { transform: translateY(0); }
-	50% { transform: translateY(-8px); }
+/* .home-hero__content is a 1240 band centred like the rest of the page (both
+   groups use plain flow layout, so WP's constrained auto-margins don't fight
+   us); its children cap at 640 and sit flush-left, lining up with the pillars. */
+.home-hero__content {
+	width: 100%;
+	max-width: 1240px;
+	margin-inline: auto;
+}
+.home-hero__content > * {
+	max-width: 640px;
+}
+.home-hero__tag {
+	position: absolute;
+	top: var(--wp--preset--spacing--30);
+	right: var(--wp--preset--spacing--30);
+	margin: 0;
+	z-index: 1;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--mist-soft);
+}
+@media (max-width: 781px) {
+	.home-hero { min-height: clamp(380px, 70vh, 520px); }
+	/* Vertical scrim on narrow screens where the text spans full width. */
+	.home-hero::after {
+		background: linear-gradient(
+			180deg,
+			rgba(15, 16, 22, 0.55) 0%,
+			rgba(15, 16, 22, 0.85) 100%
+		);
+	}
 }
 
 /* ------------------------------------------------------------------ *
@@ -248,7 +290,6 @@ a:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
 	.marquee__track { animation: none; }
-	.hero-panel { animation: none; }
 }
 
 /* ------------------------------------------------------------------ *
@@ -1043,11 +1084,13 @@ a:focus-visible {
 }
 .wsaud-link {
 	margin-top: auto;
+	padding-top: var(--wp--preset--spacing--30);
 }
 .wsaud-link a {
 	text-decoration: none;
 	font-weight: 500;
-	color: var(--wp--preset--color--ink);
+	/* Pick up the card's pillar accent (magenta/cyan/amber); ink fallback. */
+	color: var(--wsaud-accent, var(--wp--preset--color--ink));
 }
 .wsaud-card .stretched::after {
 	content: "";
@@ -1383,6 +1426,13 @@ a:focus-visible {
  * template part, which shows as a thin light strip between the two
  * dark blocks. Remove it so the footer butts flush against the content. */
 .wp-site-blocks > footer.wp-block-template-part {
+	margin-block-start: 0;
+}
+
+/* Same block-gap strip appears between the header and the first section.
+ * On the homepage that first section is the dark full-bleed hero, so the
+ * light gap is visible — drop it so the hero butts flush under the nav. */
+.wp-site-blocks > main {
 	margin-block-start: 0;
 }
 
@@ -2120,6 +2170,23 @@ a:focus-visible {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
 	gap: 14px;
+}
+/* Homepage social-proof: a row of three photos (audience-split). */
+.proof-row {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 14px;
+}
+.proof-row img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: 14px;
+	border: 1px solid var(--wp--preset--color--border);
+}
+@media (max-width: 781px) {
+	.proof-row { grid-template-columns: 1fr; }
 }
 .about-gallery__item {
 	margin: 0;

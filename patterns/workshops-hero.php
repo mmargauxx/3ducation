@@ -38,7 +38,7 @@
 
 <!-- wp:column {"verticalAlignment":"center","width":"46%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:image {"className":"hero-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops-hero.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Deelnemers volgen samen een 3D-print workshop rond een laptop, met 3D-geprinte bloemen op tafel.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Deelnemers volgen samen een 3D-print workshop rond een laptop, met 3D-geprinte bloemen op tafel.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>

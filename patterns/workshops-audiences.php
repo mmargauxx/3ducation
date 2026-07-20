@@ -6,8 +6,8 @@
  * Description: Scannable three-audience grid for the Workshops page — schools, businesses and hobbyists.
  */
 ?>
-<!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|60"}}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
-<div class="wp-block-group alignwide" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:heading {"level":2} -->
+<!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|60"}}},"backgroundColor":"surface","className":"solutions-section","layout":{"type":"constrained","wideSize":"1240px"}} -->
+<div class="wp-block-group alignfull solutions-section has-surface-background-color has-background" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--60)"><!-- wp:heading {"level":2} -->
 <h2 class="wp-block-heading">Voor wie</h2>
 <!-- /wp:heading -->
 

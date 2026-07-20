@@ -77,9 +77,11 @@
 <div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
 <!-- /wp:spacer -->
 
-<!-- wp:group {"className":"social-proof-placeholder","layout":{"type":"constrained"}} -->
-<div class="wp-block-group social-proof-placeholder"><!-- wp:paragraph {"className":"social-proof-placeholder__label","fontSize":"small","fontFamily":"display"} -->
-<p class="social-proof-placeholder__label has-display-font-family has-small-font-size">Foto's — leerkrachten &amp; blije kinderen op workshop</p>
-<!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
+<!-- wp:html -->
+<div class="proof-row">
+	<img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt="<?php echo esc_attr__( '3D-printen in de klas op school.', '3ducation' ); ?>">
+	<img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Educatieve 3D-modellen tijdens een workshop.', '3ducation' ); ?>">
+	<img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/verjaardag.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een 3D-printer aan het werk tijdens een verjaardagsfeestje.', '3ducation' ); ?>">
+</div>
+<!-- /wp:html --></div>
 <!-- /wp:group -->

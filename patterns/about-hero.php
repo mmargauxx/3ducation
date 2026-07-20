@@ -11,11 +11,11 @@
 <div class="wp-block-columns alignwide are-vertically-aligned-center"><!-- wp:column {"verticalAlignment":"center","width":"54%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:54%"><!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"constrained","contentSize":"640px"}} -->
 <div class="wp-block-group"><!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"3px","fontWeight":"500"},"color":{"text":"var:preset|color|magenta"}},"fontSize":"small","fontFamily":"display"} -->
-<p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--magenta);font-weight:500;letter-spacing:3px;text-transform:uppercase">Over ons</p>
+<p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--magenta);font-weight:500;letter-spacing:3px;text-transform:uppercase">Over 3DUCATION</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":1,"style":{"typography":{"fontSize":"clamp(2.25rem, 5vw, 3.75rem)"}}} -->
-<h1 class="wp-block-heading" style="font-size:clamp(2.25rem, 5vw, 3.75rem)">Over 3DUCATION: 3D-printen zonder zorgen, op school en thuis</h1>
+<h1 class="wp-block-heading" style="font-size:clamp(2.25rem, 5vw, 3.75rem)">3D-printen zonder zorgen, op school en thuis</h1>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
@@ -29,11 +29,9 @@
 <!-- /wp:column -->
 
 <!-- wp:column {"verticalAlignment":"center","width":"46%"} -->
-<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:group {"className":"social-proof-placeholder hero-photo-placeholder","layout":{"type":"constrained"}} -->
-<div class="wp-block-group social-proof-placeholder hero-photo-placeholder"><!-- wp:paragraph {"className":"social-proof-placeholder__label","fontSize":"small","fontFamily":"display"} -->
-<p class="social-proof-placeholder__label has-display-font-family has-small-font-size">Foto volgt</p>
-<!-- /wp:paragraph --></div>
-<!-- /wp:group --></div>
+<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:image {"className":"hero-photo","sizeSlug":"large"} -->
+<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/demodagen.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Iemand volgt een 3D-printer aan het werk tijdens een demonstratie.', '3ducation' ); ?>"/></figure>
+<!-- /wp:image --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>
 <!-- /wp:group -->
