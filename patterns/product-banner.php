@@ -25,11 +25,11 @@ if ( function_exists( 'is_product_category' ) && is_product_category() ) {
 if ( empty( $spotlights ) ) {
 	return;
 }
-$accents = array( 'cyan', 'cyan', 'cyan' );
+$accents = array( 'amber', 'amber', 'amber' );
 ?>
 <!-- wp:group {"align":"wide","className":"spotlights-wrap","style":{"spacing":{"padding":{"top":"var:preset|spacing|20","bottom":"var:preset|spacing|20"},"blockGap":"var:preset|spacing|30"}},"layout":{"type":"constrained","wideSize":"1240px"}} -->
-<div class="wp-block-group alignwide spotlights-wrap" style="padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--cyan","fontSize":"small","fontFamily":"display"} -->
-<p class="print-eyebrow print-eyebrow--cyan has-display-font-family has-small-font-size"><?php echo $eyebrow_label; // reeds ge-escaped ?></p>
+<div class="wp-block-group alignwide spotlights-wrap" style="padding-top:var(--wp--preset--spacing--20);padding-bottom:var(--wp--preset--spacing--20)"><!-- wp:paragraph {"className":"print-eyebrow print-eyebrow--amber","fontSize":"small","fontFamily":"display"} -->
+<p class="print-eyebrow print-eyebrow--amber has-display-font-family has-small-font-size"><?php echo $eyebrow_label; // reeds ge-escaped ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:html -->
