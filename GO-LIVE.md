@@ -28,7 +28,7 @@ is **not enough** after editing/adding any `patterns/*.php`:
 wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
 ```
 No WP-CLI on the host? Deactivate + reactivate the theme instead.
-`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.15.9`)
+`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.16.0`)
 busts the browser CSS cache but **not** the pattern cache — bump both in lockstep on
 every release and still flush.
 
@@ -103,16 +103,19 @@ Create a **Page** for each of these slugs and assign the matching template
 ## 4. Before launch — code TODOs still in the theme
 
 **Forms**
-- [ ] **Wire up the three intake forms** — `contact-form.php`, `service-intake.php`,
-      `workshops-intake.php` use `action="#"` and submit nowhere. Connect to a form
-      plugin (Contact Form 7 / WPForms) or a POST-to-email handler. Each carries a
-      visible `[Placeholder]` note reminding you to do so — drop the note once wired.
+- [x] **The three intake forms are wired** — `contact-form.php`, `service-intake.php`,
+      `workshops-intake.php` POST to an `admin-post.php` handler in `functions.php`
+      (nonce + honeypot + `wp_mail` to `info@3ducation.be`; the service form also attaches
+      photos/videos). Success/error banners show on the page after submit.
+- [ ] **On the live host, install an SMTP plugin** (e.g. WP Mail SMTP) so `wp_mail` actually
+      delivers, then send a test through each form. Override the recipient with the
+      `threeducation_intake_recipient` filter if it isn't `info@3ducation.be`.
 
 **Copy**
 - [x] Audience-card, intake, about and package copy finalised.
 - [x] **Team names filled** — Natalie Verbeke / Patrick Smet / Cato Smet (`about-team.php`).
-- [ ] The only `[Placeholder]` markers left are the **three form dev-notes**
-      ("Koppel dit formulier…"); they disappear once the forms above are wired.
+- [x] **No `[Placeholder]` markers remain** — the three form dev-notes are gone now the
+      forms are wired.
 
 **Photos** — every "Foto"/"Foto volgt" placeholder tile is now gone; all heroes,
 gallery and team tiles ship a real image. Several are **stock stand-ins**, so

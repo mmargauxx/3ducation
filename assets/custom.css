@@ -1143,10 +1143,33 @@ a:focus-visible {
 }
 .intake-form__submit:hover { background: var(--wp--preset--color--magenta-dark); }
 .intake-form__submit:active { transform: translateY(1px); }
-.intake-form__note {
-	margin: 0.9rem 0 0;
-	font-size: 0.8rem;
-	color: var(--wp--preset--color--muted);
+/* Honeypot: kept in the DOM for bots but off-screen for people (display:none
+ * would be skipped by bots). A real submission leaves this empty. */
+.intake-hp {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+/* Success / error banner after a submit. Solid light fill + dark text so it
+ * reads on both the dark intake panels and the light service form. */
+.intake-form__status {
+	margin: 0 0 1.1rem;
+	padding: 0.75em 1em;
+	border-radius: 8px;
+	font-weight: 500;
+	font-size: 0.95rem;
+}
+.intake-form__status--ok {
+	background: #e7f8f0;
+	color: #0a7a5e;
+	border: 1px solid #b7e6d3;
+}
+.intake-form__status--err {
+	background: #fdeaf1;
+	color: #b31f5e;
+	border: 1px solid #f5c4da;
 }
 /* Prose links inside the dark intake panels — the global link color is
  * ink (dark), which is invisible on the ink background. Surface + magenta

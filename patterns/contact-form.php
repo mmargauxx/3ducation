@@ -28,7 +28,9 @@
 <!-- /wp:spacer -->
 
 <!-- wp:html -->
-<form class="intake-form" action="#" method="post" novalidate>
+<form class="intake-form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" novalidate>
+	<?php echo threeducation_intake_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns escaped HTML ?>
+	<?php threeducation_intake_hidden_fields( 'contact' ); ?>
 	<div class="intake-form__row">
 		<div class="intake-field">
 			<label for="contact-name"><?php echo esc_html__( 'Naam', '3ducation' ); ?></label>
@@ -61,7 +63,6 @@
 		<textarea id="contact-message" name="message" rows="5" placeholder="<?php echo esc_attr__( 'Waarmee kunnen we je helpen?', '3ducation' ); ?>"></textarea>
 	</div>
 	<button type="submit" class="intake-form__submit"><?php echo esc_html__( 'Verstuur bericht', '3ducation' ); ?></button>
-	<p class="intake-form__note">[Placeholder] <?php echo esc_html__( 'Koppel dit formulier aan je formulier-plugin of e-mailhandler voordat je live gaat.', '3ducation' ); ?></p>
 </form>
 <!-- /wp:html --></div>
 <!-- /wp:group -->

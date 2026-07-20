@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.15.9' );
+	define( 'THREEDUCATION_VERSION', '0.16.0' );
 }
 
 /**
@@ -1455,3 +1455,206 @@ function threeducation_visibility_submitbox() {
 	echo '</div>';
 }
 add_action( 'post_submitbox_misc_actions', 'threeducation_visibility_submitbox' );
+
+/**
+ * ------------------------------------------------------------------
+ * Intake forms — contact / service / workshops
+ *
+ * The three intake patterns (contact-form, service-intake, workshops-intake)
+ * POST to admin-post.php; this handler validates (nonce + honeypot), e-mails the
+ * submission to the shop and redirects back with a success/error flag — no form
+ * plugin needed, the hand-styled markup stays. Delivery uses wp_mail(): install
+ * an SMTP plugin (e.g. WP Mail SMTP) on the live host for reliable delivery, and
+ * override the recipient via the `threeducation_intake_recipient` filter.
+ * ------------------------------------------------------------------
+ */
+
+/**
+ * Field map per form type: POST key => label (order sets the e-mail order).
+ * `attachments` flags the service form's photo/video uploads.
+ *
+ * @return array
+ */
+function threeducation_intake_config() {
+	return array(
+		'contact'   => array(
+			'subject' => __( 'Nieuw contactbericht', '3ducation' ),
+			'anchor'  => 'contact-form',
+			'fields'  => array(
+				'name'    => __( 'Naam', '3ducation' ),
+				'email'   => __( 'E-mailadres', '3ducation' ),
+				'phone'   => __( 'Telefoonnummer', '3ducation' ),
+				'subject' => __( 'Onderwerp', '3ducation' ),
+				'message' => __( 'Bericht', '3ducation' ),
+			),
+		),
+		'service'   => array(
+			'subject'     => __( 'Nieuwe service-aanvraag', '3ducation' ),
+			'anchor'      => 'service-form',
+			'attachments' => true,
+			'fields'      => array(
+				'name'          => __( 'Naam', '3ducation' ),
+				'email'         => __( 'E-mailadres', '3ducation' ),
+				'phone'         => __( 'Telefoonnummer', '3ducation' ),
+				'printer'       => __( 'Type printer', '3ducation' ),
+				'serial'        => __( 'Serienummer', '3ducation' ),
+				'invoice'       => __( 'Factuurnummer', '3ducation' ),
+				'purchase_date' => __( 'Aankoopdatum', '3ducation' ),
+				'message'       => __( 'Probleembeschrijving', '3ducation' ),
+			),
+		),
+		'workshops' => array(
+			'subject' => __( 'Nieuwe workshop-aanvraag', '3ducation' ),
+			'anchor'  => 'intake',
+			'fields'  => array(
+				'name'         => __( 'Naam', '3ducation' ),
+				'email'        => __( 'E-mailadres', '3ducation' ),
+				'organisation' => __( 'Organisatie', '3ducation' ),
+				'audience'     => __( 'Doelgroep', '3ducation' ),
+				'message'      => __( 'Je vraag', '3ducation' ),
+			),
+		),
+	);
+}
+
+/**
+ * Hidden inputs + honeypot printed inside each intake <form>.
+ *
+ * @param string $type Form type (contact|service|workshops).
+ */
+function threeducation_intake_hidden_fields( $type ) {
+	$redirect = home_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/' );
+	echo '<input type="hidden" name="action" value="threeducation_intake" />';
+	printf( '<input type="hidden" name="intake_type" value="%s" />', esc_attr( $type ) );
+	printf( '<input type="hidden" name="_redirect" value="%s" />', esc_url( $redirect ) );
+	wp_nonce_field( 'threeducation_intake', '_intake_nonce' );
+	// Honeypot: off-screen (not display:none, which bots skip), tempting to fill.
+	echo '<div class="intake-hp" aria-hidden="true"><label>Website<input type="text" name="threeducation_hp" tabindex="-1" autocomplete="off" /></label></div>';
+}
+
+/**
+ * Success / error banner shown at the top of a form after submit.
+ *
+ * @return string Escaped HTML (empty when no result flag is present).
+ */
+function threeducation_intake_notice() {
+	if ( empty( $_GET['intake'] ) ) {
+		return '';
+	}
+	$ok  = ( 'ok' === $_GET['intake'] );
+	$msg = $ok
+		? __( 'Bedankt! Je bericht is verstuurd — we nemen zo snel mogelijk contact met je op.', '3ducation' )
+		: __( 'Er ging iets mis. Controleer je gegevens en probeer opnieuw, of mail ons rechtstreeks.', '3ducation' );
+	return sprintf(
+		'<p class="intake-form__status intake-form__status--%1$s" role="status">%2$s</p>',
+		$ok ? 'ok' : 'err',
+		esc_html( $msg )
+	);
+}
+
+/**
+ * admin-post handler: validate, e-mail, redirect back to the form.
+ */
+function threeducation_handle_intake() {
+	$config = threeducation_intake_config();
+	$type   = isset( $_POST['intake_type'] ) ? sanitize_key( wp_unslash( $_POST['intake_type'] ) ) : '';
+	$back   = isset( $_POST['_redirect'] ) ? wp_validate_redirect( wp_unslash( $_POST['_redirect'] ), home_url( '/' ) ) : home_url( '/' );
+
+	$redirect = function ( $flag ) use ( $back, $config, $type ) {
+		$anchor = isset( $config[ $type ]['anchor'] ) ? $config[ $type ]['anchor'] : '';
+		$url    = add_query_arg( 'intake', $flag, $back ) . ( $anchor ? '#' . $anchor : '' );
+		wp_safe_redirect( $url );
+		exit;
+	};
+
+	// Unknown form or bad nonce → error.
+	if ( ! isset( $config[ $type ] )
+		|| ! isset( $_POST['_intake_nonce'] )
+		|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_intake_nonce'] ) ), 'threeducation_intake' ) ) {
+		$redirect( 'err' );
+	}
+
+	// Honeypot filled → silently accept (don't tip off the bot), send nothing.
+	if ( ! empty( $_POST['threeducation_hp'] ) ) {
+		$redirect( 'ok' );
+	}
+
+	$fields  = $config[ $type ]['fields'];
+	$name    = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+	$email   = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+	$message = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
+
+	// Minimal required set.
+	if ( '' === $name || ! is_email( $email ) || '' === $message ) {
+		$redirect( 'err' );
+	}
+
+	// Build the plain-text body from the field map.
+	$lines = array();
+	foreach ( $fields as $key => $label ) {
+		if ( ! isset( $_POST[ $key ] ) ) {
+			continue;
+		}
+		$raw = wp_unslash( $_POST[ $key ] );
+		$val = ( 'message' === $key ) ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw );
+		if ( '' !== $val ) {
+			$lines[] = $label . ': ' . $val;
+		}
+	}
+	$body = implode( "\n", $lines );
+
+	// Attachments (service form): images/videos only, capped at 5 × 8 MB.
+	$attachments = array();
+	if ( ! empty( $config[ $type ]['attachments'] ) && ! empty( $_FILES['attachments']['name'][0] ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$files = $_FILES['attachments'];
+		$count = min( count( (array) $files['name'] ), 5 );
+		for ( $i = 0; $i < $count; $i++ ) {
+			if ( empty( $files['name'][ $i ] ) || UPLOAD_ERR_OK !== (int) $files['error'][ $i ] ) {
+				continue;
+			}
+			if ( (int) $files['size'][ $i ] > 8 * MB_IN_BYTES ) {
+				continue;
+			}
+			$ftype = wp_check_filetype( sanitize_file_name( $files['name'][ $i ] ) );
+			$mime  = (string) $ftype['type'];
+			if ( ! $ftype['ext'] || ( 0 !== strpos( $mime, 'image/' ) && 0 !== strpos( $mime, 'video/' ) ) ) {
+				continue;
+			}
+			$single = array(
+				'name'     => $files['name'][ $i ],
+				'type'     => $files['type'][ $i ],
+				'tmp_name' => $files['tmp_name'][ $i ],
+				'error'    => $files['error'][ $i ],
+				'size'     => $files['size'][ $i ],
+			);
+			$moved = wp_handle_upload( $single, array( 'test_form' => false ) );
+			if ( ! empty( $moved['file'] ) && empty( $moved['error'] ) ) {
+				$attachments[] = $moved['file'];
+			}
+		}
+	}
+
+	$recipient = apply_filters( 'threeducation_intake_recipient', 'info@3ducation.be', $type );
+	$host      = wp_parse_url( home_url(), PHP_URL_HOST );
+	$host      = $host ? preg_replace( '/^www\./', '', $host ) : 'localhost';
+	$subject   = sprintf( '[%s] %s', get_bloginfo( 'name' ), $config[ $type ]['subject'] );
+	$headers   = array(
+		'From: 3DUCATION website <no-reply@' . $host . '>',
+		'Reply-To: ' . $name . ' <' . $email . '>',
+		'Content-Type: text/plain; charset=UTF-8',
+	);
+
+	$sent = wp_mail( $recipient, $subject, $body, $headers, $attachments );
+
+	// The uploaded copies were only needed for the e-mail — remove them again.
+	foreach ( $attachments as $path ) {
+		if ( is_file( $path ) ) {
+			wp_delete_file( $path );
+		}
+	}
+
+	$redirect( $sent ? 'ok' : 'err' );
+}
+add_action( 'admin_post_nopriv_threeducation_intake', 'threeducation_handle_intake' );
+add_action( 'admin_post_threeducation_intake', 'threeducation_handle_intake' );
