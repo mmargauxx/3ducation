@@ -53,10 +53,10 @@
 
 <!-- wp:html -->
 <div class="about-gallery">
-	<figure class="about-gallery__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Leerlingen aan de slag tijdens een workshop', '3ducation' ); ?></figcaption></figure>
-	<figure class="about-gallery__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Leerkracht toont een vers geprint model', '3ducation' ); ?></figcaption></figure>
-	<figure class="about-gallery__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Een geslaagd verjaardagsfeestje in 3D', '3ducation' ); ?></figcaption></figure>
-	<figure class="about-gallery__item"><span class="about-gallery__ph" aria-hidden="true">Foto</span><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Klaar-voor-de-klas printers in het lokaal', '3ducation' ); ?></figcaption></figure>
+	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/homepage-header.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Aan de slag met de 3D-printer', '3ducation' ); ?></figcaption></figure>
+	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops2.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Wat je allemaal kan maken', '3ducation' ); ?></figcaption></figure>
+	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/service-montage.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Van ontwerp tot geprint resultaat', '3ducation' ); ?></figcaption></figure>
+	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( '3D-printen in de klas', '3ducation' ); ?></figcaption></figure>
 </div>
 <!-- /wp:html --></div>
 <!-- /wp:group -->

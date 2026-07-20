@@ -2197,6 +2197,12 @@ a:focus-visible {
 	border-radius: 14px;
 	background: var(--wp--preset--color--surface);
 }
+.about-gallery__item img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+}
 .about-gallery__ph {
 	display: flex;
 	align-items: center;
