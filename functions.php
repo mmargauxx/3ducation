@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.16.0' );
+	define( 'THREEDUCATION_VERSION', '0.16.1' );
 }
 
 /**
@@ -839,6 +839,50 @@ function threeducation_save_cat_spotlights( $term_id ) {
 }
 add_action( 'created_product_cat', 'threeducation_save_cat_spotlights' );
 add_action( 'edited_product_cat', 'threeducation_save_cat_spotlights' );
+
+/* ------------------------------------------------------------------ *
+ * Ingekorte "Beschrijving"-kolom (Producten → Categorieën)
+ *
+ * Onze categoriebeschrijvingen zijn volledige markdown-teksten (met ###-koppen
+ * enz.), die door Parsedown op het archief worden gerenderd. WordPress' eigen
+ * "Beschrijving"-kolom in de categorielijst dumpt die ruwe tekst integraal in de
+ * cel, wat de lijst onleesbaar maakt. De kernkolom kent geen inkort-optie, dus
+ * we vervangen hem door een eigen kolom die de markdown strippen en tot ~15
+ * woorden inkort. Alleen de admin-lijst verandert; de front-end blijft ongemoeid.
+ * ------------------------------------------------------------------ */
+
+/** Vervang de kern-kolom "description" door onze ingekorte variant (zelfde plek/label). */
+function threeducation_cat_description_column( $columns ) {
+	if ( ! isset( $columns['description'] ) ) {
+		return $columns;
+	}
+	$new = array();
+	foreach ( $columns as $key => $label ) {
+		if ( 'description' === $key ) {
+			$new['threeducation_short_description'] = $label; // hergebruik het "Beschrijving"-label.
+		} else {
+			$new[ $key ] = $label;
+		}
+	}
+	return $new;
+}
+add_filter( 'manage_edit-product_cat_columns', 'threeducation_cat_description_column' );
+
+/** Render de ingekorte, van markdown ontdane beschrijving (~15 woorden). */
+function threeducation_cat_description_column_content( $content, $column_name, $term_id ) {
+	if ( 'threeducation_short_description' !== $column_name ) {
+		return $content;
+	}
+	$term = get_term( (int) $term_id, 'product_cat' );
+	if ( ! $term || is_wp_error( $term ) || '' === trim( (string) $term->description ) ) {
+		return '';
+	}
+	$text = wp_strip_all_tags( $term->description );
+	$text = preg_replace( '/[#*_>`~\[\]()]+/', '', $text ); // strip veelvoorkomende markdown-tekens.
+	$text = trim( preg_replace( '/\s+/', ' ', $text ) );     // koppen/regeleindes samentrekken tot één stroom.
+	return esc_html( wp_trim_words( $text, 15, '…' ) );
+}
+add_filter( 'manage_product_cat_custom_column', 'threeducation_cat_description_column_content', 10, 3 );
 
 /* ------------------------------------------------------------------ *
  * Product trust badges (Settings → Vertrouwensbadges)
