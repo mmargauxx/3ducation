@@ -27,11 +27,47 @@
 <div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
 <!-- /wp:spacer -->
 
-<!-- wp:html -->
-<div class="about-team">
-	<figure class="about-gallery__item about-team__item"><img class="about-team__photo" src="<?php echo esc_url( get_theme_file_uri( 'assets/images/team-natalie.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Natalie Verbeke', '3ducation' ); ?>"><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Natalie Verbeke', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Winkelmedewerker', '3ducation' ); ?></span></figcaption></figure>
-	<figure class="about-gallery__item about-team__item"><img class="about-team__photo" src="<?php echo esc_url( get_theme_file_uri( 'assets/images/team-patrick.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Patrick Smet', '3ducation' ); ?>"><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Patrick Smet', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( 'Zaakvoerder', '3ducation' ); ?></span></figcaption></figure>
-	<figure class="about-gallery__item about-team__item"><img class="about-team__photo" src="<?php echo esc_url( get_theme_file_uri( 'assets/images/team-cato.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Cato Smet', '3ducation' ); ?>"><figcaption class="about-team__cap"><span class="about-team__name"><?php echo esc_html__( 'Cato Smet', '3ducation' ); ?></span><span class="about-team__role"><?php echo esc_html__( '3D-print expert onderwijs', '3ducation' ); ?></span></figcaption></figure>
-</div>
-<!-- /wp:html --></div>
+<!-- wp:group {"className":"about-team","layout":{"type":"default"}} -->
+<div class="wp-block-group about-team"><!-- wp:group {"className":"about-gallery__item about-team__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item about-team__item"><!-- wp:image {"className":"about-team__photo","sizeSlug":"large"} -->
+<figure class="wp-block-image size-large about-team__photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/team-natalie.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Natalie Verbeke', '3ducation' ); ?>"/></figure>
+<!-- /wp:image -->
+<!-- wp:group {"className":"about-team__cap","layout":{"type":"default"}} -->
+<div class="wp-block-group about-team__cap"><!-- wp:paragraph {"className":"about-team__name"} -->
+<p class="about-team__name"><?php echo esc_html__( 'Natalie Verbeke', '3ducation' ); ?></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"about-team__role"} -->
+<p class="about-team__role"><?php echo esc_html__( 'Winkelmedewerker', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"about-gallery__item about-team__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item about-team__item"><!-- wp:image {"className":"about-team__photo","sizeSlug":"large"} -->
+<figure class="wp-block-image size-large about-team__photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/team-patrick.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Patrick Smet', '3ducation' ); ?>"/></figure>
+<!-- /wp:image -->
+<!-- wp:group {"className":"about-team__cap","layout":{"type":"default"}} -->
+<div class="wp-block-group about-team__cap"><!-- wp:paragraph {"className":"about-team__name"} -->
+<p class="about-team__name"><?php echo esc_html__( 'Patrick Smet', '3ducation' ); ?></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"about-team__role"} -->
+<p class="about-team__role"><?php echo esc_html__( 'Zaakvoerder', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"about-gallery__item about-team__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item about-team__item"><!-- wp:image {"className":"about-team__photo","sizeSlug":"large"} -->
+<figure class="wp-block-image size-large about-team__photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/team-cato.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Cato Smet', '3ducation' ); ?>"/></figure>
+<!-- /wp:image -->
+<!-- wp:group {"className":"about-team__cap","layout":{"type":"default"}} -->
+<div class="wp-block-group about-team__cap"><!-- wp:paragraph {"className":"about-team__name"} -->
+<p class="about-team__name"><?php echo esc_html__( 'Cato Smet', '3ducation' ); ?></p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"about-team__role"} -->
+<p class="about-team__role"><?php echo esc_html__( '3D-print expert onderwijs', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group --></div>
 <!-- /wp:group -->

@@ -35,45 +35,17 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
- * Homepage hero: full-bleed photo background with a legibility scrim.
- * Placeholder look (dark + faint stripes + "FOTO" tag) until a real image
- * is set — drop the photo in via a background-image on .home-hero; the
- * ::after scrim keeps the light text readable over any photo.
+ * Homepage hero: a wp:cover block (patterns/hero.php) — full-bleed photo the
+ * client can swap in the Site Editor, with a left→right dark gradient overlay
+ * as the legibility scrim. This CSS only pins the height and lays out the
+ * content band; the photo + scrim live on the Cover block itself.
  * ------------------------------------------------------------------ */
 .home-hero {
-	position: relative;
-	isolation: isolate;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	/* The wp:cover block now provides the photo (editable in the Site Editor)
+	   and the left→right gradient scrim overlay that keeps the light text
+	   legible; here we only pin the height and keep content off the edge. */
 	min-height: clamp(440px, 60vh, 640px);
-	/* Gutter cancels out of the band-centring math on wide screens (so the text
-	   still lines up with the page), and keeps content off the edge on mobile. */
 	padding-inline: var(--wp--preset--spacing--40);
-	background-color: var(--wp--preset--color--surface-dark);
-	background-image: repeating-linear-gradient(
-		-45deg,
-		rgba(255, 255, 255, 0.05) 0,
-		rgba(255, 255, 255, 0.05) 1px,
-		transparent 1px,
-		transparent 13px
-	);
-	background-size: cover;
-	background-position: center;
-}
-/* Scrim: darkens the photo left→right so the text column stays legible. */
-.home-hero::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	background: linear-gradient(
-		90deg,
-		rgba(15, 16, 22, 0.82) 0%,
-		rgba(15, 16, 22, 0.6) 45%,
-		rgba(15, 16, 22, 0.2) 100%
-	);
 }
 /* .home-hero__content is a 1240 band centred like the rest of the page (both
    groups use plain flow layout, so WP's constrained auto-margins don't fight
@@ -98,13 +70,14 @@ a:focus-visible {
 }
 @media (max-width: 781px) {
 	.home-hero { min-height: clamp(380px, 70vh, 520px); }
-	/* Vertical scrim on narrow screens where the text spans full width. */
-	.home-hero::after {
+	/* Vertical scrim on narrow screens where the text spans full width — override
+	   the Cover overlay's inline gradient (hence !important). */
+	.home-hero .wp-block-cover__background {
 		background: linear-gradient(
 			180deg,
 			rgba(15, 16, 22, 0.55) 0%,
 			rgba(15, 16, 22, 0.85) 100%
-		);
+		) !important;
 	}
 }
 
@@ -2217,6 +2190,11 @@ a:focus-visible {
 	grid-template-columns: repeat(3, 1fr);
 	gap: 14px;
 }
+/* The photos are now wp:image blocks (editable in the Site Editor). Zero WP's
+   injected flow-margin on grid children and the figure's default margin so the
+   three cells stay aligned; the img keeps the 4:3 rounded-card look. */
+.proof-row > * { margin-block-start: 0; }
+.proof-row .wp-block-image { margin: 0; width: 100%; }
 .proof-row img {
 	display: block;
 	width: 100%;
@@ -2237,6 +2215,14 @@ a:focus-visible {
 	border-radius: 14px;
 	background: var(--wp--preset--color--surface);
 }
+/* Gallery/team cards are now wp:group + wp:image blocks (editable in the Site
+   Editor). Zero WP's injected flow-margins on the grids and inside each card,
+   and drop the wp:image figure's margin, so the image stays flush above its
+   caption and the tiles align. */
+.about-gallery > *,
+.about-team > *,
+.about-gallery__item > * { margin-block-start: 0; }
+.about-gallery__item .wp-block-image { margin: 0; width: 100%; }
 .about-gallery__item img {
 	display: block;
 	width: 100%;
@@ -2264,6 +2250,7 @@ a:focus-visible {
 	text-transform: uppercase;
 }
 .about-gallery__cap {
+	margin: 0;
 	padding: 0.7rem 0.85rem 0.85rem;
 	font-size: 0.8rem;
 	line-height: 1.35;
@@ -2288,7 +2275,8 @@ a:focus-visible {
 	grid-template-columns: repeat(3, 1fr);
 	gap: 14px;
 }
-.about-team__photo {
+.about-team__photo { margin: 0; width: 100%; }
+.about-team__photo img {
 	display: block;
 	width: 100%;
 	aspect-ratio: 3 / 4;
@@ -2300,6 +2288,7 @@ a:focus-visible {
 	gap: 0.15rem;
 	padding: 0.85rem 0.95rem 1rem;
 }
+.about-team__cap > * { margin-block-start: 0; }
 .about-team__name {
 	font-family: var(--wp--preset--font-family--display);
 	font-weight: 500;

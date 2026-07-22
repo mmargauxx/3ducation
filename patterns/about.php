@@ -51,14 +51,43 @@
 <div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
 <!-- /wp:spacer -->
 
-<!-- wp:html -->
-<div class="about-gallery">
-	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/homepage-header.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Aan de slag met de 3D-printer', '3ducation' ); ?></figcaption></figure>
-	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops2.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Wat je allemaal kan maken', '3ducation' ); ?></figcaption></figure>
-	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/service-montage.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( 'Van ontwerp tot geprint resultaat', '3ducation' ); ?></figcaption></figure>
-	<figure class="about-gallery__item"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt=""><figcaption class="about-gallery__cap"><?php echo esc_html__( '3D-printen in de klas', '3ducation' ); ?></figcaption></figure>
-</div>
-<!-- /wp:html --></div>
+<!-- wp:group {"className":"about-gallery","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery"><!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/homepage-header.jpg' ) ); ?>" alt=""/></figure>
+<!-- /wp:image -->
+<!-- wp:paragraph {"className":"about-gallery__cap"} -->
+<p class="about-gallery__cap"><?php echo esc_html__( 'Aan de slag met de 3D-printer', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops2.jpg' ) ); ?>" alt=""/></figure>
+<!-- /wp:image -->
+<!-- wp:paragraph {"className":"about-gallery__cap"} -->
+<p class="about-gallery__cap"><?php echo esc_html__( 'Wat je allemaal kan maken', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/service-montage.jpg' ) ); ?>" alt=""/></figure>
+<!-- /wp:image -->
+<!-- wp:paragraph {"className":"about-gallery__cap"} -->
+<p class="about-gallery__cap"><?php echo esc_html__( 'Van ontwerp tot geprint resultaat', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
+<div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt=""/></figure>
+<!-- /wp:image -->
+<!-- wp:paragraph {"className":"about-gallery__cap"} -->
+<p class="about-gallery__cap"><?php echo esc_html__( '3D-printen in de klas', '3ducation' ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></div>
+<!-- /wp:group --></div>
 <!-- /wp:group -->
 
 <!-- wp:group {"align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|60"}}},"backgroundColor":"surface","className":"solutions-section","layout":{"type":"constrained","wideSize":"1240px"}} -->
