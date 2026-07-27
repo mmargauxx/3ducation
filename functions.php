@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.16.2' );
+	define( 'THREEDUCATION_VERSION', '0.17.4' );
 }
 
 /**
@@ -1702,3 +1702,311 @@ function threeducation_handle_intake() {
 }
 add_action( 'admin_post_nopriv_threeducation_intake', 'threeducation_handle_intake' );
 add_action( 'admin_post_threeducation_intake', 'threeducation_handle_intake' );
+
+/**
+ * Subcategorieën inspringen in het categoriefilter van de webshop.
+ * ---------------------------------------------------------------
+ * `woocommerce/product-filter-taxonomy` levert de volledige boom al aan — elk
+ * item in de blok-context krijgt een `depth` — maar het weergavelaagje
+ * (`product-filter-checkbox-list`) doet daar niets mee en rendert elke term op
+ * hetzelfde niveau. Een subcategorie is dan niet te onderscheiden van een
+ * hoofdcategorie.
+ *
+ * Waarom hier, en niet netter?
+ * - WooCommerce biedt geen enkel filter in dit renderpad (geen hooks in
+ *   ProductFilterTaxonomy/-CheckboxList).
+ * - `get_terms` haakt niet aan: voor hiërarchische taxonomieën haalt WooCommerce
+ *   de termen uit een eigen, gecachete `TaxonomyHierarchyData`-map i.p.v. via
+ *   `get_terms()`.
+ * Blijft over: de gerenderde HTML nabewerken. Dat is genoeg, want de lijst wordt
+ * na een filterklik client-side opnieuw opgebouwd uit `state.items`, en die
+ * items komen uit exact dezelfde `data-wp-context` die we hier aanpassen.
+ *
+ * Er wordt op twee plekken ingesprongen:
+ * 1. elke `data-wp-context` (het wrapper-item-array én de context per item) —
+ *    dit voedt de client-side her-render;
+ * 2. de zichtbare `__text`-spans van de server-gerenderde items — dit is wat je
+ *    bij de eerste paint ziet. Die worden op volgorde gekoppeld aan de items,
+ *    zodat dubbele categorienamen (bv. twee keer "Bambulab") niet verwisselen.
+ */
+const THREEDUCATION_CAT_INDENT_MAX = 3;
+
+/**
+ * Bouw het inspringvoorvoegsel voor een gegeven diepte.
+ *
+ * @param int $depth Nestdiepte (0 = hoofdcategorie).
+ * @return string Voorvoegsel; leeg voor hoofdcategorieën.
+ */
+function threeducation_cat_indent_prefix( $depth ) {
+	$depth = (int) $depth;
+	if ( $depth < 1 ) {
+		return '';
+	}
+	// Diepe takken worden afgekapt — de zijbalk is te smal voor acht niveaus.
+	$depth = min( $depth, THREEDUCATION_CAT_INDENT_MAX );
+	// Non-breaking spaces + en-dash: overleeft JSON-encoding en de client-side
+	// her-render, in tegenstelling tot een CSS-klasse op het server-gerenderde
+	// item (dat blijft bij een her-render niet staan).
+	return str_repeat( "\xc2\xa0\xc2\xa0", $depth ) . "\xe2\x80\x93\xc2\xa0";
+}
+
+/**
+ * Spring subcategorieën in binnen het gerenderde categoriefilter.
+ *
+ * @param string $content Gerenderde blok-HTML.
+ * @param array  $block   Blokgegevens.
+ * @return string
+ */
+function threeducation_indent_cat_filter( $content, $block ) {
+	if ( empty( $block['blockName'] ) || 'woocommerce/product-filter-taxonomy' !== $block['blockName'] ) {
+		return $content;
+	}
+	if ( 'product_cat' !== ( $block['attrs']['taxonomy'] ?? 'product_cat' ) ) {
+		return $content;
+	}
+	if ( false === strpos( $content, '"depth"' ) ) {
+		return $content; // Vlakke boom: niets in te springen.
+	}
+	if ( ! class_exists( 'WP_HTML_Tag_Processor' ) ) {
+		return $content; // WordPress < 6.2 — laat het filter dan gewoon plat.
+	}
+
+	// De labels op volgorde, zodat de zichtbare tekst straks positioneel — en
+	// dus eenduidig — vervangen kan worden.
+	$ordered_labels = array();
+
+	$processor = new WP_HTML_Tag_Processor( $content );
+	while ( $processor->next_tag() ) {
+		$raw = $processor->get_attribute( 'data-wp-context' );
+		// Let op: hoofdcategorieën hebben géén `depth`-sleutel. Ze moeten tóch
+		// meegeteld worden, anders loopt de positionele koppeling met de
+		// zichtbare tekst hieronder uit de pas.
+		if ( ! is_string( $raw ) || false === strpos( $raw, '"label"' ) ) {
+			continue;
+		}
+		$data = json_decode( $raw, true );
+		if ( ! is_array( $data ) ) {
+			continue;
+		}
+
+		$indent = static function ( array $item ) {
+			$prefix = threeducation_cat_indent_prefix( $item['depth'] ?? 0 );
+			if ( '' === $prefix ) {
+				return $item;
+			}
+			foreach ( array( 'label', 'ariaLabel' ) as $key ) {
+				if ( isset( $item[ $key ] ) && is_string( $item[ $key ] ) ) {
+					$item[ $key ] = $prefix . $item[ $key ];
+				}
+			}
+			return $item;
+		};
+
+		if ( isset( $data['items'] ) && is_array( $data['items'] ) ) {
+			// Wrapper: de volledige itemlijst die `state.items` voedt.
+			foreach ( $data['items'] as $i => $item ) {
+				if ( is_array( $item ) ) {
+					$data['items'][ $i ] = $indent( $item );
+				}
+			}
+		} elseif ( isset( $data['item'] ) && is_array( $data['item'] ) ) {
+			// Context van één server-gerenderd item.
+			$original            = $data['item']['label'] ?? '';
+			$data['item']        = $indent( $data['item'] );
+			$ordered_labels[]    = array( $original, $data['item']['label'] ?? $original );
+		} else {
+			continue;
+		}
+
+		$processor->set_attribute( 'data-wp-context', wp_json_encode( $data ) );
+	}
+	$content = $processor->get_updated_html();
+
+	// Zichtbare tekst van de server-gerenderde items, op volgorde.
+	if ( $ordered_labels ) {
+		$index   = 0;
+		$content = preg_replace_callback(
+			'#(<span class="wc-block-product-filter-checkbox-list__text">)(\s*)(.*?)(\s*</span>)#s',
+			static function ( $matches ) use ( &$index, $ordered_labels ) {
+				if ( ! isset( $ordered_labels[ $index ] ) ) {
+					return $matches[0];
+				}
+				list( $original, $indented ) = $ordered_labels[ $index ];
+				++$index;
+				// Alleen vervangen als de tekst is wat we verwachten; zo blijft
+				// een gewijzigde WooCommerce-markup ongemoeid i.p.v. verminkt.
+				if ( html_entity_decode( $matches[3], ENT_QUOTES, 'UTF-8' ) !== $original ) {
+					return $matches[0];
+				}
+				return $matches[1] . $matches[2] . esc_html( $indented ) . $matches[4];
+			},
+			$content
+		);
+	}
+
+	return $content;
+}
+add_filter( 'render_block', 'threeducation_indent_cat_filter', 10, 2 );
+
+/**
+ * BTW-nummer (VAT) on customers and orders.
+ *
+ * The shop's B2B customers each have a BTW number, stored as user meta
+ * `billing_vat`. WooCommerce ships no VAT field of its own, so this section
+ * wires that one key into the places the shop needs it:
+ *
+ * - the order screen's Facturering column, both the read-only view and the
+ *   edit form (WooCommerce stores it as order meta `_billing_vat`, a key it
+ *   derives from the 'vat' field key below — so the two stay in step);
+ * - "Factuuradres laden", which now pulls the BTW off the customer along with
+ *   the address, so a new order for a B2B customer is complete in one click;
+ * - the Klant: lookup, whose labels show the BTW and whose search matches it;
+ * - the user profile, so it can be corrected in wp-admin.
+ *
+ * Values are normalised (uppercase, no spaces or dots) on every write, matching
+ * how the customer import stored them: BE 0772.923.417 -> BE0772923417.
+ */
+if ( ! defined( 'THREEDUCATION_VAT_META' ) ) {
+	define( 'THREEDUCATION_VAT_META', 'billing_vat' );
+}
+
+/** Normalise a BTW number: uppercase, strip spaces, dots and dashes. */
+function threeducation_normalize_vat( $vat ) {
+	return strtoupper( preg_replace( '/[^0-9A-Za-z]/', '', (string) $vat ) );
+}
+
+/** Insert $insert into $fields directly after $after_key (append if absent). */
+function threeducation_insert_after_key( array $fields, $after_key, array $insert ) {
+	$position = array_search( $after_key, array_keys( $fields ), true );
+	if ( false === $position ) {
+		return $fields + $insert;
+	}
+	return array_slice( $fields, 0, $position + 1, true )
+		+ $insert
+		+ array_slice( $fields, $position + 1, null, true );
+}
+
+/**
+ * Add BTW-nummer to the order screen's billing column, right after Bedrijfsnaam.
+ *
+ * The field falls back to the customer's own BTW number when the order doesn't
+ * carry one yet, so an order for a known B2B customer shows it straight away
+ * instead of only after "Factuuradres laden". Once the order is saved the value
+ * is stored on the order, and that stored value wins from then on — an invoice
+ * keeps the number it was issued with, even if the customer's changes later.
+ */
+function threeducation_admin_billing_vat_field( $fields, $order = false, $context = 'edit' ) {
+	$vat = array(
+		'label'           => __( 'BTW-nummer', '3ducation' ),
+		'update_callback' => 'threeducation_save_order_vat',
+	);
+
+	if ( $order instanceof WC_Order ) {
+		$value = (string) $order->get_meta( '_billing_vat' );
+		if ( '' === $value && $order->get_customer_id() ) {
+			$value = (string) get_user_meta( $order->get_customer_id(), THREEDUCATION_VAT_META, true );
+		}
+		$vat['value'] = $value;
+	}
+
+	return threeducation_insert_after_key( $fields, 'company', array( 'vat' => $vat ) );
+}
+add_filter( 'woocommerce_admin_billing_fields', 'threeducation_admin_billing_vat_field', 10, 3 );
+
+/**
+ * Store the order's BTW number normalised. Core saves the order itself right
+ * after running this callback, so update_meta_data() is enough here.
+ */
+function threeducation_save_order_vat( $field_id, $value, $order ) {
+	$order->update_meta_data( $field_id, threeducation_normalize_vat( $value ) );
+}
+
+/** Send the customer's BTW along with "Factuuradres laden" (fills #_billing_vat). */
+function threeducation_ajax_customer_vat( $data, $customer, $user_id ) {
+	if ( isset( $data['billing'] ) && is_array( $data['billing'] ) ) {
+		$data['billing']['vat'] = get_user_meta( $user_id, THREEDUCATION_VAT_META, true );
+	}
+	return $data;
+}
+add_filter( 'woocommerce_ajax_get_customer_details', 'threeducation_ajax_customer_vat', 10, 3 );
+
+/**
+ * Show the BTW number in the Klant: lookup labels.
+ *
+ * The AJAX search passes an array keyed by user ID; the already-selected
+ * customer on the order screen goes through the same filter as a single
+ * unkeyed label, so fall back to reading the "(#123 ..." out of the string.
+ */
+function threeducation_customer_search_labels( $customers ) {
+	foreach ( $customers as $key => $label ) {
+		$user_id = is_numeric( $key ) ? (int) $key : 0;
+		if ( ! $user_id && preg_match( '/#(\d+)/', (string) $label, $matches ) ) {
+			$user_id = (int) $matches[1];
+		}
+		if ( ! $user_id ) {
+			continue;
+		}
+		$vat = get_user_meta( $user_id, THREEDUCATION_VAT_META, true );
+		if ( $vat ) {
+			/* translators: %1$s: customer label, %2$s: BTW number. */
+			$customers[ $key ] = sprintf( __( '%1$s · BTW %2$s', '3ducation' ), $label, $vat );
+		}
+	}
+	return $customers;
+}
+add_filter( 'woocommerce_json_search_found_customers', 'threeducation_customer_search_labels' );
+
+/**
+ * Let the Klant: lookup find customers by BTW number. WooCommerce runs a second
+ * user query for meta matches, which is the one we extend; typing 0772923417 or
+ * BE0772923417 both hit, since stored values are normalised.
+ */
+function threeducation_customer_search_by_vat( $query, $term, $limit, $context ) {
+	if ( 'meta_query' !== $context || empty( $query['meta_query'] ) ) {
+		return $query;
+	}
+	$vat = threeducation_normalize_vat( $term );
+	if ( strlen( $vat ) < 3 ) {
+		return $query;
+	}
+	$query['meta_query'][] = array(
+		'key'     => THREEDUCATION_VAT_META,
+		'value'   => $vat,
+		'compare' => 'LIKE',
+	);
+	return $query;
+}
+add_filter( 'woocommerce_customer_search_customers', 'threeducation_customer_search_by_vat', 10, 4 );
+
+/** Add BTW-nummer to the customer's billing fields on the user profile screen. */
+function threeducation_customer_meta_vat_field( $fields ) {
+	if ( ! isset( $fields['billing']['fields'] ) || ! is_array( $fields['billing']['fields'] ) ) {
+		return $fields;
+	}
+	$fields['billing']['fields'] = threeducation_insert_after_key(
+		$fields['billing']['fields'],
+		'billing_company',
+		array(
+			THREEDUCATION_VAT_META => array(
+				'label'       => __( 'BTW-nummer', '3ducation' ),
+				'description' => __( 'Bijvoorbeeld BE0772923417. Verschijnt op de bestelling en in de klantenzoeker.', '3ducation' ),
+			),
+		)
+	);
+	return $fields;
+}
+add_filter( 'woocommerce_customer_meta_fields', 'threeducation_customer_meta_vat_field' );
+
+/** Normalise the BTW number saved from the user profile (runs after WooCommerce). */
+function threeducation_normalize_saved_vat( $user_id ) {
+	if ( ! current_user_can( 'edit_user', $user_id ) ) {
+		return;
+	}
+	$vat        = get_user_meta( $user_id, THREEDUCATION_VAT_META, true );
+	$normalised = threeducation_normalize_vat( $vat );
+	if ( $vat !== $normalised ) {
+		update_user_meta( $user_id, THREEDUCATION_VAT_META, $normalised );
+	}
+}
+add_action( 'personal_options_update', 'threeducation_normalize_saved_vat', 20 );
+add_action( 'edit_user_profile_update', 'threeducation_normalize_saved_vat', 20 );

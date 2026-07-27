@@ -3,12 +3,18 @@
  * Title: Webshop filters (zijbalk)
  * Slug: 3ducation/shop-filters
  * Categories: 3ducation, woocommerce
- * Description: De volledige filter-zijbalk van de webshop: categorie, merk, kleur, type, prijs en beschikbaarheid. Categorie/merk/prijs/status zijn statisch; kleur en type zijn product-attributen waarvan het numerieke `attributeId` per omgeving verschilt (lokaal vs. live) en hier tijdens het renderen wordt opgezocht.
+ * Description: De volledige filter-zijbalk van de webshop: categorie, merk, kleur, type, afwerking, prijs en beschikbaarheid. Categorie/merk/prijs/status zijn statisch; kleur, type en afwerking zijn product-attributen waarvan het numerieke `attributeId` per omgeving verschilt (lokaal vs. live) en hier tijdens het renderen wordt opgezocht.
  *
  * Waarom een pattern i.p.v. losse blokken in de template?
  * - `woocommerce/product-filter-attribute` heeft een numeriek `attributeId` nodig
  *   (het `-taxonomy`-blok ondersteunt geen product-attributen). Dat ID mag niet
  *   hardcoded, want het verschilt per site. PHP lost het hier op via slug/label.
+ * - Kleur en Type staan op `hideEmpty:false` + `showCounts:true`. Standaard
+ *   verbergt WooCommerce elke term die 0 resultaten oplevert, dus zodra je een
+ *   kleur aanvinkt verdwijnen de types die daar niet bij voorkomen — het lijkt
+ *   dan alsof je niet verder kunt verfijnen. Nu blijven alle termen staan
+ *   (uitgeschakeld bij 0) mét aantal, zodat zichtbaar is hoe de selectie het
+ *   assortiment versmalt.
  * - Het hele `product-filters`-blok staat BEWUST samen in één pattern. Zou je
  *   alleen de attribuut-filters via een los `wp:pattern` binnen de template-
  *   `product-filters` plaatsen, dan verliezen ze de `filterParams`-context
@@ -30,15 +36,16 @@ $threeducation_resolve_attribute_id = static function ( array $candidates, $labe
 	return 0;
 };
 
-$threeducation_kleur_id = $threeducation_resolve_attribute_id( array( 'kleur', 'color', 'colour' ), 'kleur' );
-$threeducation_type_id  = $threeducation_resolve_attribute_id( array( 'type', 'soort', 'producttype', 'product-type' ), 'type' );
+$threeducation_kleur_id     = $threeducation_resolve_attribute_id( array( 'kleur', 'color', 'colour' ), 'kleur' );
+$threeducation_type_id      = $threeducation_resolve_attribute_id( array( 'type', 'soort', 'producttype', 'product-type' ), 'type' );
+$threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwerking', 'finish', 'finishing' ), 'afwerking' );
 ?>
 <!-- wp:woocommerce/product-filters -->
 <div class="wp-block-woocommerce-product-filters"><!-- wp:woocommerce/product-filter-active -->
 <div class="wp-block-woocommerce-product-filter-active"><!-- wp:woocommerce/product-filter-clear-button /--></div>
 <!-- /wp:woocommerce/product-filter-active -->
 
-<!-- wp:woocommerce/product-filter-taxonomy {"taxonomy":"product_cat"} -->
+<!-- wp:woocommerce/product-filter-taxonomy {"taxonomy":"product_cat","showCounts":true} -->
 <div class="wp-block-woocommerce-product-filter-taxonomy"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Categorie</h3>
 <!-- /wp:heading -->
@@ -55,7 +62,7 @@ $threeducation_type_id  = $threeducation_resolve_attribute_id( array( 'type', 's
 <!-- /wp:woocommerce/product-filter-taxonomy -->
 <?php if ( $threeducation_kleur_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_kleur_id; ?>} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_kleur_id; ?>,"hideEmpty":false,"showCounts":true} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Kleur</h3>
 <!-- /wp:heading -->
@@ -65,9 +72,19 @@ $threeducation_type_id  = $threeducation_resolve_attribute_id( array( 'type', 's
 <?php endif; ?>
 <?php if ( $threeducation_type_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_type_id; ?>} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_type_id; ?>,"hideEmpty":false,"showCounts":true} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Type</h3>
+<!-- /wp:heading -->
+
+<!-- wp:woocommerce/product-filter-checkbox-list /--></div>
+<!-- /wp:woocommerce/product-filter-attribute -->
+<?php endif; ?>
+<?php if ( $threeducation_afwerking_id ) : ?>
+
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_afwerking_id; ?>,"hideEmpty":false,"showCounts":true} -->
+<div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
+<h3 class="wp-block-heading has-medium-font-size">Afwerking</h3>
 <!-- /wp:heading -->
 
 <!-- wp:woocommerce/product-filter-checkbox-list /--></div>
