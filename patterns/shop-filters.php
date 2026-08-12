@@ -53,7 +53,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <!-- wp:woocommerce/product-filter-checkbox-list /--></div>
 <!-- /wp:woocommerce/product-filter-taxonomy -->
 
-<!-- wp:woocommerce/product-filter-taxonomy {"taxonomy":"product_brand"} -->
+<!-- wp:woocommerce/product-filter-taxonomy {"taxonomy":"product_brand","sortOrder":"name-asc"} -->
 <div class="wp-block-woocommerce-product-filter-taxonomy"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Merk</h3>
 <!-- /wp:heading -->
