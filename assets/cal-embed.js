@@ -49,9 +49,7 @@
 		return;
 	}
 
-	var brand = getComputedStyle( document.documentElement )
-		.getPropertyValue( '--wp--preset--color--cyan' )
-		.trim() || '#0fb1bf';
+	var styles = getComputedStyle( document.documentElement );
 
 	window.Cal.config = window.Cal.config || {};
 	window.Cal.config.forwardQueryParams = true;
@@ -65,6 +63,10 @@
 			return;
 		}
 		done[ ns ] = true;
+
+		// Accent per agenda, uit de theme.json-token die de knop meegeeft.
+		var token = el.getAttribute( 'data-cal-brand' ) || 'cyan';
+		var brand = styles.getPropertyValue( '--wp--preset--color--' + token ).trim() || '#0fb1bf';
 
 		window.Cal( 'init', ns, { origin: 'https://app.cal.com' } );
 

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.1' );
+	define( 'THREEDUCATION_VERSION', '0.18.2' );
 }
 
 /**
@@ -2175,6 +2175,15 @@ function threeducation_calcom_button_attrs( $event ) {
 	$parts     = explode( '/', $path );
 	$namespace = sanitize_key( end( $parts ) );
 
+	// Accentkleur van de popup, als theme.json-tokenslug i.p.v. een hex: de
+	// workshop volgt de cyan workshops-pijler, het feestje staat magenta.
+	$brands = array(
+		'workshop' => 'cyan',
+		'feestje'  => 'magenta',
+	);
+	$brand  = isset( $brands[ $event ] ) ? $brands[ $event ] : 'cyan';
+	$brand  = (string) apply_filters( 'threeducation_calcom_brand', $brand, $event );
+
 	wp_enqueue_script(
 		'threeducation-cal-embed',
 		get_theme_file_uri( 'assets/cal-embed.js' ),
@@ -2184,9 +2193,10 @@ function threeducation_calcom_button_attrs( $event ) {
 	);
 
 	return sprintf(
-		' data-cal-link="%s" data-cal-namespace="%s" data-cal-config="%s"',
+		' data-cal-link="%s" data-cal-namespace="%s" data-cal-brand="%s" data-cal-config="%s"',
 		esc_attr( $path ),
 		esc_attr( $namespace ),
+		esc_attr( sanitize_key( $brand ) ),
 		esc_attr( wp_json_encode( array( 'layout' => 'month_view', 'useSlotsViewOnSmallScreen' => 'true' ) ) )
 	);
 }
