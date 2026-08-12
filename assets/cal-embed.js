@@ -79,4 +79,35 @@
 			layout: 'month_view',
 		} );
 	} );
+
+	// Zodra embed.js geladen is, neemt de popup het over en is de href alleen nog
+	// ruis: de browser toont hem in de statusbalk en middenklik/"open in nieuw
+	// tabblad" zou de bezoeker alsnog wegleiden. Pas hier weghalen — laadt het
+	// script niet (adblocker, cookiebanner, offline), dan blijft de link werken.
+	var loader = document.querySelector( 'script[src="https://app.cal.com/embed/embed.js"]' );
+	if ( ! loader ) {
+		return;
+	}
+
+	loader.addEventListener( 'load', function () {
+		Array.prototype.forEach.call( triggers, function ( el ) {
+			if ( ! el.hasAttribute( 'href' ) ) {
+				return;
+			}
+			el.removeAttribute( 'href' );
+			el.removeAttribute( 'target' );
+			el.removeAttribute( 'rel' );
+
+			// Een <a> zonder href valt uit de toetsenbordvolgorde; als knop
+			// terugzetten zodat Tab + Enter/Spatie blijven werken.
+			el.setAttribute( 'role', 'button' );
+			el.setAttribute( 'tabindex', '0' );
+			el.addEventListener( 'keydown', function ( event ) {
+				if ( 'Enter' === event.key || ' ' === event.key ) {
+					event.preventDefault();
+					el.click();
+				}
+			} );
+		} );
+	} );
 } )();
