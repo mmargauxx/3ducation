@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.17.4' );
+	define( 'THREEDUCATION_VERSION', '0.18.3' );
 }
 
 /**
@@ -2010,3 +2010,193 @@ function threeducation_normalize_saved_vat( $user_id ) {
 }
 add_action( 'personal_options_update', 'threeducation_normalize_saved_vat', 20 );
 add_action( 'edit_user_profile_update', 'threeducation_normalize_saved_vat', 20 );
+
+/**
+ * 301-redirects voor de oude Duda-webshop-URLs.
+ *
+ * De oude site gebruikte /webshop/<Productnaam>-p<ID> en /webshop/<Categorie>-c<ID>.
+ * Een vaste 1-op-1-lijst is niet te maken: de oude product-ID's staan in geen enkele
+ * export, en de slugs lopen net niet gelijk — Duda maakt van "1,75 mm" → "1-75-mm",
+ * `sanitize_title()` maakt er "175-mm" van, en juist alle filamenten hebben die komma.
+ * Daarom matchen we op een sleutel waarin alles behalve letters en cijfers wegvalt;
+ * dat vangt beide schrijfwijzen. Producten die niet meer bestaan gaan naar de
+ * zoekresultaten van de webshop in plaats van naar een 404.
+ *
+ * De pagina- en categorie-redirects staan los in de Redirection-plugin; dit is het
+ * vangnet voor alles wat daar niet in staat. Zodra er FTP is, hoort deze code liever
+ * in een mu-plugin — dan overleeft ze een themawissel.
+ */
+
+/** Normaliseert een slug tot enkel letters en cijfers. */
+function threeducation_legacy_key( $slug ) {
+	return preg_replace( '/[^a-z0-9]/', '', strtolower( remove_accents( (string) $slug ) ) );
+}
+
+/**
+ * Bouwt (en cachet) de map van genormaliseerde slug naar product-ID.
+ *
+ * @return array<string,int>
+ */
+function threeducation_legacy_product_map() {
+	$map = get_transient( 'threeducation_legacy_product_map' );
+	if ( is_array( $map ) ) {
+		return $map;
+	}
+
+	global $wpdb;
+	$rows = $wpdb->get_results(
+		"SELECT ID, post_name FROM {$wpdb->posts}
+		 WHERE post_type = 'product' AND post_status = 'publish'"
+	);
+
+	$map = array();
+	foreach ( $rows as $row ) {
+		$key = threeducation_legacy_key( $row->post_name );
+		// Eerste treffer wint: bij een dubbele sleutel is de oudste post het origineel.
+		if ( '' !== $key && ! isset( $map[ $key ] ) ) {
+			$map[ $key ] = (int) $row->ID;
+		}
+	}
+
+	set_transient( 'threeducation_legacy_product_map', $map, 12 * HOUR_IN_SECONDS );
+	return $map;
+}
+
+/** Gooit de cache weg zodra er een product bijkomt of verandert. */
+function threeducation_legacy_flush_map( $post_id ) {
+	if ( 'product' === get_post_type( $post_id ) ) {
+		delete_transient( 'threeducation_legacy_product_map' );
+	}
+}
+add_action( 'save_post', 'threeducation_legacy_flush_map' );
+add_action( 'trashed_post', 'threeducation_legacy_flush_map' );
+
+/** Vangt de oude /webshop/-URLs op en stuurt ze door met een 301. */
+function threeducation_legacy_redirect() {
+	if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		return;
+	}
+
+	$request = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+	$path    = trim( (string) wp_parse_url( $request, PHP_URL_PATH ), '/' );
+
+	if ( 0 !== strpos( $path, 'webshop/' ) ) {
+		return;
+	}
+
+	$rest = substr( $path, strlen( 'webshop/' ) );
+
+	// Oude productpagina: <naam>-p<ID>.
+	if ( preg_match( '#^(.+)-p\d+$#', $rest, $matches ) ) {
+		$map = threeducation_legacy_product_map();
+		$key = threeducation_legacy_key( $matches[1] );
+
+		if ( isset( $map[ $key ] ) ) {
+			wp_safe_redirect( get_permalink( $map[ $key ] ), 301 );
+			exit;
+		}
+
+		// Product bestaat niet meer: toon wat er wél is.
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					's'         => rawurlencode( str_replace( '-', ' ', $matches[1] ) ),
+					'post_type' => 'product',
+				),
+				home_url( '/' )
+			),
+			301
+		);
+		exit;
+	}
+
+	// Oude categoriepagina: <naam>-c<ID>. We sturen door naar het echte
+	// categoriearchief, want dat draagt de markdown-beschrijving, de thumbnail
+	// en de uitgelichte producten van die categorie — een gefilterde shop-URL
+	// heeft dat allemaal niet. `get_term_link()` bouwt de URL met de basis die
+	// op de site is ingesteld (op deze site het Nederlandse `product-categorie`),
+	// dus die basis mag hier nooit hardcoded staan.
+	if ( preg_match( '#^(.+)-c\d+$#', $rest, $matches ) ) {
+		$term = get_term_by( 'slug', sanitize_title( $matches[1] ), 'product_cat' );
+		if ( $term && ! is_wp_error( $term ) ) {
+			$link = get_term_link( $term );
+			if ( ! is_wp_error( $link ) ) {
+				wp_safe_redirect( $link, 301 );
+				exit;
+			}
+		}
+	}
+
+	// Alles wat overblijft onder /webshop/ gaat naar de webshop zelf.
+	if ( function_exists( 'wc_get_page_id' ) ) {
+		$shop_id = wc_get_page_id( 'shop' );
+		if ( $shop_id > 0 ) {
+			wp_safe_redirect( get_permalink( $shop_id ), 301 );
+			exit;
+		}
+	}
+}
+add_action( 'template_redirect', 'threeducation_legacy_redirect', 1 );
+
+/**
+ * Cal.com boekingslinks.
+ *
+ * Workshops en verjaardagsfeestjes worden geboekt via Cal.com (gratis plan) i.p.v.
+ * LatePoint. De URL's staan hier centraal zodat een pattern ze niet hardcodeert;
+ * overschrijf ze per omgeving met het filter `threeducation_calcom_url`.
+ */
+function threeducation_calcom_url( $event ) {
+	$urls = array(
+		'workshop' => 'https://cal.com/3ducation/workshop-3d-printen',
+		'feestje'  => 'https://cal.com/3ducation/verjaardagsfeestje-3d-printen',
+	);
+	$url  = isset( $urls[ $event ] ) ? $urls[ $event ] : 'https://cal.com/3ducation';
+
+	return (string) apply_filters( 'threeducation_calcom_url', $url, $event );
+}
+
+/**
+ * Attributen voor een knop die de Cal.com-popup opent.
+ *
+ * Rendert de data-attributen die `assets/cal-embed.js` (en Cal.com's embed.js)
+ * verwachten, en zet het script in de wachtrij. Alleen aanroepen op een knop die
+ * ook een `href` naar dezelfde agenda heeft, zodat de link blijft werken als het
+ * externe script niet laadt.
+ *
+ * @param string $event `workshop` of `feestje`.
+ * @return string Ge-escapete attributenreeks, of '' als de URL geen Cal.com-link is.
+ */
+function threeducation_calcom_button_attrs( $event ) {
+	$path = trim( (string) wp_parse_url( threeducation_calcom_url( $event ), PHP_URL_PATH ), '/' );
+	if ( '' === $path || false === strpos( $path, '/' ) ) {
+		return '';
+	}
+
+	$parts     = explode( '/', $path );
+	$namespace = sanitize_key( end( $parts ) );
+
+	// Accentkleur van de popup, als theme.json-tokenslug i.p.v. een hex: de
+	// workshop volgt de cyan workshops-pijler, het feestje staat magenta.
+	$brands = array(
+		'workshop' => 'cyan',
+		'feestje'  => 'magenta',
+	);
+	$brand  = isset( $brands[ $event ] ) ? $brands[ $event ] : 'cyan';
+	$brand  = (string) apply_filters( 'threeducation_calcom_brand', $brand, $event );
+
+	wp_enqueue_script(
+		'threeducation-cal-embed',
+		get_theme_file_uri( 'assets/cal-embed.js' ),
+		array(),
+		THREEDUCATION_VERSION,
+		true
+	);
+
+	return sprintf(
+		' data-cal-link="%s" data-cal-namespace="%s" data-cal-brand="%s" data-cal-config="%s"',
+		esc_attr( $path ),
+		esc_attr( $namespace ),
+		esc_attr( sanitize_key( $brand ) ),
+		esc_attr( wp_json_encode( array( 'layout' => 'month_view', 'useSlotsViewOnSmallScreen' => 'true' ) ) )
+	);
+}

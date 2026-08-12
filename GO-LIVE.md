@@ -20,17 +20,20 @@ Then either:
 - **Appearance → Themes → Add New → Upload** the zip (atomic, simplest), or
 - **SFTP** the files into `wp-content/themes/3ducation/` (faster for single-file tweaks).
 
-### After every upload — flush caches
-Patterns are cached separately from the object cache, so a plain `wp cache flush`
-is **not enough** after editing/adding any `patterns/*.php`:
+### After every upload — the version bump is the cache flush
+Bump `THREEDUCATION_VERSION` in `style.css` **and** `functions.php` in lockstep on
+every release (zie `style.css`). That one bump covers both caches:
 
-```bash
-wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
-```
-No WP-CLI on the host? Deactivate + reactivate the theme instead.
-`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.16.0`)
-busts the browser CSS cache but **not** the pattern cache — bump both in lockstep on
-every release and still flush.
+- **Browser CSS/JS** — the version is the `?ver=` query arg on every enqueued asset.
+- **Block patterns** — since WP 6.4 the pattern cache is keyed on the theme's
+  `Version:` header, so a new version makes WordPress re-scan `patterns/` by itself
+  (`WP_Theme::get_pattern_cache()`, `wp-includes/class-wp-theme.php`).
+
+So a normal release needs **no** theme switching and no WP-CLI. Only if you ever edit
+`patterns/*.php` on the server *without* bumping the version does the cache go stale;
+then run `wp eval 'wp_clean_themes_cache(); wp_cache_flush();'`, or — with no WP-CLI on
+the host — switch to another theme and back (there is no "deactivate" for themes; Site
+Editor customisations survive the switch, they are stored per theme).
 
 ---
 
@@ -66,25 +69,30 @@ Create a **Page** for each of these slugs and assign the matching template
 - [ ] **Settings → Site melding** — configure or disable the announcement bar
       (the "Aangepaste openingsuren…" banner is test content)
 - [ ] Configure a **payment gateway** (e.g. Mollie)
-- [ ] **LatePoint — birthday-party booking.** Parties book through LatePoint (workshops
-      stay WooCommerce products for now — see note below). Install **LatePoint** + its
-      **WooCommerce add-on** so bookings route through the Woo cart and get paid on the
-      existing Mollie gateway. Then create the service:
-      - Service **“Verjaardagsfeestje in 3D”** — price **€ 25 per kind**, duration to the
-        13u30–16u30 window, **capacity 8** per session.
-      - Availability: **woensdagnamiddag, weekend en schoolvakanties**, ± 13u30–16u30.
-      - Payment: connect via the WooCommerce add-on (→ Mollie), not LatePoint’s native
-        checkout.
-      The theme’s **“Reserveer je feestje”** button (`workshops-parties.php`) already carries
-      the `latepoint-book-button` class, so it opens the LatePoint popup automatically once
-      the plugin is active; without the plugin it falls back to the `mailto:` link. To make
-      that button jump straight to this service, return its LatePoint **service id** from the
-      `threeducation_latepoint_party_service` filter (a tiny mu-plugin or `functions.php`
-      snippet on the target site — id is per-environment, so it stays out of the theme).
-      Confirm the `data-selected_service_id` attribute name against your installed LatePoint
-      version; leaving the filter empty is safe and just opens the general booking form.
-      *Workshops stay WooCommerce products (`/product-category/workshops`) for now; they can
-      later be added as a LatePoint service the same way if you want them off the shop.*
+- [ ] **Cal.com — workshops & verjaardagsfeestjes.** Boekingen lopen via Cal.com
+      (gratis plan, extern) — **geen** LatePoint, geen booking-plugin. Twee event types
+      bestaan al:
+      - **Workshop 3D Printen** → `https://cal.com/3ducation/workshop-3d-printen`
+        (€ 100, ± 2 uur)
+      - **Verjaardagsfeestje 3D Printen** → `https://cal.com/3ducation/verjaardagsfeestje-3d-printen`
+        (€ 25 per kind, max 8 kinderen, woensdagnamiddag/weekend/schoolvakanties ± 13u30–16u30)
+      De knoppen in `workshops-detail.php` en `workshops-parties.php` openen de agenda
+      in een **Cal.com-popup** (`assets/cal-embed.js` + `threeducation_calcom_button_attrs()`);
+      de `href` naar cal.com blijft als fallback staan wanneer het script niet laadt.
+      Wijzigt een URL, override hem dan met het filter
+      `threeducation_calcom_url( $url, $event )` (`$event` = `workshop` of `feestje`) —
+      de standaard-URL's staan in `functions.php`.
+      **Cookiebanner:** de popup laadt `app.cal.com/embed/embed.js`, een derde partij —
+      neem Cal.com op in de cookie-/privacyverklaring.
+      **Instellen in Cal.com (feestje):** één ouder boekt de héle namiddag voor de groep,
+      dus **"Offer seats" moet UIT** — dat is bedoeld voor losse deelnemers die elk apart
+      hetzelfde tijdslot boeken, wat hier niet het geval is. In plaats daarvan: duur = 3 uur
+      (13u30–16u30), availability = woensdagnamiddag/weekend/schoolvakanties, en een
+      verplichte **booking question "Aantal kinderen"** (getal, max 8) plus "Leeftijd van de
+      jarige". De prijs (€ 25 per kind) volgt dan uit dat antwoord.
+      **Betaling:** Cal.com's Stripe-app zit niet op het gratis plan, dus er wordt achteraf /
+      op factuur betaald. Wil je vooraf laten afrekenen, houd de workshop dan daarnaast als
+      WooCommerce-product zodat Mollie het kan innen.
 - [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
       the per-product option selectors (e.g. the printer workshop's "Kies hier uw
       optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The

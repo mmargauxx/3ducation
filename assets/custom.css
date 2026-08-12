@@ -431,12 +431,19 @@ a:focus-visible {
 .spotlights-wrap { margin-block: 0; }
 .spotlights {
 	display: grid;
-	/* auto-fit so 1 or 2 admin-picked products still fill the row instead of
-	 * leaving an empty trailing cell; three picks (the default/fallback) render
-	 * identically to a fixed three-up at the 1240px content width. */
-	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	/* Vaste drie kolommen, geen auto-fit. Met auto-fit rekte één uitgelicht
+	 * product zich over de volle breedte uit -- een kaart van 1240px met een
+	 * kleine productfoto erin. Nu houdt één kaart een derde van de rij, alsof
+	 * er nog twee naast konden staan, en blijft het beeld rustig ongeacht
+	 * hoeveel producten er per categorie gekozen zijn. */
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: var(--wp--preset--spacing--30);
 	align-items: stretch;
+}
+/* In de smalle tabletband zijn drie kolommen te krap voor een leesbare
+ * kaart; twee derde-breedtes lezen daar beter. */
+@media (max-width: 1023px) {
+	.spotlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .spotlight-card {
 	--spot-accent: var(--wp--preset--color--magenta);
@@ -2075,13 +2082,19 @@ a:focus-visible {
  * filters: a bordered pill with our own chevron, brand-cyan focus ring. */
 .shop-toolbar .wc-block-catalog-sorting,
 .shop-toolbar .wp-block-woocommerce-catalog-sorting { margin: 0; }
+/* WooCommerce ships `.woocommerce-ordering { margin: 0 0 1em }` on the form that
+ * wraps the <select>, plus its own select sizing. Both outrank the rules below,
+ * which left the dropdown a few pixels higher AND shorter than the search pill
+ * next to it. Hence the !important — see the note on WooCommerce specificity. */
+.shop-toolbar .woocommerce-ordering,
+.shop-sorting .woocommerce-ordering { margin: 0 !important; }
 .shop-toolbar select,
 .shop-sorting select {
 	appearance: none;
 	-webkit-appearance: none;
 	box-sizing: border-box;
 	max-width: 100%;
-	height: 2.75rem;
+	height: 2.75rem !important;
 	padding: 0 2.4em 0 0.9em;
 	border: 1.5px solid var(--wp--preset--color--border);
 	border-radius: 8px;
@@ -2126,7 +2139,9 @@ a:focus-visible {
 	margin: 0;
 }
 .shop-toolbar-search .wc-block-product-search__field {
-	width: 200px;
+	/* Wide enough for the full placeholder — at 200px it clipped mid-word
+	 * ("Zoek naar printers, filame…"), which read as a broken field. */
+	width: 20rem;
 	max-width: 100%;
 	min-width: 0;
 	/* Fixed height + border-box so the input matches the sort <select> exactly. */
