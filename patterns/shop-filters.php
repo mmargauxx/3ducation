@@ -19,6 +19,13 @@
  * - Let op: `hideEmpty:true` leunt op `wc_product_attributes_lookup`. Zolang
  *   die tabel leeg is (Action Scheduler draait niet) kunnen de
  *   attribuutfilters daardoor leeg blijven — zie GO-LIVE.md.
+ * - `sortOrder` staat op elk filter expliciet, want de blokstandaard is
+ *   `count-desc` (aantal producten). Categorie volgt de gesleepte volgorde
+ *   (`menu_order-asc`), merk en de drie attributen staan alfabetisch
+ *   (`name-asc`) — bij dertien afwerkingen scant dat beter dan een lijst op
+ *   aantal. Het blok kijkt níet naar de "Aangepaste volgorde" die je per
+ *   attribuut in de admin instelt; wil je die gebruiken, zet dat filter dan op
+ *   `menu_order-asc`.
  * - Het hele `product-filters`-blok staat BEWUST samen in één pattern. Zou je
  *   alleen de attribuut-filters via een los `wp:pattern` binnen de template-
  *   `product-filters` plaatsen, dan verliezen ze de `filterParams`-context
@@ -66,7 +73,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <!-- /wp:woocommerce/product-filter-taxonomy -->
 <?php if ( $threeducation_kleur_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_kleur_id; ?>,"hideEmpty":true,"showCounts":true} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_kleur_id; ?>,"hideEmpty":true,"showCounts":true,"sortOrder":"name-asc"} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Kleur</h3>
 <!-- /wp:heading -->
@@ -76,7 +83,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <?php endif; ?>
 <?php if ( $threeducation_type_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_type_id; ?>,"hideEmpty":true,"showCounts":true} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_type_id; ?>,"hideEmpty":true,"showCounts":true,"sortOrder":"name-asc"} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Type</h3>
 <!-- /wp:heading -->
@@ -86,7 +93,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <?php endif; ?>
 <?php if ( $threeducation_afwerking_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_afwerking_id; ?>,"hideEmpty":true,"showCounts":true} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_afwerking_id; ?>,"hideEmpty":true,"showCounts":true,"sortOrder":"name-asc"} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Afwerking</h3>
 <!-- /wp:heading -->
