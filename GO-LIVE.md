@@ -20,6 +20,16 @@ Then either:
 - **Appearance → Themes → Add New → Upload** the zip (atomic, simplest), or
 - **SFTP** the files into `wp-content/themes/3ducation/` (faster for single-file tweaks).
 
+### Ook uploaden: de mu-plugin (buiten het thema)
+`mu-plugins/3ducation-legacy-redirects.php` hoort in **`wp-content/mu-plugins/`**, niet in
+het thema — het zit dan ook bewust niet in de zip. Redirects zijn site-infrastructuur en
+moeten een themawissel overleven; mu-plugins laden altijd en kunnen niet gedeactiveerd
+worden. Bestaat de map nog niet, maak hem aan. Er is geen activatiestap.
+
+**Volgorde bij de eerste keer:** upload eerst de themaversie waarin de redirect-code weg is
+(v0.18.5 of nieuwer), pas daarna de mu-plugin. Staan beide er tegelijk, dan geeft PHP een
+fatal error over een dubbele `threeducation_legacy_key()` — mu-plugins laden vóór het thema.
+
 ### After every upload — the version bump is the cache flush
 Bump `THREEDUCATION_VERSION` in `style.css` **and** `functions.php` in lockstep on
 every release (zie `style.css`). That one bump covers both caches:
