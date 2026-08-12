@@ -20,17 +20,20 @@ Then either:
 - **Appearance → Themes → Add New → Upload** the zip (atomic, simplest), or
 - **SFTP** the files into `wp-content/themes/3ducation/` (faster for single-file tweaks).
 
-### After every upload — flush caches
-Patterns are cached separately from the object cache, so a plain `wp cache flush`
-is **not enough** after editing/adding any `patterns/*.php`:
+### After every upload — the version bump is the cache flush
+Bump `THREEDUCATION_VERSION` in `style.css` **and** `functions.php` in lockstep on
+every release (currently `0.17.8`). That one bump covers both caches:
 
-```bash
-wp eval 'wp_clean_themes_cache(); wp_cache_flush();'
-```
-No WP-CLI on the host? Deactivate + reactivate the theme instead.
-`THREEDUCATION_VERSION` (in `style.css` + `functions.php`, currently `0.16.0`)
-busts the browser CSS cache but **not** the pattern cache — bump both in lockstep on
-every release and still flush.
+- **Browser CSS/JS** — the version is the `?ver=` query arg on every enqueued asset.
+- **Block patterns** — since WP 6.4 the pattern cache is keyed on the theme's
+  `Version:` header, so a new version makes WordPress re-scan `patterns/` by itself
+  (`WP_Theme::get_pattern_cache()`, `wp-includes/class-wp-theme.php`).
+
+So a normal release needs **no** theme switching and no WP-CLI. Only if you ever edit
+`patterns/*.php` on the server *without* bumping the version does the cache go stale;
+then run `wp eval 'wp_clean_themes_cache(); wp_cache_flush();'`, or — with no WP-CLI on
+the host — switch to another theme and back (there is no "deactivate" for themes; Site
+Editor customisations survive the switch, they are stored per theme).
 
 ---
 
