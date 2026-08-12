@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.17.5' );
+	define( 'THREEDUCATION_VERSION', '0.17.6' );
 }
 
 /**
@@ -2110,13 +2110,19 @@ function threeducation_legacy_redirect() {
 		exit;
 	}
 
-	// Oude categoriepagina: <naam>-c<ID>.
+	// Oude categoriepagina: <naam>-c<ID>. De shop filtert op een queryparameter
+	// in plaats van op een termarchief (/shop/?categories=<slug>), dus bouwen we
+	// die URL zelf. De slug zoeken we live op, zodat er niets te raden valt en
+	// een hernoemde categorie vanzelf blijft werken.
 	if ( preg_match( '#^(.+)-c\d+$#', $rest, $matches ) ) {
 		$term = get_term_by( 'slug', sanitize_title( $matches[1] ), 'product_cat' );
 		if ( $term && ! is_wp_error( $term ) ) {
-			$link = get_term_link( $term );
-			if ( ! is_wp_error( $link ) ) {
-				wp_safe_redirect( $link, 301 );
+			$shop_id = function_exists( 'wc_get_page_id' ) ? wc_get_page_id( 'shop' ) : 0;
+			if ( $shop_id > 0 ) {
+				wp_safe_redirect(
+					add_query_arg( 'categories', $term->slug, get_permalink( $shop_id ) ),
+					301
+				);
 				exit;
 			}
 		}

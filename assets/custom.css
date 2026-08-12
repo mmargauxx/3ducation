@@ -2075,13 +2075,19 @@ a:focus-visible {
  * filters: a bordered pill with our own chevron, brand-cyan focus ring. */
 .shop-toolbar .wc-block-catalog-sorting,
 .shop-toolbar .wp-block-woocommerce-catalog-sorting { margin: 0; }
+/* WooCommerce ships `.woocommerce-ordering { margin: 0 0 1em }` on the form that
+ * wraps the <select>, plus its own select sizing. Both outrank the rules below,
+ * which left the dropdown a few pixels higher AND shorter than the search pill
+ * next to it. Hence the !important — see the note on WooCommerce specificity. */
+.shop-toolbar .woocommerce-ordering,
+.shop-sorting .woocommerce-ordering { margin: 0 !important; }
 .shop-toolbar select,
 .shop-sorting select {
 	appearance: none;
 	-webkit-appearance: none;
 	box-sizing: border-box;
 	max-width: 100%;
-	height: 2.75rem;
+	height: 2.75rem !important;
 	padding: 0 2.4em 0 0.9em;
 	border: 1.5px solid var(--wp--preset--color--border);
 	border-radius: 8px;
@@ -2126,7 +2132,9 @@ a:focus-visible {
 	margin: 0;
 }
 .shop-toolbar-search .wc-block-product-search__field {
-	width: 200px;
+	/* Wide enough for the full placeholder — at 200px it clipped mid-word
+	 * ("Zoek naar printers, filame…"), which read as a broken field. */
+	width: 20rem;
 	max-width: 100%;
 	min-width: 0;
 	/* Fixed height + border-box so the input matches the sort <select> exactly. */

@@ -3,21 +3,23 @@
  * Title: Category chips (shop)
  * Slug: 3ducation/product-spotlights
  * Categories: 3ducation, woocommerce
- * Description: A compact, wrapping row of category chips (name + product count) for the nine most-populated product categories, color-coded in the brand tricolor. Kept small on purpose so the product grid leads.
+ * Description: A compact, wrapping row of category chips (name + product count) for the top-level product categories, in the volgorde die in Producten → Categorieën is ingesteld. Kept small on purpose so the product grid leads.
  */
 
-// The nine most-populated top-level product categories, Uncategorized aside.
-// Rendered dynamically so the row keeps pace with the catalog.
+// Top-level product categories, Uncategorized aside. De volgorde komt uit het
+// slepen in Producten → Categorieën (WooCommerce bewaart die als `menu_order`),
+// zodat de winkelier zelf bepaalt wat vooraan staat in plaats van het aantal
+// producten. Nooit gesleept? Dan valt WooCommerce terug op naam.
 $default_cat = (int) get_option( 'default_product_cat' );
 $terms       = get_terms(
 	array(
 		'taxonomy'   => 'product_cat',
 		'parent'     => 0,
 		'hide_empty' => true,
-		'orderby'    => 'count',
-		'order'      => 'DESC',
+		'orderby'    => 'menu_order',
+		'order'      => 'ASC',
 		'exclude'    => array_filter( array( $default_cat ) ),
-		'number'     => 9,
+		'number'     => 12,
 	)
 );
 if ( is_wp_error( $terms ) || empty( $terms ) ) {
