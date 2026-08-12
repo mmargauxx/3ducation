@@ -45,7 +45,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <div class="wp-block-woocommerce-product-filter-active"><!-- wp:woocommerce/product-filter-clear-button /--></div>
 <!-- /wp:woocommerce/product-filter-active -->
 
-<!-- wp:woocommerce/product-filter-taxonomy {"taxonomy":"product_cat","showCounts":true} -->
+<!-- wp:woocommerce/product-filter-taxonomy {"taxonomy":"product_cat","showCounts":true,"sortOrder":"menu_order-asc"} -->
 <div class="wp-block-woocommerce-product-filter-taxonomy"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Categorie</h3>
 <!-- /wp:heading -->
