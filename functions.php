@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.17.11' );
+	define( 'THREEDUCATION_VERSION', '0.18.0' );
 }
 
 /**
@@ -2137,3 +2137,20 @@ function threeducation_legacy_redirect() {
 	}
 }
 add_action( 'template_redirect', 'threeducation_legacy_redirect', 1 );
+
+/**
+ * Cal.com boekingslinks.
+ *
+ * Workshops en verjaardagsfeestjes worden geboekt via Cal.com (gratis plan) i.p.v.
+ * LatePoint. De URL's staan hier centraal zodat een pattern ze niet hardcodeert;
+ * overschrijf ze per omgeving met het filter `threeducation_calcom_url`.
+ */
+function threeducation_calcom_url( $event ) {
+	$urls = array(
+		'workshop' => 'https://cal.com/3ducation/workshop-3d-printen',
+		'feestje'  => 'https://cal.com/3ducation/verjaardagsfeestje-3d-printen',
+	);
+	$url  = isset( $urls[ $event ] ) ? $urls[ $event ] : 'https://cal.com/3ducation';
+
+	return (string) apply_filters( 'threeducation_calcom_url', $url, $event );
+}

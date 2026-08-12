@@ -27,7 +27,9 @@
 
 <!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}}} -->
 <div class="wp-block-buttons"><!-- wp:button -->
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/product-category/workshops">Boek een workshop</a></div>
+<div class="wp-block-button"><?php
+// Boeken loopt via Cal.com (zie threeducation_calcom_url() in functions.php).
+?><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( threeducation_calcom_url( 'workshop' ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html__( 'Boek een workshop', '3ducation' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:column -->

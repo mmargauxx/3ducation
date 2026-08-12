@@ -54,7 +54,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"cat-link","fontFamily":"display"} -->
-<p class="cat-link has-display-font-family"><a class="stretched" href="/product-category/workshops">Boek een workshop →</a></p>
+<p class="cat-link has-display-font-family"><a class="stretched" href="/workshops">Boek een workshop →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 

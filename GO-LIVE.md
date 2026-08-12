@@ -22,7 +22,7 @@ Then either:
 
 ### After every upload — the version bump is the cache flush
 Bump `THREEDUCATION_VERSION` in `style.css` **and** `functions.php` in lockstep on
-every release (currently `0.17.8`). That one bump covers both caches:
+every release (zie `style.css`). That one bump covers both caches:
 
 - **Browser CSS/JS** — the version is the `?ver=` query arg on every enqueued asset.
 - **Block patterns** — since WP 6.4 the pattern cache is keyed on the theme's
@@ -69,25 +69,21 @@ Create a **Page** for each of these slugs and assign the matching template
 - [ ] **Settings → Site melding** — configure or disable the announcement bar
       (the "Aangepaste openingsuren…" banner is test content)
 - [ ] Configure a **payment gateway** (e.g. Mollie)
-- [ ] **LatePoint — birthday-party booking.** Parties book through LatePoint (workshops
-      stay WooCommerce products for now — see note below). Install **LatePoint** + its
-      **WooCommerce add-on** so bookings route through the Woo cart and get paid on the
-      existing Mollie gateway. Then create the service:
-      - Service **“Verjaardagsfeestje in 3D”** — price **€ 25 per kind**, duration to the
-        13u30–16u30 window, **capacity 8** per session.
-      - Availability: **woensdagnamiddag, weekend en schoolvakanties**, ± 13u30–16u30.
-      - Payment: connect via the WooCommerce add-on (→ Mollie), not LatePoint’s native
-        checkout.
-      The theme’s **“Reserveer je feestje”** button (`workshops-parties.php`) already carries
-      the `latepoint-book-button` class, so it opens the LatePoint popup automatically once
-      the plugin is active; without the plugin it falls back to the `mailto:` link. To make
-      that button jump straight to this service, return its LatePoint **service id** from the
-      `threeducation_latepoint_party_service` filter (a tiny mu-plugin or `functions.php`
-      snippet on the target site — id is per-environment, so it stays out of the theme).
-      Confirm the `data-selected_service_id` attribute name against your installed LatePoint
-      version; leaving the filter empty is safe and just opens the general booking form.
-      *Workshops stay WooCommerce products (`/product-category/workshops`) for now; they can
-      later be added as a LatePoint service the same way if you want them off the shop.*
+- [ ] **Cal.com — workshops & verjaardagsfeestjes.** Boekingen lopen via Cal.com
+      (gratis plan, extern) — **geen** LatePoint, geen booking-plugin. Twee event types
+      bestaan al:
+      - **Workshop 3D Printen** → `https://cal.com/3ducation/workshop-3d-printen`
+        (€ 100, ± 2 uur)
+      - **Verjaardagsfeestje 3D Printen** → `https://cal.com/3ducation/verjaardagsfeestje-3d-printen`
+        (€ 25 per kind, max 8 kinderen, woensdagnamiddag/weekend/schoolvakanties ± 13u30–16u30)
+      Het thema linkt er rechtstreeks naartoe vanuit `workshops-detail.php` en
+      `workshops-parties.php`. Wijzigt een URL, override hem dan met het filter
+      `threeducation_calcom_url( $url, $event )` (`$event` = `workshop` of `feestje`) —
+      de standaard-URL's staan in `functions.php`.
+      **Nog te controleren in Cal.com:** "Offer seats" aanzetten op het feestje (capaciteit 8)
+      en beslissen hoe er betaald wordt — Cal.com's Stripe-app zit niet op het gratis plan,
+      dus betaling gebeurt voorlopig achteraf/op factuur, of de workshop blijft daarnaast als
+      WooCommerce-product bestaan voor wie meteen wil afrekenen via Mollie.
 - [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
       the per-product option selectors (e.g. the printer workshop's "Kies hier uw
       optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The

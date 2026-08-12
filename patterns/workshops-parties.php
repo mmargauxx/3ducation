@@ -42,16 +42,10 @@
 <!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}}} -->
 <div class="wp-block-buttons"><!-- wp:button -->
 <div class="wp-block-button"><?php
-// Booking via LatePoint: any element with the class "latepoint-book-button"
-// opens the LatePoint booking popup when the plugin is active. The mailto href
-// is the graceful fallback for environments where LatePoint isn't installed yet
-// (dev, or pre-launch). Preselect the "Verjaardagsfeestje in 3D" service by
-// returning its LatePoint service id from this filter once the service exists on
-// the server — kept out of the theme so the id stays per-environment, like the
-// shop attributes (see GO-LIVE.md). Empty (default) opens the general booking form.
-$lp_service = apply_filters( 'threeducation_latepoint_party_service', '' );
-$lp_data    = '' !== $lp_service ? ' data-selected_service_id="' . esc_attr( $lp_service ) . '"' : '';
-?><a class="wp-block-button__link wp-element-button latepoint-book-button" href="mailto:info@3ducation.be?subject=Verjaardagsfeestje%20in%203D"<?php echo $lp_data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- value escaped above ?>><?php echo esc_html__( 'Reserveer je feestje', '3ducation' ); ?></a></div>
+// Boeken loopt via Cal.com (zie threeducation_calcom_url() in functions.php).
+// Externe link, dus target="_blank" + rel; de agenda opent in een nieuw tabblad
+// zodat de bezoeker de pagina niet kwijtraakt.
+?><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( threeducation_calcom_url( 'feestje' ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html__( 'Reserveer je feestje', '3ducation' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:column --></div>
