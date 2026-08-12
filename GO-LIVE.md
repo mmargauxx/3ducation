@@ -76,14 +76,23 @@ Create a **Page** for each of these slugs and assign the matching template
         (€ 100, ± 2 uur)
       - **Verjaardagsfeestje 3D Printen** → `https://cal.com/3ducation/verjaardagsfeestje-3d-printen`
         (€ 25 per kind, max 8 kinderen, woensdagnamiddag/weekend/schoolvakanties ± 13u30–16u30)
-      Het thema linkt er rechtstreeks naartoe vanuit `workshops-detail.php` en
-      `workshops-parties.php`. Wijzigt een URL, override hem dan met het filter
+      De knoppen in `workshops-detail.php` en `workshops-parties.php` openen de agenda
+      in een **Cal.com-popup** (`assets/cal-embed.js` + `threeducation_calcom_button_attrs()`);
+      de `href` naar cal.com blijft als fallback staan wanneer het script niet laadt.
+      Wijzigt een URL, override hem dan met het filter
       `threeducation_calcom_url( $url, $event )` (`$event` = `workshop` of `feestje`) —
       de standaard-URL's staan in `functions.php`.
-      **Nog te controleren in Cal.com:** "Offer seats" aanzetten op het feestje (capaciteit 8)
-      en beslissen hoe er betaald wordt — Cal.com's Stripe-app zit niet op het gratis plan,
-      dus betaling gebeurt voorlopig achteraf/op factuur, of de workshop blijft daarnaast als
-      WooCommerce-product bestaan voor wie meteen wil afrekenen via Mollie.
+      **Cookiebanner:** de popup laadt `app.cal.com/embed/embed.js`, een derde partij —
+      neem Cal.com op in de cookie-/privacyverklaring.
+      **Instellen in Cal.com (feestje):** één ouder boekt de héle namiddag voor de groep,
+      dus **"Offer seats" moet UIT** — dat is bedoeld voor losse deelnemers die elk apart
+      hetzelfde tijdslot boeken, wat hier niet het geval is. In plaats daarvan: duur = 3 uur
+      (13u30–16u30), availability = woensdagnamiddag/weekend/schoolvakanties, en een
+      verplichte **booking question "Aantal kinderen"** (getal, max 8) plus "Leeftijd van de
+      jarige". De prijs (€ 25 per kind) volgt dan uit dat antwoord.
+      **Betaling:** Cal.com's Stripe-app zit niet op het gratis plan, dus er wordt achteraf /
+      op factuur betaald. Wil je vooraf laten afrekenen, houd de workshop dan daarnaast als
+      WooCommerce-product zodat Mollie het kan innen.
 - [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
       the per-product option selectors (e.g. the printer workshop's "Kies hier uw
       optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The

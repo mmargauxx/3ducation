@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.0' );
+	define( 'THREEDUCATION_VERSION', '0.18.1' );
 }
 
 /**
@@ -2153,4 +2153,40 @@ function threeducation_calcom_url( $event ) {
 	$url  = isset( $urls[ $event ] ) ? $urls[ $event ] : 'https://cal.com/3ducation';
 
 	return (string) apply_filters( 'threeducation_calcom_url', $url, $event );
+}
+
+/**
+ * Attributen voor een knop die de Cal.com-popup opent.
+ *
+ * Rendert de data-attributen die `assets/cal-embed.js` (en Cal.com's embed.js)
+ * verwachten, en zet het script in de wachtrij. Alleen aanroepen op een knop die
+ * ook een `href` naar dezelfde agenda heeft, zodat de link blijft werken als het
+ * externe script niet laadt.
+ *
+ * @param string $event `workshop` of `feestje`.
+ * @return string Ge-escapete attributenreeks, of '' als de URL geen Cal.com-link is.
+ */
+function threeducation_calcom_button_attrs( $event ) {
+	$path = trim( (string) wp_parse_url( threeducation_calcom_url( $event ), PHP_URL_PATH ), '/' );
+	if ( '' === $path || false === strpos( $path, '/' ) ) {
+		return '';
+	}
+
+	$parts     = explode( '/', $path );
+	$namespace = sanitize_key( end( $parts ) );
+
+	wp_enqueue_script(
+		'threeducation-cal-embed',
+		get_theme_file_uri( 'assets/cal-embed.js' ),
+		array(),
+		THREEDUCATION_VERSION,
+		true
+	);
+
+	return sprintf(
+		' data-cal-link="%s" data-cal-namespace="%s" data-cal-config="%s"',
+		esc_attr( $path ),
+		esc_attr( $namespace ),
+		esc_attr( wp_json_encode( array( 'layout' => 'month_view', 'useSlotsViewOnSmallScreen' => 'true' ) ) )
+	);
 }
