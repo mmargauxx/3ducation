@@ -9,12 +9,16 @@
  * - `woocommerce/product-filter-attribute` heeft een numeriek `attributeId` nodig
  *   (het `-taxonomy`-blok ondersteunt geen product-attributen). Dat ID mag niet
  *   hardcoded, want het verschilt per site. PHP lost het hier op via slug/label.
- * - Kleur en Type staan op `hideEmpty:false` + `showCounts:true`. Standaard
- *   verbergt WooCommerce elke term die 0 resultaten oplevert, dus zodra je een
- *   kleur aanvinkt verdwijnen de types die daar niet bij voorkomen — het lijkt
- *   dan alsof je niet verder kunt verfijnen. Nu blijven alle termen staan
- *   (uitgeschakeld bij 0) mét aantal, zodat zichtbaar is hoe de selectie het
- *   assortiment versmalt.
+ * - Alle filters staan op `hideEmpty:true` (op verzoek, 2026-08-12); de
+ *   attribuutfilters houden `showCounts:true`. Kleur/Type/Afwerking stonden
+ *   eerder op `hideEmpty:false` zodat je bij een selectie zag hoe het
+ *   assortiment versmalde (0-termen bleven uitgegrijsd staan). Dat leverde
+ *   lange lijsten met dode opties op; nu tonen we alleen wat nog iets
+ *   oplevert. Keerzijde: verfijn je op kleur, dan verdwijnen de types die
+ *   daar niet bij voorkomen uit de lijst.
+ * - Let op: `hideEmpty:true` leunt op `wc_product_attributes_lookup`. Zolang
+ *   die tabel leeg is (Action Scheduler draait niet) kunnen de
+ *   attribuutfilters daardoor leeg blijven — zie GO-LIVE.md.
  * - Het hele `product-filters`-blok staat BEWUST samen in één pattern. Zou je
  *   alleen de attribuut-filters via een los `wp:pattern` binnen de template-
  *   `product-filters` plaatsen, dan verliezen ze de `filterParams`-context
@@ -62,7 +66,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <!-- /wp:woocommerce/product-filter-taxonomy -->
 <?php if ( $threeducation_kleur_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_kleur_id; ?>,"hideEmpty":false,"showCounts":true} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_kleur_id; ?>,"hideEmpty":true,"showCounts":true} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Kleur</h3>
 <!-- /wp:heading -->
@@ -72,7 +76,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <?php endif; ?>
 <?php if ( $threeducation_type_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_type_id; ?>,"hideEmpty":false,"showCounts":true} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_type_id; ?>,"hideEmpty":true,"showCounts":true} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Type</h3>
 <!-- /wp:heading -->
@@ -82,7 +86,7 @@ $threeducation_afwerking_id = $threeducation_resolve_attribute_id( array( 'afwer
 <?php endif; ?>
 <?php if ( $threeducation_afwerking_id ) : ?>
 
-<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_afwerking_id; ?>,"hideEmpty":false,"showCounts":true} -->
+<!-- wp:woocommerce/product-filter-attribute {"attributeId":<?php echo (int) $threeducation_afwerking_id; ?>,"hideEmpty":true,"showCounts":true} -->
 <div class="wp-block-woocommerce-product-filter-attribute"><!-- wp:heading {"level":3,"fontSize":"medium"} -->
 <h3 class="wp-block-heading has-medium-font-size">Afwerking</h3>
 <!-- /wp:heading -->

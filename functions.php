@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.17.10' );
+	define( 'THREEDUCATION_VERSION', '0.17.11' );
 }
 
 /**
