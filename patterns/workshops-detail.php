@@ -28,8 +28,10 @@
 <!-- wp:buttons {"style":{"spacing":{"blockGap":"var:preset|spacing|30"}}} -->
 <div class="wp-block-buttons"><!-- wp:button -->
 <div class="wp-block-button"><?php
-// Boeken via Cal.com: de data-attributen openen de agenda in een popup, de href
-// is de fallback als het externe script niet laadt (zie functions.php).
+// Boeken via Cal.com: de workshop staat op een Events-pagina (vaste datum,
+// beperkt aantal plaatsen), die opent in een nieuw tabblad — de attrs-functie
+// geeft daar bewust niets terug omdat de popup-embed die vorm niet aankan
+// (zie functions.php).
 ?><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( threeducation_calcom_url( 'workshop' ) ); ?>" target="_blank" rel="noopener"<?php echo threeducation_calcom_button_attrs( 'workshop' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- attributen zijn hierboven ge-escaped ?>><?php echo esc_html__( 'Boek een workshop', '3ducation' ); ?></a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
