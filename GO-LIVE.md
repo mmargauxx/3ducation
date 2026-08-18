@@ -103,30 +103,38 @@ Create a **Page** for each of these slugs and assign the matching template
       **Betaling:** Cal.com's Stripe-app zit niet op het gratis plan, dus er wordt achteraf /
       op factuur betaald. Wil je vooraf laten afrekenen, houd de workshop dan daarnaast als
       WooCommerce-product zodat Mollie het kan innen.
-- [ ] **Cadeaubonnen — PW WooCommerce Gift Cards.** Er staan nog bonnen uit het oude
-      systeem open die **deels afgewaardeerd** kunnen zijn, dus ze moeten mét resterend
-      saldo mee; losse WooCommerce-coupons kunnen dat niet.
-      **1. Data verzamelen (klant, eerst doen).** Per open bon: code, *resterend* saldo,
-      vervaldatum, en e-mail van de begunstigde als die bekend is. Zonder die lijst heeft
-      de rest geen zin — dit is het enige echte blokkerende stuk.
-      **2. Gratis versie op test installeren** en het bon-product aanmaken. Zet **Tax
-      Status = None** op dat product: de plugin behandelt bonnen als *multi-purpose*, dus
-      de BTW valt bij het **inwisselen**, niet bij de aankoop. Op "Taxable" zetten geeft
-      dubbele BTW (de plugin haalt de BTW bij inwisseling er niet vanzelf af).
-      **3. Testen zonder licentie.** De gratis versie heeft geen "maak bon aan"-knop; de
-      officiële omweg is een **100 %-kortingscoupon** voor jezelf en dan een bon
-      front-end bestellen. Test daarmee: deel-inwisseling + restsaldo, en één bestelling
-      waarin bon **+** WPLoyalty-punten **+** aanbiedingsprijs samenvallen, met de BTW
-      erop (die velden wijzigden in v0.17.4).
-      **4. Pas dan Pro kopen** — $99 voor 1 site, jaarlijkse verlenging, **geen
-      geld-terug-garantie**. Alleen Pro kan importeren (en handmatig bonnen aanmaken).
-      **5. Importformaat** (`pimwick.com/gift-cards-sample.csv`): **geen kopregel**, vier
-      kolommen — code, saldo, vervaldatum, e-mail; de laatste twee optioneel. Twee vallen:
-      de datum is **Amerikaans MM/DD/YYYY** en het saldo gebruikt een **punt** als
-      decimaalteken, terwijl een Belgische Excel-export DD/MM/YYYY en een komma geeft.
-      Zie `docs/cadeaubonnen-template.csv`.
-      **6. Importeer eerst 2-3 rijen**, controleer saldo + vervaldatum in de admin, en pas
-      daarna de rest — en importeer elke code exact één keer.
+- [ ] **Cadeaubonnen — PW WooCommerce Gift Cards.** Plugin: het gratis
+      `pw-woocommerce-gift-cards` van WordPress.org, met daarop de **Pro-licentie** van
+      pimwick.com ($99 voor 1 site, jaarlijkse verlenging, geen geld-terug-garantie).
+      Verkopen en inwisselen zit in de gratis versie; **importeren alleen in Pro**.
+      **Stand 18-08-2026:** de openstaande bonnen zijn verzameld, gecontroleerd en
+      omgezet naar het importformaat — **57 bonnen, € 2.541,57**, waarvan er 10 deels
+      zijn afgewaardeerd. De bestanden staan in Drive onder
+      `[05] Freelance/2026/07-3ducation/Data Export/Gift Cards/`. De volledige codes zijn
+      één voor één uit de oude admin (mygiftcards.io) gehaald; de CSV-export daar
+      maskeert ze tot de laatste vier tekens.
+      **1. Bon-product aanmaken met `Tax Status = None`** — de plugin behandelt bonnen als
+      multi-purpose, dus de BTW valt bij het **inwisselen**. Op "Taxable" krijg je dubbele
+      BTW (de plugin haalt ze bij inwisseling niet vanzelf af).
+      **2. Gedrag testen vóór de aankoop.** De gratis versie heeft geen "maak bon
+      aan"-knop; Pimwicks eigen omweg is een **100 %-kortingscoupon** + een front-end
+      bestelling. Test deel-inwisseling, restsaldo, en één bestelling met bon **+**
+      WPLoyalty-punten **+** aanbiedingsprijs, met de BTW erop (die velden wijzigden in
+      v0.17.4).
+      **3. Import stap 1 — `PW-import_STAP1-test-3.csv`** (3 rijen, gekozen om de
+      varianten te dekken: vol saldo mét vervaldatum, deels afgewaardeerd op € 0,01, en
+      één zonder vervaldatum). Controleer daarna: saldo = het *rest*saldo, vervaldatum
+      komt als augustus 2028 (niet dag/maand omgedraaid), de bon zonder datum blijft
+      onbeperkt, en — niet gedocumenteerd bij PW — of de ontvanger een mail kreeg. Zo ja,
+      zet die mails uit vóór stap 2, anders krijgen 54 klanten ongevraagd bericht.
+      **4. Import stap 2 — `PW-import_STAP2-resterende-54.csv`** (54 bonnen, € 2.481,56).
+      Elke code exact één keer importeren.
+      **5. Formaat van beide bestanden:** geen kopregel, vier kolommen — code, saldo (punt
+      als decimaalteken), vervaldatum `MM/DD/YYYY`, e-mail. Beide laatste mogen leeg zijn.
+      **6. Nog open:** 89 bonnen staan op DEACTIVATED mét saldo, samen **€ 4.051,07**. De
+      klant moet beslissen of die ook mee moeten. Doe daarnaast vlak vóór de omschakeling
+      een **verse export** — de oude shop verkoopt door (tussen 12 en 18 augustus kwamen
+      er twee bonnen bij).
 - [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
       the per-product option selectors (e.g. the printer workshop's "Kies hier uw
       optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The
