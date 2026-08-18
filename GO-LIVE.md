@@ -13,8 +13,15 @@ Ship theme source only — never upload `node_modules/`, `.git/`, `.claude/`,
 
 ```bash
 # clean zip of committed files (run from repo root)
-git archive --format=zip -o 3ducation.zip HEAD
+git archive --format=zip --prefix=3ducation/ -o 3ducation-<versie>.zip HEAD
 ```
+
+**`--prefix=3ducation/` is niet optioneel.** Zonder die vlag staan de bestanden los in
+de zip en maakt WordPress een themamap met de naam van het *zipbestand* — een tweede,
+losstaand thema (`3ducation-0.18.7`) in plaats van een vervanging. Beide tonen dan
+dezelfde naam en versie in Weergave → Thema's, want die komen uit `style.css`; alleen
+Gereedschap → Sitediagnose → Info → Thema's laat de mapnaam zien. Site-editor-
+aanpassingen hangen aan de themamap, dus het actieve thema moet in `3ducation/` blijven.
 
 Then either:
 - **Appearance → Themes → Add New → Upload** the zip (atomic, simplest), or
