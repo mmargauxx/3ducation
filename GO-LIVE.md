@@ -145,18 +145,24 @@ Create a **Page** for each of these slugs and assign the matching template
       de klant moet beslissen of die ook mee moeten. Doe daarnaast vlak vóór de
       omschakeling een **verse export**: de oude shop verkoopt door (tussen 12 en 18
       augustus kwamen er twee bonnen bij).
-- [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
+- [ ] Install **PPOM for WooCommerce** (`woocommerce-product-addon` — text domain in het
+      *enkelvoud*, niet het gelijknamige "WooCommerce Product Add-Ons") — it powers
       the per-product option selectors (e.g. the printer workshop's "Kies hier uw
       optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The
       option copy itself is product data entered per product, not theme source.
-- [ ] **Translate Product Add-Ons UI strings to Dutch** — the plugin ships no nl_NL for a
-      few labels, so the option block shows English **"Product Price"** and **"Total"**.
-      These live in the `woocommerce-product-addons` text domain (a *different* domain
-      from the theme's `gettext_woocommerce` fallback filter, which only covers core
-      WooCommerce). Fix with **Loco Translate** → Plugins → WooCommerce Product Add-Ons
-      → Dutch: "Product Price" → "Productprijs", "Total" → "Totaal" (check also
-      "Grand total" / "Options total"). Loco writes an update-safe `.mo` into
-      `wp-content/languages/plugins/`.
+- [x] **PPOM-strings naar het Nederlands vertaald.** De plugin levert geen nl_BE, dus het
+      optieblok toonde Engelse labels (**"Product Price"**, **"Total"**). Die zitten in het
+      text domain `woocommerce-product-addon` — een *ander* domain dan de
+      `gettext_woocommerce`-fallbackfilter in het thema, die alleen core WooCommerce dekt.
+      **388 front-end-strings zijn vertaald** (veldlabels, prijsregels, fout- en
+      uploadmeldingen, tone: informeel "je/jouw"); admin-, changelog- en pro-upsell-strings
+      blijven bewust Engels. Bestanden: `woocommerce-product-addon-nl_BE.po` + `.mo`.
+      **Plaatsen:** Loco Translate → Plugins → PPOM for WooCommerce → Nederlands (België),
+      opslaglocatie **"Custom"** (`wp-content/languages/loco/plugins/`) zodat een
+      plugin-update de vertaling niet wist; of de twee bestanden rechtstreeks daarin zetten.
+      **Let op:** de sitetaal moet op **Nederlands (België)** staan, anders laadt WordPress
+      een `nl_BE`-bestand niet — staat de site op gewoon "Nederlands", hernoem dan beide
+      bestanden naar `...-nl_NL.po/.mo`.
 - [ ] **WPLoyalty naar het Nederlands.** Doe eerst de *instellingen*: campagnenamen,
       beloningslabels, de tekst van de puntenwidget en de e-mailsjablonen zijn invoervelden
       in WPLoyalty zelf — vul die meteen Nederlands in, dat dekt het meeste van wat een
