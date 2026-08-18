@@ -103,38 +103,38 @@ Create a **Page** for each of these slugs and assign the matching template
       **Betaling:** Cal.com's Stripe-app zit niet op het gratis plan, dus er wordt achteraf /
       op factuur betaald. Wil je vooraf laten afrekenen, houd de workshop dan daarnaast als
       WooCommerce-product zodat Mollie het kan innen.
-- [ ] **Cadeaubonnen — PW WooCommerce Gift Cards.** Plugin: het gratis
-      `pw-woocommerce-gift-cards` van WordPress.org, met daarop de **Pro-licentie** van
-      pimwick.com ($99 voor 1 site, jaarlijkse verlenging, geen geld-terug-garantie).
-      Verkopen en inwisselen zit in de gratis versie; **importeren alleen in Pro**.
-      **Stand 18-08-2026:** de openstaande bonnen zijn verzameld, gecontroleerd en
-      omgezet naar het importformaat — **57 bonnen, € 2.541,57**, waarvan er 10 deels
-      zijn afgewaardeerd. De bestanden staan in Drive onder
-      `[05] Freelance/2026/07-3ducation/Data Export/Gift Cards/`. De volledige codes zijn
-      één voor één uit de oude admin (mygiftcards.io) gehaald; de CSV-export daar
-      maskeert ze tot de laatste vier tekens.
+- [ ] **Cadeaubonnen — PW WooCommerce Gift Cards (gratis versie, géén Pro nodig).**
+      Plugin: `pw-woocommerce-gift-cards` van WordPress.org. De **CSV-import** zit wel
+      degelijk achter Pro ($99/jaar), maar we hebben die niet nodig: de gratis versie
+      heeft een publieke API — `PW_Gift_Card::add_card( $nummer )` maakt een bon met een
+      **zelfgekozen** code aan, `credit()` zet het saldo, en de vervaldatum is één
+      kolom-update. Het saldo is gewoon `SUM(amount)` over de activiteitentabel, dus
+      **deel-inwisseling en restsaldo werken in de gratis versie** (lokaal getest:
+      € 40 → € 27,50 → € 0,00).
+      *Ook nagekeken:* Ultimate Gift Cards for WooCommerce (Lite) kan dit níet — het
+      importscherm zit in de plugin, maar met een "PRO"-badge uit de CSS en zonder enige
+      PHP die de upload verwerkt.
+      **Data:** 57 openstaande bonnen, **€ 2.541,57**, waarvan 10 deels afgewaardeerd en
+      3 zonder vervaldatum. De volledige codes zijn per bon uit de oude admin
+      (mygiftcards.io) gehaald — de CSV-export daar maskeert ze tot de laatste vier
+      tekens. Bestanden staan in Drive onder
+      `[05] Freelance/2026/07-3ducation/Data Export/Gift Cards/`.
       **1. Bon-product aanmaken met `Tax Status = None`** — de plugin behandelt bonnen als
       multi-purpose, dus de BTW valt bij het **inwisselen**. Op "Taxable" krijg je dubbele
       BTW (de plugin haalt ze bij inwisseling niet vanzelf af).
-      **2. Gedrag testen vóór de aankoop.** De gratis versie heeft geen "maak bon
-      aan"-knop; Pimwicks eigen omweg is een **100 %-kortingscoupon** + een front-end
-      bestelling. Test deel-inwisseling, restsaldo, en één bestelling met bon **+**
-      WPLoyalty-punten **+** aanbiedingsprijs, met de BTW erop (die velden wijzigden in
-      v0.17.4).
-      **3. Import stap 1 — `PW-import_STAP1-test-3.csv`** (3 rijen, gekozen om de
-      varianten te dekken: vol saldo mét vervaldatum, deels afgewaardeerd op € 0,01, en
-      één zonder vervaldatum). Controleer daarna: saldo = het *rest*saldo, vervaldatum
-      komt als augustus 2028 (niet dag/maand omgedraaid), de bon zonder datum blijft
-      onbeperkt, en — niet gedocumenteerd bij PW — of de ontvanger een mail kreeg. Zo ja,
-      zet die mails uit vóór stap 2, anders krijgen 54 klanten ongevraagd bericht.
-      **4. Import stap 2 — `PW-import_STAP2-resterende-54.csv`** (54 bonnen, € 2.481,56).
-      Elke code exact één keer importeren.
-      **5. Formaat van beide bestanden:** geen kopregel, vier kolommen — code, saldo (punt
-      als decimaalteken), vervaldatum `MM/DD/YYYY`, e-mail. Beide laatste mogen leeg zijn.
-      **6. Nog open:** 89 bonnen staan op DEACTIVATED mét saldo, samen **€ 4.051,07**. De
-      klant moet beslissen of die ook mee moeten. Doe daarnaast vlak vóór de omschakeling
-      een **verse export** — de oude shop verkoopt door (tussen 12 en 18 augustus kwamen
-      er twee bonnen bij).
+      **2. Upload `3ducation-import-cadeaubonnen.php` naar `wp-content/mu-plugins/`.**
+      Daar staan de 57 bonnen in; het script slaat codes over die al bestaan, dus twee
+      keer draaien kan geen kwaad.
+      **3. Testloop:** surf als beheerder naar `?3du_import_bonnen=test` — dat toont wat
+      er zou gebeuren en wijzigt niets.
+      **4. Uitvoeren:** `?3du_import_bonnen=doen`. Verwacht: *57 verwerkt, 0 mislukt,
+      samen EUR 2.541,57*. Controleer daarna in de admin één deels afgewaardeerde bon
+      (€ 0,01) en één zonder vervaldatum.
+      **5. Verwijder het bestand uit `mu-plugins/`** zodra de import klopt.
+      **6. Nog open:** 89 bonnen staan op DEACTIVATED mét saldo, samen **€ 4.051,07** —
+      de klant moet beslissen of die ook mee moeten. Doe daarnaast vlak vóór de
+      omschakeling een **verse export**: de oude shop verkoopt door (tussen 12 en 18
+      augustus kwamen er twee bonnen bij).
 - [ ] Install **WooCommerce Product Add-Ons** (`woocommerce-product-addons`) — it powers
       the per-product option selectors (e.g. the printer workshop's "Kies hier uw
       optie" zelfbouw / gemonteerd / +workshop radio group with price deltas). The
