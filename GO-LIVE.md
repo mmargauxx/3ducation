@@ -130,6 +130,9 @@ Create a **Page** for each of these slugs and assign the matching template
       **4. Uitvoeren:** `?3du_import_bonnen=doen`. Verwacht: *57 verwerkt, 0 mislukt,
       samen EUR 2.541,57*. Controleer daarna in de admin één deels afgewaardeerde bon
       (€ 0,01) en één zonder vervaldatum.
+      **Op test uitgevoerd op 2026-08-18: 57 verwerkt, 0 mislukt, € 2.541,57.** Op
+      **productie moet dit opnieuw** — met een verse export, want de oude shop verkoopt
+      door tot de omschakeling.
       **5. Verwijder het bestand uit `mu-plugins/`** zodra de import klopt.
       **6. Nog open:** 89 bonnen staan op DEACTIVATED mét saldo, samen **€ 4.051,07** —
       de klant moet beslissen of die ook mee moeten. Doe daarnaast vlak vóór de
