@@ -698,7 +698,11 @@ a:focus-visible {
  * A compact reassurance strip under the buy button: local support,
  * optional pre-assembly, official partner — color-coded in the tricolor.
  * ------------------------------------------------------------------ */
-.product-trust { margin-top: var(--wp--preset--spacing--30); }
+.product-trust {
+	margin-top: var(--wp--preset--spacing--30);
+	/* lucht tot de productmeta eronder (Merk: ...) */
+	margin-bottom: var(--wp--preset--spacing--45);
+}
 .trust-badges {
 	list-style: none;
 	margin: 0;
