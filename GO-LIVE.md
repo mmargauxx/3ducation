@@ -115,6 +115,15 @@ Create a **Page** for each of these slugs and assign the matching template
       → Dutch: "Product Price" → "Productprijs", "Total" → "Totaal" (check also
       "Grand total" / "Options total"). Loco writes an update-safe `.mo` into
       `wp-content/languages/plugins/`.
+- [ ] **WPLoyalty naar het Nederlands.** Doe eerst de *instellingen*: campagnenamen,
+      beloningslabels, de tekst van de puntenwidget en de e-mailsjablonen zijn invoervelden
+      in WPLoyalty zelf — vul die meteen Nederlands in, dat dekt het meeste van wat een
+      bezoeker leest. Wat dan nog Engels blijft, vertaal je met **Loco Translate** →
+      Plugins → WPLoyalty → Nederlands, met opslaglocatie **"Custom"**
+      (`wp-content/languages/loco/`) zodat een plugin-update de vertaling niet wist.
+      Alleen de front-end strings zijn de moeite (puntensaldo, inwisselknop, kortingsregel
+      in de winkelwagen); de admin-strings mogen Engels blijven. Sitetaal moet op Nederlands
+      staan, anders laadt WordPress het `.mo`-bestand niet.
 
 ---
 
