@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.8' );
+	define( 'THREEDUCATION_VERSION', '0.18.9' );
 }
 
 /**
@@ -883,6 +883,29 @@ function threeducation_cat_description_column_content( $content, $column_name, $
 	return esc_html( wp_trim_words( $text, 15, '…' ) );
 }
 add_filter( 'manage_product_cat_custom_column', 'threeducation_cat_description_column_content', 10, 3 );
+
+/**
+ * Geef de kolom een expliciete breedte. Admin-lijsten zijn table-layout:fixed en
+ * core's breedteregels hangen aan `.column-description`; door de kolom te
+ * hernoemen vielen die weg, waardoor de cel dichtklapte en de tekst één letter
+ * per regel afbrak. Eén regel met ellipsis houdt de lijst leesbaar.
+ */
+function threeducation_cat_admin_column_css() {
+	$screen = get_current_screen();
+	if ( ! $screen || 'edit-product_cat' !== $screen->id ) {
+		return;
+	}
+	echo '<style>
+		.wp-list-table th.column-threeducation_short_description,
+		.wp-list-table td.column-threeducation_short_description { width: 30%; }
+		.wp-list-table td.column-threeducation_short_description {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	</style>' . "\n";
+}
+add_action( 'admin_head', 'threeducation_cat_admin_column_css' );
 
 /* ------------------------------------------------------------------ *
  * Product trust badges (Settings → Vertrouwensbadges)
