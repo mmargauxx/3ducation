@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.7' );
+	define( 'THREEDUCATION_VERSION', '0.18.8' );
 }
 
 /**
@@ -1507,24 +1507,26 @@ add_action( 'post_submitbox_misc_actions', 'threeducation_visibility_submitbox' 
  * The three intake patterns (contact-form, service-intake, workshops-intake)
  * POST to admin-post.php; this handler validates (nonce + honeypot), e-mails the
  * submission to the shop and redirects back with a success/error flag — no form
- * plugin needed, the hand-styled markup stays. Delivery uses wp_mail(): install
- * an SMTP plugin (e.g. WP Mail SMTP) on the live host for reliable delivery, and
- * override the recipient via the `threeducation_intake_recipient` filter.
+ * plugin needed, the hand-styled markup stays. Delivery uses wp_mail(): FluentSMTP
+ * handles delivery on the live host. Each form type mails its own address (see the
+ * `recipient` key below); the `threeducation_intake_recipient` filter still wins.
  * ------------------------------------------------------------------
  */
 
 /**
  * Field map per form type: POST key => label (order sets the e-mail order).
- * `attachments` flags the service form's photo/video uploads.
+ * `recipient` is the address the form mails; `attachments` flags the service
+ * form's photo/video uploads.
  *
  * @return array
  */
 function threeducation_intake_config() {
 	return array(
 		'contact'   => array(
-			'subject' => __( 'Nieuw contactbericht', '3ducation' ),
-			'anchor'  => 'contact-form',
-			'fields'  => array(
+			'subject'   => __( 'Nieuw contactbericht', '3ducation' ),
+			'anchor'    => 'contact-form',
+			'recipient' => 'info@3ducation.be',
+			'fields'    => array(
 				'name'    => __( 'Naam', '3ducation' ),
 				'email'   => __( 'E-mailadres', '3ducation' ),
 				'phone'   => __( 'Telefoonnummer', '3ducation' ),
@@ -1535,6 +1537,7 @@ function threeducation_intake_config() {
 		'service'   => array(
 			'subject'     => __( 'Nieuwe service-aanvraag', '3ducation' ),
 			'anchor'      => 'service-form',
+			'recipient'   => 'repair@3ducation.be',
 			'attachments' => true,
 			'fields'      => array(
 				'name'          => __( 'Naam', '3ducation' ),
@@ -1548,9 +1551,10 @@ function threeducation_intake_config() {
 			),
 		),
 		'workshops' => array(
-			'subject' => __( 'Nieuwe workshop-aanvraag', '3ducation' ),
-			'anchor'  => 'intake',
-			'fields'  => array(
+			'subject'   => __( 'Nieuwe workshop-aanvraag', '3ducation' ),
+			'anchor'    => 'intake',
+			'recipient' => 'workshops@3ducation.be',
+			'fields'    => array(
 				'name'         => __( 'Naam', '3ducation' ),
 				'email'        => __( 'E-mailadres', '3ducation' ),
 				'organisation' => __( 'Organisatie', '3ducation' ),
@@ -1679,7 +1683,8 @@ function threeducation_handle_intake() {
 		}
 	}
 
-	$recipient = apply_filters( 'threeducation_intake_recipient', 'info@3ducation.be', $type );
+	$recipient = ! empty( $config[ $type ]['recipient'] ) ? $config[ $type ]['recipient'] : 'info@3ducation.be';
+	$recipient = apply_filters( 'threeducation_intake_recipient', $recipient, $type );
 	$host      = wp_parse_url( home_url(), PHP_URL_HOST );
 	$host      = $host ? preg_replace( '/^www\./', '', $host ) : 'localhost';
 	$subject   = sprintf( '[%s] %s', get_bloginfo( 'name' ), $config[ $type ]['subject'] );
