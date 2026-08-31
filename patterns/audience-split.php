@@ -79,15 +79,15 @@
 
 <!-- wp:group {"className":"proof-row","layout":{"type":"default"}} -->
 <div class="wp-block-group proof-row"><!-- wp:image {"className":"proof-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( '3D-printen in de klas op school.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/home-showroom-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'De showroom van 3DUCATION met printers en materialen.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 
 <!-- wp:image {"className":"proof-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Educatieve 3D-modellen tijdens een workshop.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/home-print-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Twee handen houden een geprinte beer vast.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 
 <!-- wp:image {"className":"proof-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/verjaardag.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een 3D-printer aan het werk tijdens een verjaardagsfeestje.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/home-filamentwand-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'De filamentwand in de winkel, vol kleuren.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group -->
