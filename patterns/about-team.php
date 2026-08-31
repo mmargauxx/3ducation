@@ -14,10 +14,12 @@
  * Portraits are theme files in assets/images/ so they travel with the theme
  * and survive every deploy. The filenames carry the shoot year: images are not
  * version-busted the way custom.css is, so reusing a filename leaves returning
- * visitors looking at the browser-cached old photo. New photo = new filename. The open slot points at the striped "Foto volgt"
- * placeholder; drop a real portrait in assets/images/ and change the filename
- * here. Do NOT swap these through the Site Editor: saving there freezes a copy
- * of this whole template in the database, which masks later theme updates.
+ * visitors looking at the browser-cached old photo. New photo = new filename.
+ * Every slot has a real portrait now; team-placeholder.png stays in
+ * assets/images/ for the next new colleague — point their entry at it until a
+ * portrait arrives. Do NOT swap these through the Site Editor: saving there
+ * freezes a copy of this whole template in the database, which masks later
+ * theme updates.
  */
 
 $members = array(
@@ -42,7 +44,7 @@ $members = array(
 		'role'  => __( 'Technisch medewerker', '3ducation' ),
 	),
 	array(
-		'image' => 'team-placeholder.png',
+		'image' => 'team-joren-2026.jpg',
 		'name'  => __( 'Joren Van der Meiren', '3ducation' ),
 		'role'  => __( 'Technisch medewerker', '3ducation' ),
 	),
