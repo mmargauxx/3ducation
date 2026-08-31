@@ -79,7 +79,7 @@
 
 <!-- wp:group {"className":"proof-row","layout":{"type":"default"}} -->
 <div class="wp-block-group proof-row"><!-- wp:image {"className":"proof-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt="<?php echo esc_attr__( '3D-printen in de klas op school.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large proof-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( '3D-printen in de klas op school.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 
 <!-- wp:image {"className":"proof-photo","sizeSlug":"large"} -->
