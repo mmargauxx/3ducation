@@ -182,9 +182,9 @@ Create a **Page** for each of these slugs and assign the matching template
       `workshops-intake.php` POST to an `admin-post.php` handler in `functions.php`
       (nonce + honeypot + `wp_mail` to `info@3ducation.be`; the service form also attaches
       photos/videos). Success/error banners show on the page after submit.
-- [ ] **On the live host, install an SMTP plugin** (e.g. WP Mail SMTP) so `wp_mail` actually
-      delivers, then send a test through each form. Override the recipient with the
-      `threeducation_intake_recipient` filter if it isn't `info@3ducation.be`.
+- [x] **SMTP staat live** — FluentSMTP via een EasyHost-mailbox (2026-08-26), contactformulier
+      geverifieerd. Per formulier een eigen ontvanger: contact → info@, service → repair@,
+      workshops → workshops@ (via `threeducation_intake_recipient`).
 
 **Copy**
 - [x] Audience-card, intake, about and package copy finalised.
@@ -193,12 +193,14 @@ Create a **Page** for each of these slugs and assign the matching template
       forms are wired.
 
 **Photos** — every "Foto"/"Foto volgt" placeholder tile is now gone; all heroes,
-gallery and team tiles ship a real image. Several are **stock stand-ins**, so
-before (or shortly after) launch swap these for genuine 3DUCATION photos:
-- [ ] **Team portraits** (`about-team.php` — `team-natalie/-patrick/-cato.jpg`)
-      are stock people — replace with real photos of the team.
-- [ ] **"Uit de praktijk" gallery** (`about.php`) + some section photos reuse
-      generic 3D-print stock — swap for real workshop/classroom/party shots.
+gallery and team tiles ship a real image.
+- [x] **Team portraits** — de vijf echte portretten uit de shoot van 2026-08-26 staan erin
+      (`team-natalie/-patrick/-cato/-tibo/-joren-2026.jpg`), v0.18.14.
+- [x] **"Uit de praktijk" gallery** (`about.php`) + de Over ons-hero draaien op echte foto's
+      uit dezelfde shoot (`praktijk-*-2026.jpg`, `about-hero.jpg`).
+- [ ] **Nog stockbeeld:** de homepage-hero (`homepage-header.jpg`), `audience-split`/`edu-hero`
+      (`scholen.jpg`), `workshops-detail` (`workshops2.jpg`) en `service-hero`
+      (`service-montage.jpg`). De shootmap heeft ~37 bruikbare foto's om die mee te vervangen.
 - Real photos already in place across: homepage hero, `/oplossingen`, `/workshops`,
   `/educatieve-pakketten`, `/service`, `/over-ons`. (To revert the homepage hero to a
   different image, point `.home-hero` in `hero.php` at another file in `assets/images/`.)
