@@ -40,7 +40,7 @@
 
 <!-- wp:column {"verticalAlignment":"center","width":"46%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:image {"className":"hero-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/solutions-hero.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een Creality Ender 3D-printer print laag voor laag een wit object.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/solutions-hero-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een 3D-printer met een pas geprinte rode paddenstoel op het printbed.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>

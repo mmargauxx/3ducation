@@ -44,7 +44,7 @@
 
 <!-- wp:column {"verticalAlignment":"center","width":"46%"} -->
 <div class="wp-block-column is-vertically-aligned-center" style="flex-basis:46%"><!-- wp:image {"className":"hero-photo","sizeSlug":"large"} -->
-<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/service-montage.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Blauwe 3D-geprinte bootjes als voorbeeld van 3D-printwerk.', '3ducation' ); ?>"/></figure>
+<figure class="wp-block-image size-large hero-photo"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/service-hero-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een technicus werkt aan een opengewerkte 3D-printer aan de werkbank.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns --></div>
