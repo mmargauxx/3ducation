@@ -1244,6 +1244,10 @@ a:focus-visible {
 	border-radius: 18px;
 	box-shadow: 0 30px 50px -30px rgba(20, 21, 26, 0.35);
 }
+/* Landscape variant — the contact hero uses a wide showroom shot, which a 4/5
+ * portrait crop would gut. Same rounding and shadow, 3/2 proportions. */
+.hero-photo--wide img { aspect-ratio: 3 / 2; }
+
 /* Striped "Foto volgt" placeholder standing in for a hero photo (Service &
  * montage) — reuses .social-proof-placeholder but takes the same 4/5 panel
  * proportions as a real .hero-photo so the layout matches the other pillars. */
