@@ -54,7 +54,7 @@
 <!-- wp:group {"className":"about-gallery","layout":{"type":"default"}} -->
 <div class="wp-block-group about-gallery"><!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
 <div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
-<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/homepage-header.jpg' ) ); ?>" alt=""/></figure>
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/praktijk-aan-de-slag-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een 3D-printer aan het werk op een bureau, met een geprinte panda naast het printbed.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 <!-- wp:paragraph {"className":"about-gallery__cap"} -->
 <p class="about-gallery__cap"><?php echo esc_html__( 'Aan de slag met de 3D-printer', '3ducation' ); ?></p>
@@ -63,7 +63,7 @@
 
 <!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
 <div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
-<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/workshops2.jpg' ) ); ?>" alt=""/></figure>
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/praktijk-maken-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een vitrinekast vol kleurrijke 3D-geprinte figuurtjes en modellen.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 <!-- wp:paragraph {"className":"about-gallery__cap"} -->
 <p class="about-gallery__cap"><?php echo esc_html__( 'Wat je allemaal kan maken', '3ducation' ); ?></p>
@@ -72,7 +72,7 @@
 
 <!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
 <div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
-<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/service-montage.jpg' ) ); ?>" alt=""/></figure>
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/praktijk-ontwerp-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een rood 3D-geprint bootje, vers uit de printer.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 <!-- wp:paragraph {"className":"about-gallery__cap"} -->
 <p class="about-gallery__cap"><?php echo esc_html__( 'Van ontwerp tot geprint resultaat', '3ducation' ); ?></p>
@@ -81,7 +81,7 @@
 
 <!-- wp:group {"className":"about-gallery__item","layout":{"type":"default"}} -->
 <div class="wp-block-group about-gallery__item"><!-- wp:image {"sizeSlug":"large"} -->
-<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/scholen.jpg' ) ); ?>" alt=""/></figure>
+<figure class="wp-block-image size-large"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/praktijk-klas-2026.jpg' ) ); ?>" alt="<?php echo esc_attr__( 'Een rood geprint draakje op een 3D-printer, met een spoel blauw filament ernaast.', '3ducation' ); ?>"/></figure>
 <!-- /wp:image -->
 <!-- wp:paragraph {"className":"about-gallery__cap"} -->
 <p class="about-gallery__cap"><?php echo esc_html__( '3D-printen in de klas', '3ducation' ); ?></p>

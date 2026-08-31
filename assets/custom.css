@@ -2286,14 +2286,19 @@ a:focus-visible {
 	.about-gallery .about-gallery__ph { aspect-ratio: 3 / 2; }
 }
 
-/* Team grid — reuses the .about-gallery__item / __ph tile (striped "Foto"
- * placeholder) with a name + role caption. Three-up, collapsing on smaller
- * screens. Swap the placeholders for real portraits before go-live. */
+/* Team row — reuses the .about-gallery__item tile with a name + role caption.
+ * A centred wrapping flex row rather than a grid: with five members that gives
+ * three on the first row and the remaining two centred underneath (a 3-column
+ * grid would left-align that orphan pair). Any member count stays balanced. */
 .about-team {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
 	gap: 14px;
 }
+/* Three per row at the 1240px content width; the basis subtracts the two gaps
+ * so the cards match the old grid's column width exactly. */
+.about-team__item { flex: 0 1 calc((100% - 2 * 14px) / 3); }
 .about-team__photo { margin: 0; width: 100%; }
 .about-team__photo img {
 	display: block;
@@ -2318,12 +2323,10 @@ a:focus-visible {
 	color: var(--wp--preset--color--ink-soft);
 }
 @media (max-width: 600px) {
-	.about-team { grid-template-columns: 1fr 1fr; }
+	.about-team__item { flex-basis: calc((100% - 14px) / 2); }
 }
 @media (max-width: 400px) {
-	.about-team { grid-template-columns: 1fr; }
-	/* Same landscape relax as the gallery once team tiles stack one-up. */
-	.about-team .about-gallery__ph { aspect-ratio: 3 / 2; }
+	.about-team__item { flex-basis: 100%; }
 }
 
 /* ------------------------------------------------------------------ *
