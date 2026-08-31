@@ -43,8 +43,8 @@ $members = array(
 	),
 	array(
 		'image' => 'team-placeholder.png',
-		'name'  => __( 'Naam collega', '3ducation' ),
-		'role'  => __( 'Functie', '3ducation' ),
+		'name'  => __( 'Joren Van der Meiren', '3ducation' ),
+		'role'  => __( 'Technisch medewerker', '3ducation' ),
 	),
 );
 ?>
