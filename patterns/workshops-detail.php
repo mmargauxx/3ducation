@@ -50,7 +50,6 @@
 <!-- wp:list {"className":"wsaud-list"} -->
 <ul class="wp-block-list wsaud-list"><!-- wp:list-item --><li>Materiaalkennis en 3D-printtechnieken</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>3D-modellen downloaden en aanpassen</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li>Basis 3D-tekenen in Tinkercad</li><!-- /wp:list-item -->
 <!-- wp:list-item --><li>Bediening van je 3D-printer en slicer-software</li><!-- /wp:list-item --></ul>
 <!-- /wp:list --></div>
 <!-- /wp:group --></div>

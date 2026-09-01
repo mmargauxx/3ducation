@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.21' );
+	define( 'THREEDUCATION_VERSION', '0.18.22' );
 }
 
 /**
@@ -2289,4 +2289,188 @@ function threeducation_calcom_button_attrs( $event ) {
 		esc_attr( sanitize_key( $brand ) ),
 		esc_attr( wp_json_encode( array( 'layout' => 'month_view', 'useSlotsViewOnSmallScreen' => 'true' ) ) )
 	);
+}
+
+/* -------------------------------------------------------------------------
+ * Footer-gegevens (Instellingen -> Footer)
+ *
+ * De vier blokjes in de footer die in de praktijk wijzigen: openingsuren,
+ * adres, telefoon/mail en de merkenrij. Ze staan hier als optie zodat de klant
+ * ze kan aanpassen zonder de Site Editor te openen — dat laatste schrijft een
+ * wp_template_part in de database en blokkeert daarna elke theme-update van de
+ * footer. De structuur van de footer blijft dus van het thema; alleen deze
+ * teksten komen uit de database. Gerenderd door patterns/footer.php.
+ * ---------------------------------------------------------------------- */
+
+/** De standaardteksten; een leeg veld valt hierop terug. */
+function threeducation_footer_defaults() {
+	return array(
+		'openingsuren' => "Maandag & dinsdag: gesloten\nWoensdag: 14:00–18:00\nDonderdag: 10:00–13:00 & 14:00–18:00\nVrijdag: 10:00–13:00 & 14:00–18:00\nZaterdag: 10:00–17:00\nZondag: gesloten",
+		'adres'        => "Vrasenestraat 40\n9100 Nieuwkerken-Waas",
+		'telefoon'     => '+32 468 11 82 42',
+		'email'        => 'info@3ducation.be',
+		'merken'       => 'Verkooppunt van Creality · Bambulab · Polymaker · Winkle · Filalab',
+	);
+}
+
+/** Welke velden meerdere regels mogen bevatten. */
+function threeducation_footer_multiline_keys() {
+	return array( 'openingsuren', 'adres' );
+}
+
+/**
+ * De actieve waarden: opgeslagen tekst, of de standaard als het veld leeg is.
+ *
+ * @return array<string,string>
+ */
+function threeducation_footer_values() {
+	$defaults = threeducation_footer_defaults();
+	$saved    = get_option( 'threeducation_footer', array() );
+	if ( ! is_array( $saved ) ) {
+		$saved = array();
+	}
+
+	$out = array();
+	foreach ( $defaults as $key => $default ) {
+		$value       = isset( $saved[ $key ] ) ? trim( (string) $saved[ $key ] ) : '';
+		$out[ $key ] = ( '' === $value ) ? $default : $value;
+	}
+
+	return (array) apply_filters( 'threeducation_footer_values', $out );
+}
+
+/** Zet meerregelige tekst om naar veilige HTML met <br> ertussen. */
+function threeducation_footer_multiline( $text ) {
+	$lines = explode( "\n", (string) $text );
+	$lines = array_filter( array_map( 'trim', $lines ), 'strlen' );
+
+	return implode( '<br>', array_map( 'esc_html', $lines ) );
+}
+
+/** Het telefoonnummer als tel:-href, dus zonder spaties. */
+function threeducation_footer_tel_href( $telefoon ) {
+	return preg_replace( '/[^0-9+]/', '', (string) $telefoon );
+}
+
+/** Registreer de footergegevens bij de Settings API. */
+function threeducation_footer_register_settings() {
+	register_setting(
+		'threeducation_footer',
+		'threeducation_footer',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'threeducation_footer_sanitize',
+			'default'           => array(),
+		)
+	);
+}
+add_action( 'admin_init', 'threeducation_footer_register_settings' );
+
+/**
+ * Saneer de invoer: platte tekst, geen HTML.
+ *
+ * Leeg blijft leeg — dat is de manier om terug te vallen op de standaardtekst,
+ * niet een fout. Regeleindes blijven alleen staan in de meerregelige velden.
+ */
+function threeducation_footer_sanitize( $input ) {
+	$multiline = threeducation_footer_multiline_keys();
+	$out       = array();
+
+	foreach ( array_keys( threeducation_footer_defaults() ) as $key ) {
+		$raw = isset( $input[ $key ] ) ? (string) wp_unslash( $input[ $key ] ) : '';
+
+		if ( 'email' === $key ) {
+			$raw         = trim( $raw );
+			$out[ $key ] = ( '' === $raw ) ? '' : sanitize_email( $raw );
+			continue;
+		}
+
+		if ( in_array( $key, $multiline, true ) ) {
+			$raw         = str_replace( array( "\r\n", "\r" ), "\n", $raw );
+			$out[ $key ] = trim( sanitize_textarea_field( $raw ) );
+			continue;
+		}
+
+		$out[ $key ] = trim( sanitize_text_field( $raw ) );
+	}
+
+	return $out;
+}
+
+/** Voeg het instellingenscherm toe onder het menu Instellingen. */
+function threeducation_footer_admin_menu() {
+	add_options_page(
+		__( 'Footer', '3ducation' ),
+		__( 'Footer', '3ducation' ),
+		'manage_options',
+		'threeducation-footer',
+		'threeducation_footer_render_admin_page'
+	);
+}
+add_action( 'admin_menu', 'threeducation_footer_admin_menu' );
+
+/** Render het scherm: één veld per footerblokje, met de standaard als placeholder. */
+function threeducation_footer_render_admin_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$defaults  = threeducation_footer_defaults();
+	$multiline = threeducation_footer_multiline_keys();
+	$saved     = get_option( 'threeducation_footer', array() );
+	if ( ! is_array( $saved ) ) {
+		$saved = array();
+	}
+
+	$labels = array(
+		'openingsuren' => __( 'Openingsuren', '3ducation' ),
+		'adres'        => __( 'Adres', '3ducation' ),
+		'telefoon'     => __( 'Telefoonnummer', '3ducation' ),
+		'email'        => __( 'E-mailadres', '3ducation' ),
+		'merken'       => __( 'Merkenrij', '3ducation' ),
+	);
+	$hints  = array(
+		'openingsuren' => __( 'Eén dag per regel. Enter maakt een nieuwe regel in de footer.', '3ducation' ),
+		'adres'        => __( 'Straat op de eerste regel, postcode en gemeente op de tweede.', '3ducation' ),
+		'telefoon'     => __( 'Zoals je het wil tonen, met spaties. De belknop maakt er zelf een geldig nummer van.', '3ducation' ),
+		'email'        => __( 'Het adres onderaan de footer. Dit verandert niets aan waar de formulieren naartoe mailen.', '3ducation' ),
+		'merken'       => __( 'Eén regel. Scheid de merken met " · ".', '3ducation' ),
+	);
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html__( 'Footer', '3ducation' ); ?></h1>
+		<p><?php echo esc_html__( 'De teksten in de footer die je zelf kan bijwerken. Laat een veld leeg om terug te vallen op de standaardtekst.', '3ducation' ); ?></p>
+		<p><?php echo esc_html__( 'Pas de footer niet aan via Vormgeving → Editor: die bewaart een eigen kopie in de database en dan komen latere aanpassingen aan de website niet meer door.', '3ducation' ); ?></p>
+
+		<form method="post" action="options.php">
+			<?php settings_fields( 'threeducation_footer' ); ?>
+			<table class="form-table" role="presentation">
+				<?php
+				foreach ( $defaults as $key => $default ) :
+					$value = isset( $saved[ $key ] ) ? (string) $saved[ $key ] : '';
+					?>
+					<tr>
+						<th scope="row">
+							<label for="tdf-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $labels[ $key ] ); ?></label>
+						</th>
+						<td>
+							<?php if ( in_array( $key, $multiline, true ) ) : ?>
+								<textarea id="tdf-<?php echo esc_attr( $key ); ?>" class="large-text" rows="<?php echo ( 'openingsuren' === $key ) ? 6 : 3; ?>"
+									name="threeducation_footer[<?php echo esc_attr( $key ); ?>]"
+									placeholder="<?php echo esc_attr( $default ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+							<?php else : ?>
+								<input type="<?php echo ( 'email' === $key ) ? 'email' : 'text'; ?>" id="tdf-<?php echo esc_attr( $key ); ?>" class="large-text"
+									name="threeducation_footer[<?php echo esc_attr( $key ); ?>]"
+									value="<?php echo esc_attr( $value ); ?>"
+									placeholder="<?php echo esc_attr( $default ); ?>">
+							<?php endif; ?>
+							<p class="description"><?php echo esc_html( $hints[ $key ] ); ?></p>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</table>
+			<?php submit_button(); ?>
+		</form>
+	</div>
+	<?php
 }

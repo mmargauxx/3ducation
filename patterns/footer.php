@@ -1,0 +1,100 @@
+<?php
+/**
+ * Title: Footer
+ * Slug: 3ducation/footer
+ * Categories: 3ducation
+ * Description: De sitefooter. Openingsuren, adres, telefoon/mail en de merkenrij komen uit Instellingen -> Footer; de rest staat vast in het thema.
+ * Inserter: no
+ */
+
+$threeducation_footer = threeducation_footer_values();
+?>
+<!-- wp:group {"tagName":"footer","style":{"spacing":{"padding":{"top":"var:preset|spacing|70","bottom":"var:preset|spacing|50"}}},"backgroundColor":"ink","textColor":"base","className":"site-footer","layout":{"type":"constrained","wideSize":"1240px"}} -->
+<footer class="wp-block-group site-footer has-base-color has-ink-background-color has-text-color has-background" style="padding-top:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--50)"><!-- wp:columns {"align":"wide","style":{"spacing":{"blockGap":{"left":"var:preset|spacing|50"}}}} -->
+<div class="wp-block-columns alignwide"><!-- wp:column {"width":"38%"} -->
+<div class="wp-block-column" style="flex-basis:38%"><!-- wp:heading {"level":2,"fontSize":"large","textColor":"surface"} -->
+<h2 class="wp-block-heading has-surface-color has-text-color has-large-font-size">3DUCATION</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|mist"}}} -->
+<p class="has-text-color" style="color:var(--wp--preset--color--mist)">Leer printen, print om te leren. 3D-printers, filamenten, resin en hands-on workshops, met advies en service erbij.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"style":{"typography":{"textTransform":"uppercase","letterSpacing":"1px","fontWeight":"500"},"color":{"text":"var:preset|color|surface"}},"fontSize":"small","fontFamily":"display"} -->
+<p class="has-text-color has-display-font-family has-small-font-size" style="color:var(--wp--preset--color--surface);font-weight:500;letter-spacing:1px;text-transform:uppercase">Openingsuren</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|mist"}}} -->
+<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--mist)"><?php echo threeducation_footer_multiline( $threeducation_footer['openingsuren'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- per regel ge-escaped in de helper. ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:heading {"level":3,"fontSize":"medium","textColor":"surface"} -->
+<h3 class="wp-block-heading has-surface-color has-text-color has-medium-font-size">Webshop</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph --><p><a href="/product-category/3d-printers">3D-Printers</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/product-category/filamenten">Filamenten</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/product-category/resin">Resin</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/product-category/koopjes">Koopjes</a></p><!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:heading {"level":3,"fontSize":"medium","textColor":"surface"} -->
+<h3 class="wp-block-heading has-surface-color has-text-color has-medium-font-size">Klantenservice</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph --><p><a href="/cart">Winkelmandje</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/checkout">Afrekenen</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/my-account">Mijn account</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="/product-category/workshops">Workshops</a></p><!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:heading {"level":3,"fontSize":"medium","textColor":"surface"} -->
+<h3 class="wp-block-heading has-surface-color has-text-color has-medium-font-size">Contact &amp; bezoek</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|mist"}}} -->
+<p class="has-text-color" style="color:var(--wp--preset--color--mist)"><?php echo threeducation_footer_multiline( $threeducation_footer['adres'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- per regel ge-escaped in de helper. ?></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->
+<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)">Showroom · winkel · herstellingen · workshops</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|mist"}}} -->
+<p class="has-text-color" style="color:var(--wp--preset--color--mist)"><a href="tel:<?php echo esc_attr( threeducation_footer_tel_href( $threeducation_footer['telefoon'] ) ); ?>"><?php echo esc_html( $threeducation_footer['telefoon'] ); ?></a><br><a href="mailto:<?php echo esc_attr( $threeducation_footer['email'] ); ?>"><?php echo esc_html( $threeducation_footer['email'] ); ?></a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->
+<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)">Telefonisch bereikbaar 10:00–19:00, niet op zon- en feestdagen.<br>BTW BE 1023 306 448</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:spacer {"height":"var:preset|spacing|50"} -->
+<div style="height:var(--wp--preset--spacing--50)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:group {"layout":{"type":"flex","justifyContent":"center","flexWrap":"nowrap"}} -->
+<div class="wp-block-group"><!-- wp:group {"className":"footer-logo","backgroundColor":"base","style":{"spacing":{"padding":{"top":"0.6rem","bottom":"0.6rem","left":"1.1rem","right":"1.1rem"}},"border":{"radius":"12px"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group footer-logo has-base-background-color has-background" style="border-radius:12px;padding-top:0.6rem;padding-right:1.1rem;padding-bottom:0.6rem;padding-left:1.1rem"><!-- wp:site-logo {"width":150} /--></div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->
+
+<!-- wp:spacer {"height":"var:preset|spacing|40"} -->
+<div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:group {"align":"wide","style":{"border":{"top":{"color":"var:preset|color|ink-line","width":"1px"}},"spacing":{"padding":{"top":"var:preset|spacing|40"}}},"layout":{"type":"flex","justifyContent":"space-between","flexWrap":"wrap"}} -->
+<div class="wp-block-group alignwide" style="border-top-color:var(--wp--preset--color--ink-line);border-top-width:1px;padding-top:var(--wp--preset--spacing--40)"><!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->
+<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)">© 3DUCATION.be · Alle rechten voorbehouden.<br><a href="/algemene-voorwaarden">Algemene voorwaarden</a> · <a href="/privacyverklaring">Privacyverklaring</a> · <a href="/retourbeleid">Retourbeleid</a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->
+<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)"><?php echo esc_html( $threeducation_footer['merken'] ); ?></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group --></footer>
+<!-- /wp:group -->
