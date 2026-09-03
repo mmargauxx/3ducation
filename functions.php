@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.24' );
+	define( 'THREEDUCATION_VERSION', '0.18.25' );
 }
 
 /**
@@ -1679,6 +1679,88 @@ function threeducation_visibility_admin_column_css() {
 	</style>' . "\n";
 }
 add_action( 'admin_head', 'threeducation_visibility_admin_column_css' );
+
+/**
+ * Admin Products list: a "Gewicht"-filter (Alle / Zonder gewicht / Met gewicht).
+ * bpost rekent verzendkosten op gewicht, dus een product zonder gewicht valt
+ * stilzwijgend in het goedkoopste tarief. Met dit filter werk je die lijst
+ * af zonder elk product te openen. Virtuele producten (workshops, bonnen)
+ * worden niet verzonden en tellen dus niet mee als "zonder gewicht"; staat een
+ * workshop hier toch tussen, dan is die niet als virtueel aangevinkt en
+ * betaalt de klant er verzendkosten op — vink "Virtueel" aan.
+ */
+function threeducation_weight_admin_filter( $post_type ) {
+	if ( 'product' !== $post_type ) {
+		return;
+	}
+	$current = isset( $_GET['3du_weight'] ) ? sanitize_key( wp_unslash( $_GET['3du_weight'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$options = array(
+		''     => __( 'Alle gewichten', '3ducation' ),
+		'none' => __( 'Zonder gewicht', '3ducation' ),
+		'has'  => __( 'Met gewicht', '3ducation' ),
+	);
+	echo '<select name="3du_weight" id="3du_weight">';
+	foreach ( $options as $value => $label ) {
+		printf(
+			'<option value="%1$s"%2$s>%3$s</option>',
+			esc_attr( $value ),
+			selected( $current, $value, false ),
+			esc_html( $label )
+		);
+	}
+	echo '</select>';
+}
+add_action( 'restrict_manage_posts', 'threeducation_weight_admin_filter' );
+
+function threeducation_weight_admin_filter_query( $query ) {
+	if ( ! is_admin() || ! $query->is_main_query() || 'product' !== $query->get( 'post_type' ) ) {
+		return;
+	}
+	$mode = isset( $_GET['3du_weight'] ) ? sanitize_key( wp_unslash( $_GET['3du_weight'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( 'none' !== $mode && 'has' !== $mode ) {
+		return;
+	}
+
+	// "Geen gewicht" = meta ontbreekt, leeg, of 0 — WooCommerce behandelt die
+	// drie gevallen allemaal als "geen gewicht" bij het berekenen van verzending.
+	$no_weight = array(
+		'relation' => 'OR',
+		array( 'key' => '_weight', 'compare' => 'NOT EXISTS' ),
+		array( 'key' => '_weight', 'value' => array( '', '0' ), 'compare' => 'IN' ),
+	);
+	$not_virtual = array(
+		'relation' => 'OR',
+		array( 'key' => '_virtual', 'compare' => 'NOT EXISTS' ),
+		array( 'key' => '_virtual', 'value' => 'yes', 'compare' => '!=' ),
+	);
+
+	if ( 'none' === $mode ) {
+		$clause = array( 'relation' => 'AND', $no_weight, $not_virtual );
+		// PW-cadeaubon: het bedrag zit in virtuele variaties, dus het
+		// hoofdproduct zonder gewicht is geen probleem — niet tonen.
+		$tax_query   = (array) $query->get( 'tax_query' );
+		$tax_query[] = array(
+			'taxonomy' => 'product_type',
+			'field'    => 'slug',
+			'terms'    => array( 'pw-gift-card' ),
+			'operator' => 'NOT IN',
+		);
+		$query->set( 'tax_query', $tax_query );
+	} else {
+		$clause = array(
+			array( 'key' => '_weight', 'value' => array( '', '0' ), 'compare' => 'NOT IN' ),
+		);
+	}
+
+	$meta_query = (array) $query->get( 'meta_query' );
+	if ( empty( $meta_query ) ) {
+		$meta_query = array( $clause );
+	} else {
+		$meta_query = array( 'relation' => 'AND', $meta_query, $clause );
+	}
+	$query->set( 'meta_query', $meta_query );
+}
+add_action( 'pre_get_posts', 'threeducation_weight_admin_filter_query', 20 );
 
 /**
  * Resolve a product's visibility-window status for admin display.
