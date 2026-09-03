@@ -37,6 +37,29 @@ worden. Bestaat de map nog niet, maak hem aan. Er is geen activatiestap.
 (v0.18.5 of nieuwer), pas daarna de mu-plugin. Staan beide er tegelijk, dan geeft PHP een
 fatal error over een dubbele `threeducation_legacy_key()` — mu-plugins laden vóór het thema.
 
+### Ook uploaden: cadeaubon in de kassa (tweede mu-plugin)
+`mu-plugins/3ducation-pos-cadeaubon.php` hoort eveneens in **`wp-content/mu-plugins/`**.
+Het laat WooCommerce POS de bedrag-varianten van de PW-cadeaubon zien, zodat een
+kassaverkoop een `variation_id` meestuurt en PW Gift Cards de bon aanmaakt en mailt
+(zonder dit bestand ziet de kassa alleen het hoofdproduct op € 0 en wordt er nooit een bon
+gemaakt — bestelling #14129). Geen activatiestap, geen afhankelijkheid van het thema.
+
+**Na de upload, aan de kassa:** de POS-app moet de productcatalogus opnieuw laden (uitloggen
+en inloggen, of de catalogus verversen) — de app cachet producten lokaal. Daarna verschijnt
+de cadeaubon als product met een bedragkeuze. **Testverkoop:** kies een bedrag, reken af,
+en controleer in WooCommerce → Gift Cards dat er een kaart is aangemaakt. De bonmail
+vertrekt via WP-Cron (dus binnen ~5 minuten, niet direct) naar het e-mailadres van de klant
+op de bestelling; zonder klant-e-mail gaat hij naar het beheerdersadres. Tik in de kassa
+**geen eigen prijs** in op het hoofdproduct: dan is er weer geen variatie en geen bon.
+
+### Optioneel: de foute "WP Cron is disabled"-melding verbergen
+`mu-plugins/3ducation-verberg-cron-melding.php` haalt in wp-admin de pluginmelding
+"WP Cron is disabled. Any scheduled discount will not work." weg. Die melding kijkt alleen
+naar `DISABLE_WP_CRON`, en die staat op productie bewust aan omdat EasyHost `wp-cron.php`
+elke 5 minuten via een echte cronjob aanroept (bevestigd door EasyHost). Het bestand
+verandert niets aan cron; het verwijdert enkel dat ene meldingsblok (beide zinnen moeten
+erin staan, zodat een cron-waarschuwing van een andere plugin zichtbaar blijft).
+
 ### After every upload — the version bump is the cache flush
 Bump `THREEDUCATION_VERSION` in `style.css` **and** `functions.php` in lockstep on
 every release (zie `style.css`). That one bump covers both caches:
