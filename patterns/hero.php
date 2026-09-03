@@ -38,7 +38,7 @@
 <!-- /wp:button -->
 
 <!-- wp:button {"className":"is-style-outline is-style-outline--light"} -->
-<div class="wp-block-button is-style-outline is-style-outline--light"><a class="wp-block-button__link wp-element-button" href="/product-category/workshops">Workshops</a></div>
+<div class="wp-block-button is-style-outline is-style-outline--light"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( threeducation_product_cat_url( 'workshops', home_url( '/workshops/' ) ) ); ?>">Workshops</a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:group --></div></div>

@@ -36,7 +36,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"cat-link","fontFamily":"display"} -->
-<p class="cat-link has-display-font-family"><a class="stretched" href="/product-category/3d-printers">Shop printers →</a></p>
+<p class="cat-link has-display-font-family"><a class="stretched" href="<?php echo esc_url( threeducation_product_cat_url( '3d-printers' ) ); ?>">Shop printers →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -68,7 +68,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"cat-link","fontFamily":"display"} -->
-<p class="cat-link has-display-font-family"><a class="stretched" href="/product-category/filamenten">Shop filament →</a></p>
+<p class="cat-link has-display-font-family"><a class="stretched" href="<?php echo esc_url( threeducation_product_cat_url( 'filamenten' ) ); ?>">Shop filament →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 
@@ -82,7 +82,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"className":"cat-link","fontFamily":"display"} -->
-<p class="cat-link has-display-font-family"><a class="stretched" href="/product-category/resin">Shop resin →</a></p>
+<p class="cat-link has-display-font-family"><a class="stretched" href="<?php echo esc_url( threeducation_product_cat_url( 'resin' ) ); ?>">Shop resin →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group --></div>

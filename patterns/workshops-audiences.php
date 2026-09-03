@@ -88,7 +88,7 @@
 <!-- /wp:list -->
 
 <!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
-<p class="wsaud-link has-display-font-family"><a class="stretched" href="/product-category/workshops">Bekijk de data →</a></p>
+<p class="wsaud-link has-display-font-family"><a class="stretched" href="<?php echo esc_url( threeducation_product_cat_url( 'workshops', home_url( '/workshops/' ) ) ); ?>">Bekijk de data →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group --></div>

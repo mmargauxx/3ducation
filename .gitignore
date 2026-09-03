@@ -15,6 +15,7 @@ node_modules/
 # Local audit / review artifacts (not theme source)
 *.pdf
 placeholder-review.pdf
+overdracht.html
 
 # Skill / agent tooling artifacts (not theme source)
 .agents/

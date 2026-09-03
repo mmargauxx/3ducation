@@ -34,10 +34,10 @@ $threeducation_footer = threeducation_footer_values();
 <h3 class="wp-block-heading has-surface-color has-text-color has-medium-font-size">Webshop</h3>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph --><p><a href="/product-category/3d-printers">3D-Printers</a></p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/product-category/filamenten">Filamenten</a></p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/product-category/resin">Resin</a></p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/product-category/koopjes">Koopjes</a></p><!-- /wp:paragraph --></div>
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_product_cat_url( '3d-printers' ) ); ?>">3D-Printers</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_product_cat_url( 'filamenten' ) ); ?>">Filamenten</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_product_cat_url( 'resin' ) ); ?>">Resin</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_product_cat_url( 'koopjes' ) ); ?>">Koopjes</a></p><!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
@@ -45,10 +45,10 @@ $threeducation_footer = threeducation_footer_values();
 <h3 class="wp-block-heading has-surface-color has-text-color has-medium-font-size">Klantenservice</h3>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph --><p><a href="/cart">Winkelmandje</a></p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/checkout">Afrekenen</a></p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/my-account">Mijn account</a></p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p><a href="/product-category/workshops">Workshops</a></p><!-- /wp:paragraph --></div>
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_wc_page_url( 'cart' ) ); ?>">Winkelmandje</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_wc_page_url( 'checkout' ) ); ?>">Afrekenen</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_wc_page_url( 'myaccount' ) ); ?>">Mijn account</a></p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><a href="<?php echo esc_url( threeducation_product_cat_url( 'workshops', home_url( '/workshops/' ) ) ); ?>">Workshops</a></p><!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
@@ -90,7 +90,7 @@ $threeducation_footer = threeducation_footer_values();
 
 <!-- wp:group {"align":"wide","style":{"border":{"top":{"color":"var:preset|color|ink-line","width":"1px"}},"spacing":{"padding":{"top":"var:preset|spacing|40"}}},"layout":{"type":"flex","justifyContent":"space-between","flexWrap":"wrap"}} -->
 <div class="wp-block-group alignwide" style="border-top-color:var(--wp--preset--color--ink-line);border-top-width:1px;padding-top:var(--wp--preset--spacing--40)"><!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->
-<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)">© 3DUCATION.be · Alle rechten voorbehouden.<br><a href="/algemene-voorwaarden">Algemene voorwaarden</a> · <a href="/privacyverklaring">Privacyverklaring</a> · <a href="/retourbeleid">Retourbeleid</a></p>
+<p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)">© 3DUCATION.be · Alle rechten voorbehouden.<br><a href="/algemene-voorwaarden">Algemene voorwaarden</a> · <a href="/privacyverklaring">Privacyverklaring</a> · <a href="/retourbeleid">Retourbeleid</a><br>Foto's: <a href="https://margaux.photo" target="_blank" rel="noopener">Margaux Laurier</a></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.22' );
+	define( 'THREEDUCATION_VERSION', '0.18.23' );
 }
 
 /**
@@ -2473,4 +2473,59 @@ function threeducation_footer_render_admin_page() {
 		</form>
 	</div>
 	<?php
+}
+
+/* -------------------------------------------------------------------------
+ * Winkel-URL's opzoeken in plaats van hardcoderen
+ *
+ * WooCommerce' categoriebasis komt uit een VERTAALBARE string: zodra de
+ * NL-vertaling actief is wordt "product-category" stilletjes
+ * "product-categorie", en elk vast pad in een pattern geeft een 404. Datzelfde
+ * geldt voor de account-, winkelwagen- en afrekenpagina, die bovendien door de
+ * beheerder verplaatst kunnen worden. Daarom worden ze hier opgezocht.
+ * ---------------------------------------------------------------------- */
+
+/**
+ * De URL van een productcategorie, opgezocht op slug.
+ *
+ * @param string $slug     De categorie-slug, bv. 'filamenten'.
+ * @param string $fallback Waar de link heen gaat als de categorie niet bestaat.
+ *                         Leeg = de winkelpagina.
+ * @return string
+ */
+function threeducation_product_cat_url( $slug, $fallback = '' ) {
+	if ( '' === $fallback ) {
+		$fallback = function_exists( 'wc_get_page_permalink' )
+			? wc_get_page_permalink( 'shop' )
+			: home_url( '/' );
+	}
+
+	if ( ! taxonomy_exists( 'product_cat' ) ) {
+		return $fallback;
+	}
+
+	$term = get_term_by( 'slug', $slug, 'product_cat' );
+	if ( ! $term || is_wp_error( $term ) ) {
+		return $fallback;
+	}
+
+	$url = get_term_link( $term );
+
+	return is_wp_error( $url ) ? $fallback : $url;
+}
+
+/**
+ * De URL van een WooCommerce-winkelpagina (shop, cart, checkout, myaccount).
+ *
+ * Valt terug op de home-URL als WooCommerce niet actief is, zodat een pattern
+ * nooit een lege href rendert.
+ */
+function threeducation_wc_page_url( $page ) {
+	if ( ! function_exists( 'wc_get_page_permalink' ) ) {
+		return home_url( '/' );
+	}
+
+	$url = wc_get_page_permalink( $page );
+
+	return $url ? $url : home_url( '/' );
 }
