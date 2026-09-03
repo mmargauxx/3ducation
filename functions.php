@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.25' );
+	define( 'THREEDUCATION_VERSION', '0.18.26' );
 }
 
 /**
@@ -2367,23 +2367,34 @@ add_action( 'edit_user_profile_update', 'threeducation_normalize_saved_vat', 20 
  */
 
 /**
- * Cal.com boekingslinks.
+ * Boekingslinks (Instellingen → Boekingslinks).
  *
- * Workshops en verjaardagsfeestjes worden geboekt via Cal.com (gratis plan) i.p.v.
- * LatePoint. De URL's staan hier centraal zodat een pattern ze niet hardcodeert;
- * overschrijf ze per omgeving met het filter `threeducation_calcom_url`.
+ * Achter de twee boekingsknoppen op /workshops ("Boek een workshop" en
+ * "Reserveer je feestje") kiest de klant zelf wat er gebeurt. Per knop is er
+ * één doel van drie soorten:
+ * - `url`      — een boekingspagina, in de praktijk Cal.com maar elke website
+ *                mag. Alleen een `cal.com/<user>/<event-slug>`-link krijgt de
+ *                popup-embed (zie threeducation_calcom_popup_path_for_url());
+ *                al de rest opent in een nieuw tabblad. Cal.com's vaste-datum
+ *                **Events** zitten op de root (`cal.com/<slug>`) en horen dus
+ *                bij "de rest" — opzettelijk, want de embed kan die vorm niet aan.
+ * - `email`    — een e-mailadres (met optioneel onderwerp); de knop wordt een
+ *                mailto:-link en opent het mailprogramma van de bezoeker.
+ * - `category` — een productcategorie in de webshop, voor wie de sessies als
+ *                product verkoopt. De knop linkt naar het categorie-archief op
+ *                de site zelf (geen nieuw tabblad).
  *
- * Twee soorten links, en dat verschil is opzettelijk:
- * - De workshop draait op Cal.com's nieuwe **Events** (vaste datum, ticketverkoop,
- *   beperkt aantal plaatsen). Die pagina's zitten op de root — `cal.com/<slug>` —
- *   en niet in de `cal.com/<user>/<event>`-vorm waar de popup-embed op mikt, dus
- *   die knop opent gewoon in een nieuw tabblad. Zie threeducation_calcom_button_attrs().
- * - Het verjaardagsfeestje blijft een klassiek event type (boeking op aanvraagdatum)
- *   en houdt dus wel zijn popup.
+ * Opslag: één optie `threeducation_calcom_urls` met per event een array
+ * (`type`, `url`, `email`, `subject`, `category`). Een oudere installatie
+ * heeft daar nog een platte URL-string staan; threeducation_booking_setting()
+ * leest beide vormen. De optienaam en de functienamen threeducation_calcom_*
+ * blijven bestaan zodat een mu-plugin of filter niet breekt.
  *
- * LET OP: een Events-link hoort bij één concrete sessie. De klant vervangt hem
- * zelf onder Instellingen → Boekingslinks; de waarden hieronder zijn alleen de
- * terugvalwaarde als dat veld leeg blijft.
+ * Laat de klant het doel leeg, of wijst het naar iets dat niet meer bestaat
+ * (verwijderde categorie, ongeldig adres), dan valt de knop terug op de
+ * Cal.com-standaardlink hieronder — een knop zonder werkende href komt er nooit.
+ * Het filter `threeducation_calcom_url` heeft altijd het laatste woord over de
+ * uiteindelijke href (voor een staging-omgeving of een mu-plugin).
  */
 function threeducation_calcom_url_defaults() {
 	return array(
@@ -2392,26 +2403,145 @@ function threeducation_calcom_url_defaults() {
 	);
 }
 
+/** De drie soorten doel die een boekingsknop kan hebben, met hun label in wp-admin. */
+function threeducation_booking_types() {
+	return array(
+		'url'      => __( 'Boekingspagina (Cal.com of een andere website)', '3ducation' ),
+		'email'    => __( 'E-mailadres', '3ducation' ),
+		'category' => __( 'Categorie in de webshop', '3ducation' ),
+	);
+}
+
 /**
- * De boekings-URL voor één event.
+ * De opgeslagen instelling voor één event, genormaliseerd naar de arrayvorm.
  *
- * Volgorde: de in wp-admin ingevulde link, anders de standaard hierboven, en het
- * filter `threeducation_calcom_url` heeft altijd het laatste woord (voor een
- * staging-omgeving of een mu-plugin).
+ * Leest zowel de huidige opslag (array per event) als de oude (platte URL-string
+ * per event, van vóór de keuze tussen soorten doel).
+ *
+ * @param string $event `workshop` of `feestje`.
+ * @return array{type:string,url:string,email:string,subject:string,category:int}
+ */
+function threeducation_booking_setting( $event ) {
+	$empty = array(
+		'type'     => 'url',
+		'url'      => '',
+		'email'    => '',
+		'subject'  => '',
+		'category' => 0,
+	);
+
+	$saved = get_option( 'threeducation_calcom_urls', array() );
+	if ( ! is_array( $saved ) || ! isset( $saved[ $event ] ) ) {
+		return $empty;
+	}
+
+	$row = $saved[ $event ];
+	if ( is_string( $row ) ) {
+		$empty['url'] = trim( $row );
+		return $empty;
+	}
+	if ( ! is_array( $row ) ) {
+		return $empty;
+	}
+
+	$out             = array_merge( $empty, array_intersect_key( $row, $empty ) );
+	$out['type']     = array_key_exists( (string) $out['type'], threeducation_booking_types() ) ? (string) $out['type'] : 'url';
+	$out['url']      = trim( (string) $out['url'] );
+	$out['email']    = trim( (string) $out['email'] );
+	$out['subject']  = trim( (string) $out['subject'] );
+	$out['category'] = absint( $out['category'] );
+
+	return $out;
+}
+
+/**
+ * Het opgeloste boekingsdoel voor één event: wat de knop uiteindelijk doet.
+ *
+ * Volgorde: de keuze in wp-admin als die geldig is, anders de standaard
+ * Cal.com-link (met `fallback` = true zodat het scherm dat kan melden), en het
+ * filter `threeducation_calcom_url` over de uiteindelijke href.
+ *
+ * `external` bepaalt of de knop `target="_blank"` krijgt: nee voor mailto: en
+ * voor een link binnen de eigen site, ja voor elke andere website.
+ *
+ * @param string $event `workshop` of `feestje`.
+ * @return array{type:string,href:string,external:bool,popup:string,fallback:bool,term:?WP_Term}
+ */
+function threeducation_booking_link( $event ) {
+	$defaults = threeducation_calcom_url_defaults();
+	$setting  = threeducation_booking_setting( $event );
+
+	$link = array(
+		'type'     => 'url',
+		'href'     => isset( $defaults[ $event ] ) ? $defaults[ $event ] : 'https://cal.com/3ducation',
+		'external' => true,
+		'popup'    => '',
+		'fallback' => true,
+		'term'     => null,
+	);
+
+	switch ( $setting['type'] ) {
+		case 'email':
+			if ( is_email( $setting['email'] ) ) {
+				$href = 'mailto:' . $setting['email'];
+				if ( '' !== $setting['subject'] ) {
+					$href .= '?subject=' . rawurlencode( $setting['subject'] );
+				}
+				$link['type']     = 'email';
+				$link['href']     = $href;
+				$link['fallback'] = false;
+			}
+			break;
+
+		case 'category':
+			$term = $setting['category'] && taxonomy_exists( 'product_cat' )
+				? get_term( $setting['category'], 'product_cat' )
+				: null;
+			if ( $term instanceof WP_Term ) {
+				$url = get_term_link( $term );
+				if ( ! is_wp_error( $url ) ) {
+					$link['type']     = 'category';
+					$link['href']     = $url;
+					$link['term']     = $term;
+					$link['fallback'] = false;
+				}
+			}
+			break;
+
+		default:
+			if ( '' !== $setting['url'] ) {
+				$link['href']     = $setting['url'];
+				$link['fallback'] = false;
+			}
+	}
+
+	$link['href'] = (string) apply_filters( 'threeducation_calcom_url', $link['href'], $event );
+
+	// Nieuw tabblad of niet, en popup of niet, beslissen we op de definitieve
+	// href — het filter kan hem immers veranderd hebben.
+	$scheme = strtolower( (string) wp_parse_url( $link['href'], PHP_URL_SCHEME ) );
+	$host   = strtolower( (string) wp_parse_url( $link['href'], PHP_URL_HOST ) );
+	$site   = strtolower( (string) wp_parse_url( home_url( '/' ), PHP_URL_HOST ) );
+
+	$link['external'] = 'mailto' !== $scheme && '' !== $host && $host !== $site;
+	$link['popup']    = threeducation_calcom_popup_path_for_url( $link['href'] );
+
+	return $link;
+}
+
+/**
+ * De href van de boekingsknop voor één event.
+ *
+ * Bestaat om compatibiliteit: patterns en mu-plugins kennen deze naam. Nieuwe
+ * code gebruikt threeducation_booking_button_attrs() zodat target/rel en de
+ * popup-attributen meekomen.
  *
  * @param string $event `workshop` of `feestje`.
  * @return string
  */
 function threeducation_calcom_url( $event ) {
-	$defaults = threeducation_calcom_url_defaults();
-	$saved    = get_option( 'threeducation_calcom_urls', array() );
-	$url      = isset( $defaults[ $event ] ) ? $defaults[ $event ] : 'https://cal.com/3ducation';
-
-	if ( is_array( $saved ) && isset( $saved[ $event ] ) && '' !== trim( (string) $saved[ $event ] ) ) {
-		$url = trim( (string) $saved[ $event ] );
-	}
-
-	return (string) apply_filters( 'threeducation_calcom_url', $url, $event );
+	$link = threeducation_booking_link( $event );
+	return $link['href'];
 }
 
 /** Registreer de boekingslinks bij de Settings API. */
@@ -2429,23 +2559,51 @@ function threeducation_calcom_register_settings() {
 add_action( 'admin_init', 'threeducation_calcom_register_settings' );
 
 /**
- * Saneer de ingevulde links: alleen http(s)-URL's, leeg blijft leeg.
+ * Saneer het formulier: per event de gekozen soort plus alle drie de velden.
  *
- * Een leeg veld is geen fout maar de manier om terug te vallen op de standaard,
- * dus er wordt niets afgedwongen behalve een geldige URL. Een link die géén
- * cal.com-link is werkt ook — die opent dan gewoon in een nieuw tabblad, want
- * threeducation_calcom_button_attrs() geeft de popup alleen aan cal.com.
+ * Alle velden worden bewaard, ook die van de niet-gekozen soorten, zodat de
+ * klant kan wisselen zonder zijn eerdere invoer kwijt te raken. Een leeg of
+ * ongeldig doel is geen fout maar de manier om terug te vallen op de
+ * standaardlink; het scherm meldt dat dan. options.php heeft de invoer al
+ * ge-unslasht, dus dat gebeurt hier niet nog een keer.
  */
 function threeducation_calcom_urls_sanitize( $input ) {
-	$out = array();
+	$out   = array();
+	$types = threeducation_booking_types();
+
 	foreach ( array_keys( threeducation_calcom_url_defaults() ) as $event ) {
-		$raw = isset( $input[ $event ] ) ? trim( (string) wp_unslash( $input[ $event ] ) ) : '';
-		if ( '' === $raw ) {
-			$out[ $event ] = '';
-			continue;
+		$row = isset( $input[ $event ] ) && is_array( $input[ $event ] ) ? $input[ $event ] : array();
+
+		$type = isset( $row['type'] ) && array_key_exists( (string) $row['type'], $types ) ? (string) $row['type'] : 'url';
+
+		$url = isset( $row['url'] ) ? trim( (string) $row['url'] ) : '';
+		if ( '' !== $url ) {
+			$url = esc_url_raw( $url, array( 'http', 'https' ) );
 		}
-		$out[ $event ] = esc_url_raw( $raw, array( 'http', 'https' ) );
+
+		// "mailto:adres" plakken mag ook; we bewaren alleen het adres.
+		$email = isset( $row['email'] ) ? trim( (string) $row['email'] ) : '';
+		$email = preg_replace( '/^mailto:/i', '', $email );
+		$email = sanitize_email( $email );
+		if ( '' !== $email && ! is_email( $email ) ) {
+			$email = '';
+		}
+
+		$subject  = isset( $row['subject'] ) ? sanitize_text_field( (string) $row['subject'] ) : '';
+		$category = isset( $row['category'] ) ? absint( $row['category'] ) : 0;
+		if ( $category && ( ! taxonomy_exists( 'product_cat' ) || ! get_term( $category, 'product_cat' ) instanceof WP_Term ) ) {
+			$category = 0;
+		}
+
+		$out[ $event ] = array(
+			'type'     => $type,
+			'url'      => $url,
+			'email'    => $email,
+			'subject'  => $subject,
+			'category' => $category,
+		);
 	}
+
 	return $out;
 }
 
@@ -2461,17 +2619,38 @@ function threeducation_calcom_admin_menu() {
 }
 add_action( 'admin_menu', 'threeducation_calcom_admin_menu' );
 
-/** Render het scherm: één URL-veld per event, met uitleg over het knopgedrag. */
+/**
+ * Leesbare omschrijving van wat een knop nu doet, voor het instellingenscherm.
+ *
+ * @param array $link Uitvoer van threeducation_booking_link().
+ * @return string Platte tekst (wordt door de aanroeper ge-escaped).
+ */
+function threeducation_booking_link_describe( $link ) {
+	if ( 'email' === $link['type'] ) {
+		return __( 'opent het e-mailprogramma van de bezoeker met dit adres ingevuld.', '3ducation' );
+	}
+	if ( 'category' === $link['type'] && $link['term'] instanceof WP_Term ) {
+		/* translators: %s: naam van de productcategorie. */
+		return sprintf( __( 'opent de webshopcategorie “%s” op de site zelf.', '3ducation' ), $link['term']->name );
+	}
+	if ( '' !== $link['popup'] ) {
+		return __( 'opent de Cal.com-agenda in een popup op de site.', '3ducation' );
+	}
+	if ( $link['external'] ) {
+		return __( 'opent in een nieuw tabblad (dat is normaal voor een Cal.com-Event met vaste datum, en voor elke andere website).', '3ducation' );
+	}
+	return __( 'opent op de site zelf.', '3ducation' );
+}
+
+/** Render het scherm: per knop een keuze uit drie soorten doel, met uitleg over het knopgedrag. */
 function threeducation_calcom_render_admin_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
 	$defaults = threeducation_calcom_url_defaults();
-	$saved    = get_option( 'threeducation_calcom_urls', array() );
-	if ( ! is_array( $saved ) ) {
-		$saved = array();
-	}
+	$types    = threeducation_booking_types();
+	$has_cats = taxonomy_exists( 'product_cat' );
 
 	$labels = array(
 		'workshop' => __( 'Workshop 3D-printen', '3ducation' ),
@@ -2482,43 +2661,126 @@ function threeducation_calcom_render_admin_page() {
 		'feestje'  => __( 'Knop “Reserveer je feestje” op /workshops', '3ducation' ),
 	);
 	?>
-	<div class="wrap">
+	<div class="wrap tdc-booking">
+		<style>
+			.tdc-booking .tdc-booking-choice { margin: 0 0 1.25em; }
+			.tdc-booking .tdc-booking-choice > label { display: block; font-weight: 600; margin-bottom: .35em; }
+			.tdc-booking .tdc-booking-choice .description { margin-top: .35em; }
+			.tdc-booking .tdc-booking-inline { display: flex; flex-wrap: wrap; gap: .5em; }
+			.tdc-booking .tdc-booking-inline input[type="email"] { flex: 1 1 18em; }
+			.tdc-booking .tdc-booking-inline input[type="text"] { flex: 1 1 14em; }
+			.tdc-booking .tdc-booking-status { border-left: 4px solid #72aee6; background: #f6f7f7; padding: .6em .9em; margin: .5em 0 0; }
+			.tdc-booking .tdc-booking-status.is-fallback { border-left-color: #dba617; }
+		</style>
+
 		<h1><?php echo esc_html__( 'Boekingslinks', '3ducation' ); ?></h1>
-		<p><?php echo esc_html__( 'De Cal.com-links achter de boekingsknoppen op de workshops-pagina. Plak hier de link die je in Cal.com kopieert. Laat een veld leeg om terug te vallen op de standaardlink.', '3ducation' ); ?></p>
-		<p><?php echo esc_html__( 'Let op: een Cal.com-“Event” met een vaste datum krijgt per sessie een nieuwe link. Plan je een nieuwe workshop, plak dan de nieuwe link hier — de knop op de site volgt meteen.', '3ducation' ); ?></p>
+		<p><?php echo esc_html__( 'Achter elke boekingsknop op de workshops-pagina kies je zelf wat er gebeurt als een bezoeker erop klikt. Er zijn drie mogelijkheden:', '3ducation' ); ?></p>
+		<ul class="ul-disc">
+			<li><strong><?php echo esc_html__( 'Boekingspagina', '3ducation' ); ?></strong> — <?php echo esc_html__( 'de bezoeker gaat naar een boekingspagina, bijvoorbeeld een Cal.com-agenda of -Event, maar het mag elke website zijn. Plak de volledige link (beginnend met https://).', '3ducation' ); ?></li>
+			<li><strong><?php echo esc_html__( 'E-mailadres', '3ducation' ); ?></strong> — <?php echo esc_html__( 'de knop opent het e-mailprogramma van de bezoeker met jouw adres al ingevuld; handig als je aanvragen liever per mail afhandelt. Een onderwerp is optioneel.', '3ducation' ); ?></li>
+			<li><strong><?php echo esc_html__( 'Categorie in de webshop', '3ducation' ); ?></strong> — <?php echo esc_html__( 'de knop stuurt door naar een categorie van de webshop, bijvoorbeeld als je de workshopsessies als product verkoopt. Kies de categorie uit de lijst.', '3ducation' ); ?></li>
+		</ul>
+		<p><?php echo esc_html__( 'Kies per knop één mogelijkheid en vul het bijbehorende veld in; de andere velden mogen leeg blijven en worden genegeerd. Laat je het gekozen veld leeg, dan valt de knop terug op de standaard Cal.com-link.', '3ducation' ); ?></p>
+		<p><?php echo esc_html__( 'Tip voor Cal.com: een “Event” met een vaste datum krijgt per sessie een nieuwe link. Plan je een nieuwe workshop, plak dan de nieuwe link hier — de knop op de site volgt meteen. Een gewone Cal.com-agenda (link in de vorm cal.com/naam/afspraak) opent in een popup op de site; elke andere link opent in een nieuw tabblad.', '3ducation' ); ?></p>
 
 		<form method="post" action="options.php">
 			<?php settings_fields( 'threeducation_calcom_urls' ); ?>
 			<table class="form-table" role="presentation">
 				<?php
 				foreach ( $defaults as $event => $default ) :
-					$value  = isset( $saved[ $event ] ) ? (string) $saved[ $event ] : '';
-					$active = threeducation_calcom_url( $event );
-					$popup  = '' !== threeducation_calcom_popup_path( $event );
+					$setting = threeducation_booking_setting( $event );
+					$link    = threeducation_booking_link( $event );
+					$name    = 'threeducation_calcom_urls[' . $event . ']';
+					$id      = 'tdc-' . $event;
 					?>
 					<tr>
-						<th scope="row">
-							<label for="tdc-<?php echo esc_attr( $event ); ?>"><?php echo esc_html( $labels[ $event ] ); ?></label>
-						</th>
+						<th scope="row"><?php echo esc_html( $labels[ $event ] ); ?></th>
 						<td>
-							<input type="url" id="tdc-<?php echo esc_attr( $event ); ?>" class="large-text code"
-								name="threeducation_calcom_urls[<?php echo esc_attr( $event ); ?>]"
-								value="<?php echo esc_attr( $value ); ?>"
-								placeholder="<?php echo esc_attr( $default ); ?>">
-							<p class="description">
-								<?php echo esc_html( $pages[ $event ] ); ?><br>
+							<fieldset>
+								<legend class="screen-reader-text"><?php echo esc_html( $labels[ $event ] ); ?></legend>
+								<p class="description" style="margin-bottom:1em"><?php echo esc_html( $pages[ $event ] ); ?></p>
+
+								<div class="tdc-booking-choice" data-tdc-choice>
+									<label for="<?php echo esc_attr( $id ); ?>-type-url">
+										<input type="radio" id="<?php echo esc_attr( $id ); ?>-type-url" name="<?php echo esc_attr( $name ); ?>[type]" value="url" <?php checked( 'url', $setting['type'] ); ?>>
+										<?php echo esc_html( $types['url'] ); ?>
+									</label>
+									<input type="url" id="<?php echo esc_attr( $id ); ?>-url" class="large-text code"
+										name="<?php echo esc_attr( $name ); ?>[url]"
+										value="<?php echo esc_attr( $setting['url'] ); ?>"
+										placeholder="<?php echo esc_attr( $default ); ?>">
+									<p class="description">
+										<?php
+										printf(
+											/* translators: %s: de standaard Cal.com-link. */
+											esc_html__( 'Leeg = de standaardlink %s.', '3ducation' ),
+											'<code>' . esc_html( $default ) . '</code>'
+										);
+										?>
+									</p>
+								</div>
+
+								<div class="tdc-booking-choice" data-tdc-choice>
+									<label for="<?php echo esc_attr( $id ); ?>-type-email">
+										<input type="radio" id="<?php echo esc_attr( $id ); ?>-type-email" name="<?php echo esc_attr( $name ); ?>[type]" value="email" <?php checked( 'email', $setting['type'] ); ?>>
+										<?php echo esc_html( $types['email'] ); ?>
+									</label>
+									<div class="tdc-booking-inline">
+										<input type="email" id="<?php echo esc_attr( $id ); ?>-email" class="regular-text code"
+											name="<?php echo esc_attr( $name ); ?>[email]"
+											value="<?php echo esc_attr( $setting['email'] ); ?>"
+											placeholder="workshops@3ducation.be"
+											aria-label="<?php echo esc_attr__( 'E-mailadres', '3ducation' ); ?>">
+										<input type="text" id="<?php echo esc_attr( $id ); ?>-subject" class="regular-text"
+											name="<?php echo esc_attr( $name ); ?>[subject]"
+											value="<?php echo esc_attr( $setting['subject'] ); ?>"
+											placeholder="<?php echo esc_attr__( 'Onderwerp (optioneel)', '3ducation' ); ?>"
+											aria-label="<?php echo esc_attr__( 'Onderwerp van de e-mail (optioneel)', '3ducation' ); ?>">
+									</div>
+									<p class="description"><?php echo esc_html__( 'De bezoeker krijgt een nieuwe e-mail met dit adres (en het onderwerp) al ingevuld.', '3ducation' ); ?></p>
+								</div>
+
+								<div class="tdc-booking-choice" data-tdc-choice>
+									<label for="<?php echo esc_attr( $id ); ?>-type-category">
+										<input type="radio" id="<?php echo esc_attr( $id ); ?>-type-category" name="<?php echo esc_attr( $name ); ?>[type]" value="category" <?php checked( 'category', $setting['type'] ); ?> <?php disabled( ! $has_cats ); ?>>
+										<?php echo esc_html( $types['category'] ); ?>
+									</label>
+									<?php if ( $has_cats ) : ?>
+										<?php
+										wp_dropdown_categories(
+											array(
+												'taxonomy'          => 'product_cat',
+												'hide_empty'        => false,
+												'hierarchical'      => true,
+												'show_option_none'  => __( '— Kies een categorie —', '3ducation' ),
+												'option_none_value' => 0,
+												'selected'          => $setting['category'],
+												'name'              => $name . '[category]',
+												'id'                => $id . '-category',
+												'class'             => '',
+												'orderby'           => 'name',
+											)
+										);
+										?>
+										<p class="description"><?php echo esc_html__( 'De knop linkt naar het overzicht van deze categorie in de webshop.', '3ducation' ); ?></p>
+									<?php else : ?>
+										<p class="description"><?php echo esc_html__( 'WooCommerce is niet actief, dus er zijn geen webshopcategorieën om uit te kiezen.', '3ducation' ); ?></p>
+									<?php endif; ?>
+								</div>
+							</fieldset>
+
+							<p class="tdc-booking-status<?php echo $link['fallback'] ? ' is-fallback' : ''; ?>">
 								<?php
+								if ( $link['fallback'] && 'url' !== $setting['type'] ) {
+									echo esc_html__( 'Het gekozen doel is leeg of bestaat niet meer, dus de knop gebruikt voorlopig de standaardlink.', '3ducation' );
+									echo '<br>';
+								}
 								printf(
-									/* translators: %s: de boekings-URL die nu actief is. */
+									/* translators: %s: de href die de knop nu heeft. */
 									esc_html__( 'Nu actief: %s', '3ducation' ),
-									'<code>' . esc_html( $active ) . '</code>'
+									'<code>' . esc_html( $link['href'] ) . '</code>'
 								);
-								?>
-								—
-								<?php
-								echo $popup
-									? esc_html__( 'opent in een popup op de site.', '3ducation' )
-									: esc_html__( 'opent in een nieuw tabblad (dat is normaal voor een Cal.com-Event met vaste datum).', '3ducation' );
+								echo ' — ' . esc_html( threeducation_booking_link_describe( $link ) );
 								?>
 							</p>
 						</td>
@@ -2528,11 +2790,25 @@ function threeducation_calcom_render_admin_page() {
 			<?php submit_button(); ?>
 		</form>
 	</div>
+	<script>
+		// Wie in een veld typt of een categorie kiest, bedoelt die soort: zet het
+		// bijbehorende keuzerondje meteen aan zodat de opgeslagen keuze klopt.
+		document.querySelectorAll( '.tdc-booking [data-tdc-choice]' ).forEach( function ( box ) {
+			var radio = box.querySelector( 'input[type="radio"]' );
+			if ( ! radio || radio.disabled ) {
+				return;
+			}
+			box.querySelectorAll( 'input:not([type="radio"]), select' ).forEach( function ( field ) {
+				field.addEventListener( 'input', function () { radio.checked = true; } );
+				field.addEventListener( 'change', function () { radio.checked = true; } );
+			} );
+		} );
+	</script>
 	<?php
 }
 
 /**
- * Het pad dat de popup-embed voor dit event kan openen, of '' als dat niet kan.
+ * Het pad dat Cal.com's popup-embed kan openen voor deze URL, of '' als dat niet kan.
  *
  * Cal.com's embed.js verwacht een cal.com-link met een pad van de vorm
  * `<user>/<event-slug>`. Twee gevallen vallen daarbuiten en krijgen dus géén
@@ -2540,16 +2816,16 @@ function threeducation_calcom_render_admin_page() {
  * - een pad van één segment: dat is een Events-pagina (`cal.com/<slug>`, de
  *   nieuwe vaste-datum ticketpagina's);
  * - een link naar een andere host, want de klant kan in wp-admin elke URL
- *   invullen en die hoeft geen Cal.com te zijn.
+ *   invullen en die hoeft geen Cal.com te zijn (mailto: en de eigen webshop
+ *   vallen hier vanzelf ook af).
  *
  * Deze check niet "repareren" door hem weg te halen: dan laadt embed.js wel,
  * haalt cal-embed.js de href weg en doet de knop helemaal niets meer.
  *
- * @param string $event `workshop` of `feestje`.
+ * @param string $url De definitieve href.
  * @return string Pad zonder schuine strepen aan de randen, of ''.
  */
-function threeducation_calcom_popup_path( $event ) {
-	$url  = threeducation_calcom_url( $event );
+function threeducation_calcom_popup_path_for_url( $url ) {
 	$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
 	if ( 'cal.com' !== $host && 'app.cal.com' !== $host && 'www.cal.com' !== $host ) {
 		return '';
@@ -2564,12 +2840,24 @@ function threeducation_calcom_popup_path( $event ) {
 }
 
 /**
+ * Het popup-pad voor één event, of '' als de knop geen popup krijgt.
+ *
+ * @param string $event `workshop` of `feestje`.
+ * @return string
+ */
+function threeducation_calcom_popup_path( $event ) {
+	$link = threeducation_booking_link( $event );
+	return $link['popup'];
+}
+
+/**
  * Attributen voor een knop die de Cal.com-popup opent.
  *
  * Rendert de data-attributen die `assets/cal-embed.js` (en Cal.com's embed.js)
  * verwachten, en zet het script in de wachtrij. Alleen aanroepen op een knop die
  * ook een `href` naar dezelfde agenda heeft, zodat de link blijft werken als het
- * externe script niet laadt.
+ * externe script niet laadt. threeducation_booking_button_attrs() doet dat
+ * allebei in één keer.
  *
  * @param string $event `workshop` of `feestje`.
  * @return string Ge-escapete attributenreeks, of '' als de URL geen popup-embed aankan.
@@ -2607,6 +2895,26 @@ function threeducation_calcom_button_attrs( $event ) {
 		esc_attr( sanitize_key( $brand ) ),
 		esc_attr( wp_json_encode( array( 'layout' => 'month_view', 'useSlotsViewOnSmallScreen' => 'true' ) ) )
 	);
+}
+
+/**
+ * Alle attributen voor een boekingsknop in één keer: href, target/rel en — als
+ * het doel een Cal.com-agenda is — de popup-attributen.
+ *
+ * Een externe website opent in een nieuw tabblad; een mailto:-link en een link
+ * binnen de eigen site niet (een leeg tabblad naast het mailprogramma is
+ * precies wat je niet wilt). De patterns op /workshops gebruiken dit.
+ *
+ * @param string $event `workshop` of `feestje`.
+ * @return string Ge-escapete attributenreeks, begint met een spatie.
+ */
+function threeducation_booking_button_attrs( $event ) {
+	$link  = threeducation_booking_link( $event );
+	$attrs = ' href="' . esc_url( $link['href'] ) . '"';
+	if ( $link['external'] ) {
+		$attrs .= ' target="_blank" rel="noopener"';
+	}
+	return $attrs . threeducation_calcom_button_attrs( $event );
 }
 
 /* -------------------------------------------------------------------------
