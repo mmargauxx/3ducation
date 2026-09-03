@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.23' );
+	define( 'THREEDUCATION_VERSION', '0.18.24' );
 }
 
 /**
@@ -68,6 +68,18 @@ function threducation_enqueue_assets() {
 		wp_enqueue_script(
 			'threeducation-notice',
 			get_template_directory_uri() . '/assets/notice.js',
+			array(),
+			THREEDUCATION_VERSION,
+			true
+		);
+	}
+
+	// Same for the pop-up: no script unless there is a live pop-up.
+	$popup = threeducation_popup_settings();
+	if ( ! empty( $popup['active'] ) ) {
+		wp_enqueue_script(
+			'threeducation-popup',
+			get_template_directory_uri() . '/assets/popup.js',
 			array(),
 			THREEDUCATION_VERSION,
 			true
@@ -268,6 +280,230 @@ function threeducation_notice_render_admin_page() {
 					<td>
 						<input type="date" id="tdn-end" name="threeducation_notice[end_date]" value="<?php echo esc_attr( $n['end_date'] ); ?>" />
 						<p class="description"><?php echo esc_html__( 'Laat de datums leeg om de melding meteen en onbeperkt te tonen.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button(); ?>
+		</form>
+	</div>
+	<?php
+}
+
+/* -------------------------------------------------------------------------
+ * Site pop-up (Instellingen -> Site pop-up)
+ *
+ * Een zwevende melding in het midden van het scherm: titel, tekst, optionele
+ * knop, en een optionele periode (vanaf / tot en met). Zelfde model als de
+ * meldingsbalk: één optie, defaults als vangnet, een 'id' die verandert zodra
+ * de inhoud verandert zodat een aangepaste pop-up opnieuw verschijnt bij wie
+ * de vorige al wegklikte. De pop-up is een <dialog>: Escape, focus-trap en de
+ * achtergrond komen van de browser; assets/popup.js opent hem en onthoudt het
+ * wegklikken in localStorage.
+ * ---------------------------------------------------------------------- */
+
+/** Standaardwaarden. */
+function threeducation_popup_defaults() {
+	return array(
+		'enabled'    => 0,
+		'title'      => '',
+		'body'       => '',
+		'cta_label'  => '',
+		'cta_url'    => '',
+		'start_date' => '',
+		'end_date'   => '',
+	);
+}
+
+/**
+ * Opgeslagen waarden over de defaults, plus 'active' (aan én binnen de
+ * periode én met inhoud) en 'id' (hash van de inhoud).
+ */
+function threeducation_popup_settings() {
+	$o     = wp_parse_args( (array) get_option( 'threeducation_popup', array() ), threeducation_popup_defaults() );
+	$today = current_time( 'Y-m-d' );
+
+	$active = ! empty( $o['enabled'] ) && ( '' !== trim( (string) $o['title'] ) || '' !== trim( (string) $o['body'] ) );
+	if ( $active && $o['start_date'] && $today < $o['start_date'] ) {
+		$active = false;
+	}
+	if ( $active && $o['end_date'] && $today > $o['end_date'] ) {
+		$active = false;
+	}
+
+	$o['active'] = $active;
+	$o['id']     = substr( md5( implode( '|', array( $o['title'], $o['body'], $o['cta_label'], $o['cta_url'], $o['start_date'], $o['end_date'] ) ) ), 0, 10 );
+
+	return $o;
+}
+
+/**
+ * Platte tekst met regeleinden -> alinea's. Een lege regel begint een nieuwe
+ * <p>, een enkel regeleinde wordt <br>. Per regel geëscapet.
+ */
+function threeducation_popup_paragraphs( $text ) {
+	$text = str_replace( array( "\r\n", "\r" ), "\n", (string) $text );
+	$html = '';
+	foreach ( preg_split( '/\n{2,}/', trim( $text ) ) as $para ) {
+		$para = trim( $para );
+		if ( '' === $para ) {
+			continue;
+		}
+		$html .= '<p>' . implode( '<br>', array_map( 'esc_html', explode( "\n", $para ) ) ) . '</p>';
+	}
+	return $html;
+}
+
+/** De <dialog> zelf, onderaan de pagina. Gesloten tot popup.js hem opent. */
+function threeducation_render_popup() {
+	$p = threeducation_popup_settings();
+	if ( empty( $p['active'] ) ) {
+		return;
+	}
+
+	$has_title = '' !== trim( (string) $p['title'] );
+	$has_cta   = '' !== $p['cta_label'] && '' !== $p['cta_url'];
+	?>
+	<dialog id="site-popup" class="site-popup" data-popup-id="<?php echo esc_attr( $p['id'] ); ?>"<?php echo $has_title ? ' aria-labelledby="site-popup-title"' : ''; ?> aria-describedby="site-popup-body">
+		<div class="site-popup__card">
+			<?php if ( $has_title ) : ?>
+				<h2 id="site-popup-title" class="site-popup__title"><?php echo esc_html( $p['title'] ); ?></h2>
+			<?php endif; ?>
+			<div id="site-popup-body" class="site-popup__body"><?php echo threeducation_popup_paragraphs( $p['body'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per line inside. ?></div>
+			<?php if ( $has_cta ) : ?>
+				<div class="site-popup__actions">
+					<a class="site-popup__cta wp-element-button" href="<?php echo esc_url( $p['cta_url'] ); ?>" data-popup-cta><?php echo esc_html( $p['cta_label'] ); ?></a>
+				</div>
+			<?php endif; ?>
+			<button type="button" class="site-popup__close" data-popup-close aria-label="<?php echo esc_attr__( 'Sluiten', '3ducation' ); ?>">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+			</button>
+		</div>
+	</dialog>
+	<?php
+	/* Bottom-left pill that brings the pop-up back after it was closed, so a
+	 * visitor can always reread it. Hidden until popup.js decides. */
+	$pill_label = $has_title ? $p['title'] : __( 'Melding', '3ducation' );
+	?>
+	<button type="button" class="site-popup-pill" data-popup-open hidden aria-haspopup="dialog" aria-controls="site-popup" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: pop-up title */ __( 'Melding opnieuw openen: %s', '3ducation' ), $pill_label ) ); ?>">
+		<span class="site-popup-pill__icon" aria-hidden="true">
+			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 8h.01M12 12v4"/></svg>
+		</span>
+		<span class="site-popup-pill__label"><?php echo esc_html( $pill_label ); ?></span>
+	</button>
+	<?php
+}
+add_action( 'wp_footer', 'threeducation_render_popup' );
+
+/** Registreer de optie bij de Settings API. */
+function threeducation_popup_register_settings() {
+	register_setting(
+		'threeducation_popup',
+		'threeducation_popup',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'threeducation_popup_sanitize',
+			'default'           => threeducation_popup_defaults(),
+		)
+	);
+}
+add_action( 'admin_init', 'threeducation_popup_register_settings' );
+
+/** Saneer de ingevulde waarden. */
+function threeducation_popup_sanitize( $input ) {
+	$input = (array) $input;
+
+	$clean_date = static function ( $value ) {
+		$value = trim( (string) $value );
+		$d     = DateTime::createFromFormat( 'Y-m-d', $value );
+		return ( $d && $d->format( 'Y-m-d' ) === $value ) ? $value : '';
+	};
+
+	return array(
+		'enabled'    => empty( $input['enabled'] ) ? 0 : 1,
+		'title'      => sanitize_text_field( $input['title'] ?? '' ),
+		'body'       => sanitize_textarea_field( $input['body'] ?? '' ),
+		'cta_label'  => sanitize_text_field( $input['cta_label'] ?? '' ),
+		'cta_url'    => empty( $input['cta_url'] ) ? '' : esc_url_raw( trim( (string) $input['cta_url'] ) ),
+		'start_date' => $clean_date( $input['start_date'] ?? '' ),
+		'end_date'   => $clean_date( $input['end_date'] ?? '' ),
+	);
+}
+
+/** Instellingenpagina onder Instellingen. */
+function threeducation_popup_admin_menu() {
+	add_options_page(
+		__( 'Site pop-up', '3ducation' ),
+		__( 'Site pop-up', '3ducation' ),
+		'manage_options',
+		'threeducation-popup',
+		'threeducation_popup_render_admin_page'
+	);
+}
+add_action( 'admin_menu', 'threeducation_popup_admin_menu' );
+
+/** De instellingenpagina. */
+function threeducation_popup_render_admin_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$p = threeducation_popup_settings();
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html__( 'Site pop-up', '3ducation' ); ?></h1>
+		<p><?php echo esc_html__( 'Toon een zwevende melding in het midden van het scherm, bijvoorbeeld voor een actie, een evenement of een verlofperiode. Bezoekers zien de pop-up één keer; pas je de tekst aan, dan verschijnt hij opnieuw.', '3ducation' ); ?></p>
+
+		<p>
+			<strong><?php echo esc_html__( 'Status:', '3ducation' ); ?></strong>
+			<?php if ( $p['active'] ) : ?>
+				<span style="color:#0a7d2c;"><?php echo esc_html__( 'Zichtbaar op de website.', '3ducation' ); ?></span>
+			<?php else : ?>
+				<span style="color:#8a8d99;"><?php echo esc_html__( 'Niet zichtbaar (uitgeschakeld, leeg, of buiten de ingestelde periode).', '3ducation' ); ?></span>
+			<?php endif; ?>
+		</p>
+
+		<form method="post" action="options.php">
+			<?php settings_fields( 'threeducation_popup' ); ?>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Inschakelen', '3ducation' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="threeducation_popup[enabled]" value="1" <?php checked( $p['enabled'], 1 ); ?> />
+							<?php echo esc_html__( 'Toon de pop-up', '3ducation' ); ?>
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdp-title"><?php echo esc_html__( 'Titel', '3ducation' ); ?></label></th>
+					<td><input type="text" id="tdp-title" name="threeducation_popup[title]" value="<?php echo esc_attr( $p['title'] ); ?>" class="regular-text" /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdp-body"><?php echo esc_html__( 'Tekst', '3ducation' ); ?></label></th>
+					<td>
+						<textarea id="tdp-body" name="threeducation_popup[body]" rows="6" class="large-text"><?php echo esc_textarea( $p['body'] ); ?></textarea>
+						<p class="description"><?php echo esc_html__( 'Een lege regel begint een nieuwe alinea.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdp-cta-label"><?php echo esc_html__( 'Knoptekst (optioneel)', '3ducation' ); ?></label></th>
+					<td><input type="text" id="tdp-cta-label" name="threeducation_popup[cta_label]" value="<?php echo esc_attr( $p['cta_label'] ); ?>" class="regular-text" /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdp-cta-url"><?php echo esc_html__( 'Knoplink (optioneel)', '3ducation' ); ?></label></th>
+					<td>
+						<input type="text" id="tdp-cta-url" name="threeducation_popup[cta_url]" value="<?php echo esc_attr( $p['cta_url'] ); ?>" class="regular-text" placeholder="/shop" />
+						<p class="description"><?php echo esc_html__( 'Bijvoorbeeld /shop of een volledige URL. De knop verschijnt alleen als tekst én link ingevuld zijn.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdp-start"><?php echo esc_html__( 'Tonen vanaf (optioneel)', '3ducation' ); ?></label></th>
+					<td><input type="date" id="tdp-start" name="threeducation_popup[start_date]" value="<?php echo esc_attr( $p['start_date'] ); ?>" /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdp-end"><?php echo esc_html__( 'Tonen tot en met (optioneel)', '3ducation' ); ?></label></th>
+					<td>
+						<input type="date" id="tdp-end" name="threeducation_popup[end_date]" value="<?php echo esc_attr( $p['end_date'] ); ?>" />
+						<p class="description"><?php echo esc_html__( 'Laat de datums leeg om de pop-up meteen en onbeperkt te tonen.', '3ducation' ); ?></p>
 					</td>
 				</tr>
 			</table>
