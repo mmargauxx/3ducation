@@ -52,6 +52,18 @@ vertrekt via WP-Cron (dus binnen ~5 minuten, niet direct) naar het e-mailadres v
 op de bestelling; zonder klant-e-mail gaat hij naar het beheerdersadres. Tik in de kassa
 **geen eigen prijs** in op het hoofdproduct: dan is er weer geen variatie en geen bon.
 
+### Ook uploaden: cadeaubon vervaldatum (derde mu-plugin)
+`mu-plugins/3ducation-cadeaubon-vervaldatum.php` hoort eveneens in **`wp-content/mu-plugins/`**.
+De gratis PW Gift Cards kan geen vervaldatum zetten (niet bij aankoop, niet in het beheer);
+dit bestand geeft elke nieuwe bon — webshop, kassa én beheer — een vervaldatum van 2 jaar na
+aankoop en zet "Geldig tot <datum>." in de bonmail. Eenmalig na de upload: surf als beheerder
+naar `?3du_verval_bonnen=test` en daarna `?3du_verval_bonnen=doen`: elke actieve, niet-vervallen
+bon van de nieuwe shop krijgt aanmaakdatum + 2 jaar. Gemigreerde bonnen slaat het over — die
+doet het eenmalige `3ducation-vervaldatum-migratie.php` (Drive, `OK-Gift Cards`, niet in de
+repo omdat er boncodes in staan) met `?3du_verval_migratie=test|doen`: aankoopdatum uit de oude
+export + 2 jaar; de drie bonnen uit 2023/2024 zonder datum blijven staan en worden gemeld.
+Beide herhaalbaar. Live sinds 2026-09-04.
+
 ### Optioneel: de foute "WP Cron is disabled"-melding verbergen
 `mu-plugins/3ducation-verberg-cron-melding.php` haalt in wp-admin de pluginmelding
 "WP Cron is disabled. Any scheduled discount will not work." weg. Die melding kijkt alleen
