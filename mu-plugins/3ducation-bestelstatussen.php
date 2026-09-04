@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: 3DUCATION afhaalstatus
- * Description: Bestelstatus "Klaar voor afhaling" voor bestellingen die in de winkel afgehaald worden, met een klantmail zodra de bestelling klaarligt. De status is alleen beschikbaar op bestellingen met afhaling als verzendmethode.
- * Version: 1.0.0
+ * Plugin Name: 3DUCATION bestelstatussen
+ * Description: Twee extra bestelstatussen: "Klaar voor afhaling" (alleen voor afhaalbestellingen, met klantmail zodra de bestelling klaarligt) en "Verzonden" (alleen voor het beheer, zonder klantmail).
+ * Version: 1.1.0
  * Author: 3DUCATION
  *
  * Waarom: een webshopbestelling met "Afhalen in de winkel" staat na betaling op
@@ -26,6 +26,11 @@
  *     het winkeladres en de openingsuren uit Instellingen → Footer van het
  *     thema, en het besteloverzicht. Opnieuw sturen kan via "Bestelling
  *     acties" op het bewerkscherm.
+ *  4. Registreert de status `wc-verzonden` ("Verzonden"), na "Klaar voor
+ *     afhaling". Puur administratief: geen klantmail, geen bewaking. In de
+ *     bestellijst staat de snelknop "Verzonden" bij verzendbestellingen (niet
+ *     afhalen) die in behandeling staan; bulkactie "Wijzig status naar
+ *     verzonden". Telt als betaald en zit in de rapporten.
  *
  * Een afhaalbestelling herkennen we aan de verzendregel: methode
  * `pickup_location` (blok-afrekenen, op live "Zelf Ophalen (Nieuwkerken)") of
@@ -41,8 +46,9 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** Statusslug zonder `wc-`-voorvoegsel. */
-const THREEDUCATION_AFHAAL_STATUS = 'afhaalklaar';
+/** Statusslugs zonder `wc-`-voorvoegsel. */
+const THREEDUCATION_AFHAAL_STATUS    = 'afhaalklaar';
+const THREEDUCATION_VERZONDEN_STATUS = 'verzonden';
 
 /* =====================================================================
  * Afhaalbestelling herkennen
@@ -96,35 +102,52 @@ function threeducation_afhaal_register_status() {
 			'label_count'               => _n_noop( 'Klaar voor afhaling <span class="count">(%s)</span>', 'Klaar voor afhaling <span class="count">(%s)</span>', '3ducation' ),
 		)
 	);
+	register_post_status(
+		'wc-' . THREEDUCATION_VERZONDEN_STATUS,
+		array(
+			'label'                     => _x( 'Verzonden', 'Bestelstatus', '3ducation' ),
+			'public'                    => false,
+			'exclude_from_search'       => false,
+			'show_in_admin_all_list'    => true,
+			'show_in_admin_status_list' => true,
+			/* translators: %s: aantal bestellingen */
+			'label_count'               => _n_noop( 'Verzonden <span class="count">(%s)</span>', 'Verzonden <span class="count">(%s)</span>', '3ducation' ),
+		)
+	);
 }
 add_action( 'init', 'threeducation_afhaal_register_status' );
 
-/** Voeg de status toe aan de WooCommerce-lijst, direct na "In behandeling". */
+/** Voeg de statussen toe aan de WooCommerce-lijst, direct na "In behandeling": eerst afhaling, dan verzonden. */
 function threeducation_afhaal_order_statuses( $statuses ) {
-	$key   = 'wc-' . THREEDUCATION_AFHAAL_STATUS;
-	$label = _x( 'Klaar voor afhaling', 'Bestelstatus', '3ducation' );
-	if ( isset( $statuses[ $key ] ) ) {
+	$new = array(
+		'wc-' . THREEDUCATION_AFHAAL_STATUS    => _x( 'Klaar voor afhaling', 'Bestelstatus', '3ducation' ),
+		'wc-' . THREEDUCATION_VERZONDEN_STATUS => _x( 'Verzonden', 'Bestelstatus', '3ducation' ),
+	);
+	$new = array_diff_key( $new, $statuses );
+	if ( ! $new ) {
 		return $statuses;
 	}
 	$out = array();
 	foreach ( $statuses as $slug => $name ) {
 		$out[ $slug ] = $name;
 		if ( 'wc-processing' === $slug ) {
-			$out[ $key ] = $label;
+			$out = array_merge( $out, $new );
 		}
 	}
-	if ( ! isset( $out[ $key ] ) ) {
-		$out[ $key ] = $label;
-	}
 
-	return $out;
+	return array_merge( $out, $new );
 }
 add_filter( 'wc_order_statuses', 'threeducation_afhaal_order_statuses' );
 
-/** Een bestelling die klaarligt is betaald en telt mee in de rapporten. */
+/** Een bestelling die klaarligt of verzonden is, is betaald en telt mee in de rapporten. */
 function threeducation_afhaal_add_status_to_list( $statuses ) {
-	if ( is_array( $statuses ) && ! in_array( THREEDUCATION_AFHAAL_STATUS, $statuses, true ) ) {
-		$statuses[] = THREEDUCATION_AFHAAL_STATUS;
+	if ( ! is_array( $statuses ) ) {
+		return $statuses;
+	}
+	foreach ( array( THREEDUCATION_AFHAAL_STATUS, THREEDUCATION_VERZONDEN_STATUS ) as $status ) {
+		if ( ! in_array( $status, $statuses, true ) ) {
+			$statuses[] = $status;
+		}
 	}
 
 	return $statuses;
@@ -153,33 +176,48 @@ function threeducation_afhaal_guard_on_changed( $order_id, $from, $to, $order ) 
 }
 add_action( 'woocommerce_order_status_changed', 'threeducation_afhaal_guard_on_changed', 1, 4 );
 
-/** Bulkactie in de bestellijst (klassiek en HPOS). WooCommerce handelt `mark_<status>` zelf af. */
+/** Bulkacties in de bestellijst (klassiek en HPOS). WooCommerce handelt `mark_<status>` zelf af. */
 function threeducation_afhaal_bulk_action( $actions ) {
+	$new = array(
+		'mark_' . THREEDUCATION_AFHAAL_STATUS    => __( 'Wijzig status naar klaar voor afhaling', '3ducation' ),
+		'mark_' . THREEDUCATION_VERZONDEN_STATUS => __( 'Wijzig status naar verzonden', '3ducation' ),
+	);
 	$out = array();
 	foreach ( $actions as $key => $label ) {
 		$out[ $key ] = $label;
 		if ( 'mark_processing' === $key ) {
-			$out[ 'mark_' . THREEDUCATION_AFHAAL_STATUS ] = __( 'Wijzig status naar klaar voor afhaling', '3ducation' );
+			$out = array_merge( $out, $new );
 		}
 	}
-	if ( ! isset( $out[ 'mark_' . THREEDUCATION_AFHAAL_STATUS ] ) ) {
-		$out[ 'mark_' . THREEDUCATION_AFHAAL_STATUS ] = __( 'Wijzig status naar klaar voor afhaling', '3ducation' );
-	}
 
-	return $out;
+	return array_merge( $out, $new );
 }
 add_filter( 'bulk_actions-edit-shop_order', 'threeducation_afhaal_bulk_action', 20 );
 add_filter( 'bulk_actions-woocommerce_page_wc-orders', 'threeducation_afhaal_bulk_action', 20 );
 
-/** Snelknop in de bestellijst: alleen bij afhaalbestellingen die nog niet klaarliggen. */
+/**
+ * Snelknoppen in de bestellijst: "Klaar voor afhaling" bij afhaalbestellingen
+ * in behandeling of in de wacht, "Verzonden" bij verzendbestellingen in
+ * behandeling.
+ */
 function threeducation_afhaal_list_action( $actions, $order ) {
-	if ( ! $order instanceof WC_Order || ! $order->has_status( array( 'processing', 'on-hold' ) ) || ! threeducation_afhaal_is_pickup_order( $order ) ) {
+	if ( ! $order instanceof WC_Order ) {
 		return $actions;
 	}
-	$actions[ THREEDUCATION_AFHAAL_STATUS ] = array(
-		'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=woocommerce_mark_order_status&status=' . THREEDUCATION_AFHAAL_STATUS . '&order_id=' . $order->get_id() ), 'woocommerce-mark-order-status' ),
-		'name'   => __( 'Klaar voor afhaling', '3ducation' ),
-		'action' => THREEDUCATION_AFHAAL_STATUS,
+	$pickup = threeducation_afhaal_is_pickup_order( $order );
+	if ( $pickup && $order->has_status( array( 'processing', 'on-hold' ) ) ) {
+		$status = THREEDUCATION_AFHAAL_STATUS;
+		$name   = __( 'Klaar voor afhaling', '3ducation' );
+	} elseif ( ! $pickup && $order->has_status( 'processing' ) ) {
+		$status = THREEDUCATION_VERZONDEN_STATUS;
+		$name   = __( 'Verzonden', '3ducation' );
+	} else {
+		return $actions;
+	}
+	$actions[ $status ] = array(
+		'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=woocommerce_mark_order_status&status=' . $status . '&order_id=' . $order->get_id() ), 'woocommerce-mark-order-status' ),
+		'name'   => $name,
+		'action' => $status,
 	);
 
 	return $actions;
@@ -232,15 +270,18 @@ function threeducation_afhaal_admin_footer_script() {
 }
 add_action( 'admin_footer', 'threeducation_afhaal_admin_footer_script' );
 
-/** Beheerstijl: statuslabel in de lijst en het icoon van de snelknop. */
+/** Beheerstijl: statuslabels in de lijst en de iconen van de snelknoppen. */
 function threeducation_afhaal_admin_styles() {
 	if ( ! wp_style_is( 'woocommerce_admin_styles', 'enqueued' ) ) {
 		return;
 	}
-	$s   = THREEDUCATION_AFHAAL_STATUS;
+	$a   = THREEDUCATION_AFHAAL_STATUS;
+	$v   = THREEDUCATION_VERZONDEN_STATUS;
 	$css = "
-	.order-status.status-{$s} { background: #d7ecf8; color: #0f4c6e; }
-	.widefat .column-wc_actions a.{$s}::after { font-family: Dashicons; content: '\\f513'; }
+	.order-status.status-{$a} { background: #d7ecf8; color: #0f4c6e; }
+	.order-status.status-{$v} { background: #e6dff5; color: #46307a; }
+	.widefat .column-wc_actions a.{$a}::after { font-family: Dashicons; content: '\\f513'; }
+	.widefat .column-wc_actions a.{$v}::after { font-family: Dashicons; content: '\\f139'; }
 	";
 	wp_add_inline_style( 'woocommerce_admin_styles', $css );
 }
