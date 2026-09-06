@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.25' );
+	define( 'THREEDUCATION_VERSION', '0.18.26' );
 }
 
 /**
@@ -1664,21 +1664,48 @@ function threeducation_visibility_admin_column_content( $column, $post_id ) {
 add_action( 'manage_product_posts_custom_column', 'threeducation_visibility_admin_column_content', 10, 2 );
 
 /**
- * Give the column an explicit width. WP admin list tables are table-layout:fixed,
- * so without a width the "Zichtbaarheid" header collapses and wraps one letter
- * per line on column-heavy screens. Scoped to the Products list.
+ * Productlijst in wp-admin: laat de kolommen naar hun inhoud meten.
+ *
+ * WordPress zet de lijsttabel op table-layout:fixed. WooCommerce geeft
+ * Naam/SKU/Categorieën/Tags/Datum een percentage-breedte en Voorraad/Prijs
+ * een vaste breedte (ch); plugins (MonsterInsights "Views", PPOM, SureRank
+ * "SEO Checks") voegen nog kolommen met vaste breedte toe. Zodra de som van
+ * die vaste breedtes de tabel vult, knijpt Chrome eerst de
+ * percentage-kolommen dicht — vandaar productnamen en categorieën die
+ * letter per letter afbreken terwijl de pluginkolommen hun ruimte houden.
+ *
+ * Met table-layout:auto verdeelt de browser de breedte naar inhoud: de
+ * naamkolom krijgt weer ruimte, koppen blijven op één regel en smalle
+ * kolommen (ster, type) worden niet breder dan nodig. Alleen boven de
+ * 782px-grens van WordPress, daaronder toont core de lijst gestapeld.
+ * Past de tabel dan nog niet (smal scherm, veel kolommen), dan scrolt hij
+ * binnen het formulier in plaats van de pagina te verbreden.
+ * Scoped op de Productenlijst; de kolom "Zichtbaarheid" krijgt hier ook
+ * haar breedte.
  */
-function threeducation_visibility_admin_column_css() {
+function threeducation_products_list_admin_css() {
 	$screen = get_current_screen();
 	if ( ! $screen || 'edit-product' !== $screen->id ) {
 		return;
 	}
 	echo '<style>
-		.wp-list-table th.column-visibility_window { width: 11em; white-space: nowrap; }
-		.wp-list-table td.column-visibility_window { width: 11em; }
+		@media (min-width: 783px) {
+			.post-type-product #posts-filter { overflow-x: auto; }
+			.post-type-product table.wp-list-table.posts { table-layout: auto !important; }
+			.post-type-product table.wp-list-table.posts thead th,
+			.post-type-product table.wp-list-table.posts tfoot th { white-space: nowrap; }
+			.post-type-product table.wp-list-table .column-name { min-width: 16em; }
+			.post-type-product table.wp-list-table .column-sku { min-width: 7em; }
+			.post-type-product table.wp-list-table .column-price { min-width: 7em; width: auto; }
+			.post-type-product table.wp-list-table .column-is_in_stock { min-width: 8em; width: auto; }
+			.post-type-product table.wp-list-table .column-product_cat,
+			.post-type-product table.wp-list-table .column-product_tag { min-width: 8em; width: auto !important; }
+			.post-type-product table.wp-list-table .column-date { min-width: 9em; }
+			.post-type-product table.wp-list-table .column-visibility_window { min-width: 9em; }
+		}
 	</style>' . "\n";
 }
-add_action( 'admin_head', 'threeducation_visibility_admin_column_css' );
+add_action( 'admin_head', 'threeducation_products_list_admin_css' );
 
 /**
  * Admin Products list: a "Gewicht"-filter (Alle / Zonder gewicht / Met gewicht).
