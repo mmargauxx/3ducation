@@ -64,6 +64,19 @@ repo omdat er boncodes in staan) met `?3du_verval_migratie=test|doen`: aankoopda
 export + 2 jaar; de drie bonnen uit 2023/2024 zonder datum blijven staan en worden gemeld.
 Beide herhaalbaar. Live sinds 2026-09-04.
 
+### Ook uploaden: onderhoudsmodus (vijfde mu-plugin)
+`mu-plugins/3ducation-onderhoudsmodus.php` hoort eveneens in **`wp-content/mu-plugins/`**.
+Geeft onder Instellingen → Onderhoudsmodus een aan/uit-vinkje, een bereik (hele website of alleen
+de webshop), een optioneel begin- en eindmoment (tijdzone van de site) en titel + tekst. Bezoekers
+krijgen HTTP 503 met `Retry-After` en een pagina in de huisstijl (kleuren, lettertype en kubuslogo
+uit het thema, telefoon en e-mail uit Instellingen → Footer). Ingelogde beheerders en
+winkelbeheerders (dus ook de kassa) zien de gewone site; de voorbeeldlink op het scherm
+(`?onderhoud=<sleutel>`) geeft anderen 24 uur toegang. wp-admin, inloggen, REST, AJAX, cron en
+`wc-api`-webhooks blijven altijd werken. Staat de modus aan, dan staat er een rood blokje in de
+beheerbalk. Na de upload is de modus **uit**; er verandert niets tot je het vinkje aanzet.
+**Let op de paginacache van EasyHost:** na het aanzetten kan een bezoeker de oude pagina nog even
+zien tot die cache verloopt.
+
 ### Optioneel: de foute "WP Cron is disabled"-melding verbergen
 `mu-plugins/3ducation-verberg-cron-melding.php` haalt in wp-admin de pluginmelding
 "WP Cron is disabled. Any scheduled discount will not work." weg. Die melding kijkt alleen
