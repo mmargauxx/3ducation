@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.29' );
+	define( 'THREEDUCATION_VERSION', '0.18.30' );
 }
 
 /**
@@ -1681,7 +1681,10 @@ add_action( 'manage_product_posts_custom_column', 'threeducation_visibility_admi
  * Past de tabel dan nog niet (smal scherm, veel kolommen), dan scrolt
  * alleen de tabel horizontaal: een klein script wikkelt hem in een div met
  * overflow-x. Zo blijft het beheermenu links staan in plaats van mee weg te
- * scrollen. Niet op #posts-filter zetten: dat formulier wordt dan een block
+ * scrollen. Het kader is position:relative: de tabel zit vol absoluut
+ * gepositioneerde .screen-reader-text-spans (sorteerkoppen, ster, labels)
+ * die anders aan #wpbody hangen en de hele pagina toch nog breder maken
+ * dan het venster. Niet op #posts-filter zetten: dat formulier wordt dan een block
  * formatting context die naast de links-zwevende statuslinks gaat staan,
  * waardoor de hele lijst naar rechts schuift (v0.18.27-fout).
  * Scoped op de Productenlijst; de kolom "Zichtbaarheid" krijgt hier ook
@@ -1705,7 +1708,7 @@ function threeducation_products_list_admin_css() {
 			.post-type-product table.wp-list-table .column-product_tag { min-width: 8em; width: auto !important; }
 			.post-type-product table.wp-list-table .column-date { min-width: 9em; }
 			.post-type-product table.wp-list-table .column-visibility_window { min-width: 9em; }
-			.post-type-product .threeducation-tabel-scroll { overflow-x: auto; clear: both; }
+			.post-type-product .threeducation-tabel-scroll { overflow-x: auto; clear: both; position: relative; }
 		}
 	</style>
 	<script>
