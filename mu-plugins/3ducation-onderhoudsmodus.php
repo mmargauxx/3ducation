@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION onderhoudsmodus
  * Description: Zet de website (of alleen de webshop) tijdelijk op "even geduld": bezoekers zien een pagina in de huisstijl met HTTP 503, beheerders en de kassa werken gewoon verder. Meteen of gepland, via Instellingen → Onderhoudsmodus.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: 3DUCATION
  *
  * Waarom een eigen bestand: de bestaande onderhoudsplugins slepen een eigen
@@ -449,7 +449,6 @@ h1 {
 }
 .contact a { color: var(--base); text-decoration: none; border-bottom: 1px solid var(--mist-soft); transition: color 0.15s, border-color 0.15s; }
 .contact a:hover, .contact a:focus-visible { color: var(--magenta); border-color: var(--magenta); outline: none; }
-footer { padding: 1.5rem; text-align: center; font-size: 0.8rem; color: var(--mist-soft); }
 </style>
 </head>
 <body>
@@ -483,7 +482,6 @@ footer { padding: 1.5rem; text-align: center; font-size: 0.8rem; color: var(--mi
 		<?php endif; ?>
 	</div>
 </main>
-<footer><?php echo esc_html__( 'Onderhoud: deze pagina verdwijnt vanzelf zodra we klaar zijn.', '3ducation' ); ?></footer>
 </body>
 </html>
 	<?php
