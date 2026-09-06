@@ -73,7 +73,8 @@ uit het thema, telefoon en e-mail uit Instellingen → Footer). Ingelogde beheer
 winkelbeheerders (dus ook de kassa) zien de gewone site; de voorbeeldlink op het scherm
 (`?onderhoud=<sleutel>`) geeft anderen 24 uur toegang. wp-admin, inloggen, REST, AJAX, cron en
 `wc-api`-webhooks blijven altijd werken. Staat de modus aan, dan staat er een rood blokje in de
-beheerbalk. Na de upload is de modus **uit**; er verandert niets tot je het vinkje aanzet.
+beheerbalk. De knop **Voorbeeld bekijken** op het scherm toont de pagina (opgeslagen instellingen)
+zonder de modus aan te zetten. Na de upload is de modus **uit**; er verandert niets tot je het vinkje aanzet.
 **Let op de paginacache van EasyHost:** na het aanzetten kan een bezoeker de oude pagina nog even
 zien tot die cache verloopt.
 

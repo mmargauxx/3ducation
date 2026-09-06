@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION onderhoudsmodus
  * Description: Zet de website (of alleen de webshop) tijdelijk op "even geduld": bezoekers zien een pagina in de huisstijl met HTTP 503, beheerders en de kassa werken gewoon verder. Meteen of gepland, via Instellingen → Onderhoudsmodus.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: 3DUCATION
  *
  * Waarom een eigen bestand: de bestaande onderhoudsplugins slepen een eigen
@@ -31,6 +31,10 @@
  *     en bestelmails lopen gewoon door.
  *  5. In de beheerbalk staat "Onderhoudsmodus actief" zolang de modus loopt,
  *     zodat niemand hem vergeet uit te zetten.
+ *  6. Voorbeeld zonder aanzetten: de knop "Voorbeeld bekijken" op het scherm
+ *     opent `/?onderhoud_voorbeeld=1` (met nonce, alleen beheerders) en toont
+ *     de pagina met de opgeslagen instellingen, met HTTP 200 en zonder dat
+ *     er voor bezoekers iets verandert.
  *
  * Let op: staat er een paginacache voor de site (EasyHost), dan kan een
  * bezoeker de oude pagina nog even te zien krijgen tot die cache verloopt.
@@ -222,6 +226,14 @@ function threeducation_onderhoud_geldt_hier( array $o ) {
 /** Toon de onderhoudspagina en stop, als de modus actief is en de bezoeker niet door mag. */
 function threeducation_onderhoud_template_redirect() {
 	$o = threeducation_onderhoud_settings();
+
+	if ( threeducation_onderhoud_is_voorbeeld() ) {
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+		threeducation_onderhoud_render_pagina( $o );
+		exit;
+	}
+
 	if ( 'actief' !== $o['status'] || ! threeducation_onderhoud_geldt_hier( $o ) || threeducation_onderhoud_mag_door( $o ) ) {
 		return;
 	}
@@ -237,6 +249,21 @@ function threeducation_onderhoud_template_redirect() {
 	exit;
 }
 add_action( 'template_redirect', 'threeducation_onderhoud_template_redirect', 0 );
+
+/** URL van het voorbeeld voor beheerders: de homepage met een genonced'e parameter. */
+function threeducation_onderhoud_voorbeeld_url() {
+	return wp_nonce_url( add_query_arg( 'onderhoud_voorbeeld', '1', home_url( '/' ) ), 'threeducation_onderhoud_voorbeeld' );
+}
+
+/** Vraagt een ingelogde beheerder het voorbeeld op? Werkt ook als de modus uit staat. */
+function threeducation_onderhoud_is_voorbeeld() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce wordt hieronder gecontroleerd.
+	if ( empty( $_GET['onderhoud_voorbeeld'] ) || ! current_user_can( 'manage_options' ) ) {
+		return false;
+	}
+
+	return false !== wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'threeducation_onderhoud_voorbeeld' );
+}
 
 /**
  * De kleuren en het verloop uit theme.json, met reservewaarden voor als het
@@ -619,24 +646,14 @@ function threeducation_onderhoud_render_admin_page() {
 					<td>
 						<input type="text" id="tdo-voorbeeld" value="<?php echo esc_attr( $voorbeeld ); ?>" class="large-text code" readonly onfocus="this.select();" />
 						<p class="description"><?php echo esc_html__( 'Wie deze link opent, krijgt 24 uur lang de gewone website te zien, ook zonder in te loggen. Handig om te testen op je telefoon of om iemand toch toegang te geven. Ingelogde beheerders en winkelbeheerders (kassa) hebben de link niet nodig.', '3ducation' ); ?></p>
-						<?php if ( 'actief' === $o['status'] ) : ?>
-							<p class="description">
-								<?php
-								echo wp_kses(
-									sprintf(
-										/* translators: %s: URL van de website. */
-										__( 'Zelf de onderhoudspagina bekijken: open <a href="%s" target="_blank" rel="noopener">de website</a> in een privévenster.', '3ducation' ),
-										esc_url( home_url( '/' ) )
-									),
-									array( 'a' => array( 'href' => true, 'target' => true, 'rel' => true ) )
-								);
-								?>
-							</p>
-						<?php endif; ?>
 					</td>
 				</tr>
 			</table>
-			<?php submit_button(); ?>
+			<p class="submit">
+				<?php submit_button( null, 'primary', 'submit', false ); ?>
+				<a class="button" href="<?php echo esc_url( threeducation_onderhoud_voorbeeld_url() ); ?>" target="_blank" rel="noopener"><?php echo esc_html__( 'Voorbeeld bekijken', '3ducation' ); ?></a>
+				<span class="description" style="margin-left:0.5em;"><?php echo esc_html__( 'Opent de onderhoudspagina in een nieuw tabblad met de opgeslagen instellingen, zonder de modus aan te zetten. Sla eerst op als je iets wijzigde.', '3ducation' ); ?></span>
+			</p>
 		</form>
 	</div>
 	<?php
