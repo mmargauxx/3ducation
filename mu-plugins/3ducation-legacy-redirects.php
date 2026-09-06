@@ -1,8 +1,10 @@
 <?php
 /**
  * Plugin Name: 3DUCATION legacy redirects
- * Description: 301-redirects voor de oude Duda-webshop-URLs (/webshop/...-p<ID> en -c<ID>).
- * Version: 1.1.0
+ * Description: 301-redirects voor de oude Duda-URLs: /webshop/...-p<ID> en -c<ID>,
+ * de Franse /fr/-varianten, de oude losse pagina's, de lege importcategorieën
+ * (/category/category-3/) en de Engelse accountpagina (/my-account/).
+ * Version: 1.2.0
  * Author: 3DUCATION
  *
  * Waarom een mu-plugin en niet het thema?
@@ -22,6 +24,24 @@
  * de zoekresultaten. Nieuwe producten hoeven hier niet in: die hebben geen
  * oude URL. Wordt een product uit de tabel verwijderd, dan valt de URL
  * gewoon terug op de naam-lookup en daarna op de zoekpagina.
+ *
+ * Sinds 1.2.0 vangt hij ook de resterende gaten van de migratie op — stuk voor
+ * stuk paden die op de live site nog een 404 gaven:
+ * - /fr/... — de oude site had van élke URL een Franse variant. Er is geen
+ *   Franstalige site meer, dus het voorvoegsel wordt eraf geknipt en de rest
+ *   loopt door dezelfde regels; /fr zelf gaat naar de homepage.
+ * - /about, /services en /aanvraag-tot-herstelling — de oude losse pagina's.
+ *   LET OP: /services was op de oude site de pagina "3D-printen op school",
+ *   niet service/herstellingen. /contact staat er bewust niet bij: dat was op
+ *   de oude site de workshoppagina, maar de nieuwe site gebruikt die slug zelf.
+ * - /category/category-1..4/ en /category/uncategorized/ — lege blogcategorieën
+ *   die uit de CSV-import zijn blijven staan en die Google nog indexeert. Ze
+ *   gaan met een 301 naar de webshop. De regex matcht bewust alleen die twee
+ *   vormen, zodat een échte blogcategorie later gewoon blijft werken.
+ * - /my-account/ (en alles eronder) → de Nederlandse accountslug /mijn-account/,
+ *   inclusief endpoint en querystring.
+ * - /webshop zonder meer, en /webshop/cart en /webshop/account, die vroeger op
+ *   de algemene webshop-vangnetregel vielen.
  *
  * LET OP: verwijder deze code eerst uit het thema (functions.php) of upload eerst
  * de themaversie waarin ze weg is. Staan beide er tegelijk, dan geeft PHP een
@@ -382,7 +402,47 @@ function threeducation_legacy_product_id_map() {
 	);
 }
 
-/** Vangt de oude /webshop/-URLs op en stuurt ze door met een 301. */
+/**
+ * De URL van de webshoppagina, met de homepage als vangnet.
+ *
+ * De shoppagina kan door de beheerder verplaatst worden, dus nooit /shop
+ * hardcoden.
+ *
+ * @return string
+ */
+function threeducation_legacy_shop_url() {
+	if ( function_exists( 'wc_get_page_id' ) ) {
+		$shop_id = wc_get_page_id( 'shop' );
+		if ( $shop_id > 0 ) {
+			$link = get_permalink( $shop_id );
+			if ( $link ) {
+				return $link;
+			}
+		}
+	}
+
+	return home_url( '/' );
+}
+
+/**
+ * De oude losse pagina's van de Duda-site → het pad op de nieuwe site.
+ *
+ * Sleutel is het oude pad zonder schuine strepen aan de randen, de waarde
+ * wordt achter home_url() geplakt.
+ *
+ * @return array<string,string>
+ */
+function threeducation_legacy_page_map() {
+	return array(
+		'about'                    => 'over-ons/',
+		// Op de oude site was /services de pagina "3D-printen op school",
+		// níet service & montage. Dit is de bekende valkuil in deze map.
+		'services'                 => 'educatieve-pakketten/',
+		'aanvraag-tot-herstelling' => 'service/#service-form',
+	);
+}
+
+/** Vangt de oude URLs op en stuurt ze door met een 301. */
 function threeducation_legacy_redirect() {
 	if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 		return;
@@ -390,12 +450,80 @@ function threeducation_legacy_redirect() {
 
 	$request = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 	$path    = trim( (string) wp_parse_url( $request, PHP_URL_PATH ), '/' );
+	$query   = (string) wp_parse_url( $request, PHP_URL_QUERY );
+
+	// De oude site had van elke URL een Franse variant onder /fr/. Die taal
+	// bestaat niet meer, dus knip het voorvoegsel eraf en laat de rest door
+	// dezelfde regels lopen. Wat daarna nergens op past, valt gewoon terug op
+	// WordPress zelf (dat raadt /fr/contact bijvoorbeeld al goed).
+	if ( 'fr' === $path ) {
+		wp_safe_redirect( home_url( '/' ), 301 );
+		exit;
+	}
+	if ( 0 === strpos( $path, 'fr/' ) ) {
+		$path = substr( $path, 3 );
+	}
+
+	// De oude losse pagina's.
+	$pages = threeducation_legacy_page_map();
+	if ( isset( $pages[ $path ] ) ) {
+		wp_safe_redirect( home_url( '/' . $pages[ $path ] ), 301 );
+		exit;
+	}
+
+	// Lege blogcategorieën uit de import: /category/category-3/, ook met /feed/
+	// of /page/2/ erachter. Ze bevatten geen enkel bericht, dus de webshop is
+	// het dichtstbijzijnde zinvolle doel.
+	if ( preg_match( '#^category/(category-\d+|uncategorized)(/.*)?$#', $path ) ) {
+		wp_safe_redirect( threeducation_legacy_shop_url(), 301 );
+		exit;
+	}
+
+	// De Engelse WooCommerce-accountslug → de Nederlandse. Het stuk achter
+	// /my-account/ (endpoints zoals orders of view-order/12) en de querystring
+	// gaan mee, zodat een oude bookmark op de juiste subpagina landt.
+	if ( 'my-account' === $path || 0 === strpos( $path, 'my-account/' ) ) {
+		$account = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '';
+		$base    = $account ? trim( (string) wp_parse_url( $account, PHP_URL_PATH ), '/' ) : '';
+
+		// Alleen doorsturen als de accountpagina écht een andere slug heeft:
+		// staat hij ooit weer op my-account, dan zou dit naar zichzelf sturen.
+		if ( '' !== $base && 'my-account' !== $base ) {
+			$target = user_trailingslashit( home_url( '/' . $base . substr( $path, strlen( 'my-account' ) ) ) );
+			if ( '' !== $query ) {
+				$target .= '?' . $query;
+			}
+			wp_safe_redirect( $target, 301 );
+			exit;
+		}
+	}
+
+	// De oude webshophomepage.
+	if ( 'webshop' === $path ) {
+		wp_safe_redirect( threeducation_legacy_shop_url(), 301 );
+		exit;
+	}
 
 	if ( 0 !== strpos( $path, 'webshop/' ) ) {
 		return;
 	}
 
 	$rest = substr( $path, strlen( 'webshop/' ) );
+
+	// De vaste subpagina's van de oude webshop. /webshop/search valt bewust
+	// niet hier maar op de vangnetregel onderaan: een zoekopdracht zonder
+	// term is de webshop zelf.
+	$wc_pages = array(
+		'cart'    => 'cart',
+		'account' => 'myaccount',
+	);
+	if ( isset( $wc_pages[ $rest ] ) && function_exists( 'wc_get_page_permalink' ) ) {
+		$link = wc_get_page_permalink( $wc_pages[ $rest ] );
+		if ( $link ) {
+			wp_safe_redirect( $link, 301 );
+			exit;
+		}
+	}
 
 	// Oude productpagina: <naam>-p<ID>.
 	if ( preg_match( '#^(.+)-p(\d+)$#', $rest, $matches ) ) {
@@ -451,12 +579,7 @@ function threeducation_legacy_redirect() {
 	}
 
 	// Alles wat overblijft onder /webshop/ gaat naar de webshop zelf.
-	if ( function_exists( 'wc_get_page_id' ) ) {
-		$shop_id = wc_get_page_id( 'shop' );
-		if ( $shop_id > 0 ) {
-			wp_safe_redirect( get_permalink( $shop_id ), 301 );
-			exit;
-		}
-	}
+	wp_safe_redirect( threeducation_legacy_shop_url(), 301 );
+	exit;
 }
 add_action( 'template_redirect', 'threeducation_legacy_redirect', 1 );
