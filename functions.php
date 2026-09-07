@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.30' );
+	define( 'THREEDUCATION_VERSION', '0.18.31' );
 }
 
 /**
@@ -80,6 +80,18 @@ function threducation_enqueue_assets() {
 		wp_enqueue_script(
 			'threeducation-popup',
 			get_template_directory_uri() . '/assets/popup.js',
+			array(),
+			THREEDUCATION_VERSION,
+			true
+		);
+	}
+
+	// Cookiebanner + het vrijgeven van geblokkeerde tracking-scripts.
+	$cookies = threeducation_cookies_settings();
+	if ( ! empty( $cookies['active'] ) ) {
+		wp_enqueue_script(
+			'threeducation-cookies',
+			get_template_directory_uri() . '/assets/cookies.js',
 			array(),
 			THREEDUCATION_VERSION,
 			true
@@ -509,6 +521,482 @@ function threeducation_popup_render_admin_page() {
 			</table>
 			<?php submit_button(); ?>
 		</form>
+	</div>
+	<?php
+}
+
+/* -------------------------------------------------------------------------
+ * Cookies (Instellingen -> Cookies)
+ *
+ * Cookiebanner volgens de GDPR/ePrivacy-regels zoals de Belgische
+ * Gegevensbeschermingsautoriteit ze uitlegt: geen niet-noodzakelijke cookies
+ * vóór toestemming, "alles weigeren" even makkelijk als "alles aanvaarden",
+ * per categorie kiezen, geen vooraf aangevinkte vakjes, en de keuze altijd
+ * opnieuw kunnen maken (link "Cookie-instellingen" in de footer).
+ *
+ * Twee delen:
+ *  1. Het blokkeren. Tracking-scripts komen van plugins (MonsterInsights =
+ *     Google Analytics, Jetpack Stats, Jetpack WooCommerce Analytics,
+ *     WooCommerce order attribution) en niet van het thema. Een output-buffer
+ *     op template_redirect herschrijft hun <script>-tags naar
+ *     type="text/plain" data-3du-consent="<categorie>": de browser laadt en
+ *     draait ze dan niet. assets/cookies.js maakt ze weer echt zodra er
+ *     toestemming is voor die categorie. Dat werkt ook achter een paginacache,
+ *     want de HTML is voor iedereen dezelfde; de beslissing valt in de browser.
+ *     Daarbovenop krijgt Google's Consent Mode v2 een "denied"-standaard in
+ *     de <head>, zodat een gtag die toch zou laden cookieloos blijft.
+ *  2. De banner. Een niet-modale <dialog> rechts onderaan (de site pop-up
+ *     parkeert links onderaan), twee lagen: keuze in één klik, en een
+ *     instellingenlaag met een schakelaar per categorie. De keuze staat in
+ *     de cookie 3ducation_cookie_consent (6 maanden, met datum en versie).
+ *     Verhoog "revisie" in de instellingen als er nieuwe cookies bijkomen:
+ *     iedereen krijgt de banner dan opnieuw.
+ * ---------------------------------------------------------------------- */
+
+/** Standaardwaarden. */
+function threeducation_cookies_defaults() {
+	return array(
+		'enabled'     => 1,
+		'title'       => __( 'Cookies op 3DUCATION.be', '3ducation' ),
+		'body'        => __( "We gebruiken noodzakelijke cookies om de webshop te laten werken. Met jouw toestemming gebruiken we ook statistische cookies om te zien hoe de site gebruikt wordt, zodat we hem kunnen verbeteren.\n\nJe kiest zelf. Je keuze pas je later altijd aan via “Cookie-instellingen” onderaan de pagina.", '3ducation' ),
+		'policy_page' => 0,
+		'statistics'  => 1,
+		'marketing'   => 0,
+		'revision'    => 1,
+	);
+}
+
+/**
+ * Opgeslagen waarden over de defaults, plus 'active', 'id' (versie van de
+ * toestemming: verandert mee met de revisie en de categorieën in gebruik,
+ * zodat een oude keuze niet meer telt) en 'policy_url'.
+ */
+function threeducation_cookies_settings() {
+	$o = wp_parse_args( (array) get_option( 'threeducation_cookies', array() ), threeducation_cookies_defaults() );
+
+	$o['enabled']     = empty( $o['enabled'] ) ? 0 : 1;
+	$o['statistics']  = empty( $o['statistics'] ) ? 0 : 1;
+	$o['marketing']   = empty( $o['marketing'] ) ? 0 : 1;
+	$o['revision']    = max( 1, (int) $o['revision'] );
+	$o['policy_page'] = (int) $o['policy_page'];
+	$o['active']      = (bool) $o['enabled'];
+	$o['id']          = substr( md5( 'v1|' . $o['revision'] . '|' . $o['statistics'] . '|' . $o['marketing'] ), 0, 8 );
+
+	$policy_url = '';
+	if ( $o['policy_page'] > 0 && 'publish' === get_post_status( $o['policy_page'] ) ) {
+		$policy_url = get_permalink( $o['policy_page'] );
+	}
+	if ( '' === $policy_url ) {
+		$policy_url = (string) get_privacy_policy_url();
+	}
+	$o['policy_url'] = $policy_url;
+
+	return $o;
+}
+
+/**
+ * De categorieën die de banner toont. 'necessary' staat altijd aan en kan
+ * niet uit; de andere alleen als ze in de instellingen aangevinkt zijn.
+ *
+ * @return array<string,array{label:string,description:string,locked:bool}>
+ */
+function threeducation_cookies_categories() {
+	$s    = threeducation_cookies_settings();
+	$cats = array(
+		'necessary' => array(
+			'label'       => __( 'Noodzakelijk', '3ducation' ),
+			'description' => __( 'Nodig om de site en de webshop te laten werken: winkelmandje, inloggen, afrekenen en het onthouden van je cookiekeuze. Deze kunnen niet uitgeschakeld worden.', '3ducation' ),
+			'locked'      => true,
+		),
+	);
+	if ( $s['statistics'] ) {
+		$cats['statistics'] = array(
+			'label'       => __( 'Statistieken', '3ducation' ),
+			'description' => __( 'Geven ons inzicht in hoe bezoekers de site gebruiken (Google Analytics, Jetpack-statistieken en de herkomst van bestellingen). Zo zien we welke pagina’s en producten werken en wat beter kan.', '3ducation' ),
+			'locked'      => false,
+		);
+	}
+	if ( $s['marketing'] ) {
+		$cats['marketing'] = array(
+			'label'       => __( 'Marketing', '3ducation' ),
+			'description' => __( 'Volgen je bezoek om advertenties op andere websites af te stemmen op je interesses en om te meten of een campagne werkt.', '3ducation' ),
+			'locked'      => false,
+		);
+	}
+	return $cats;
+}
+
+/**
+ * Herkenning van tracking-scripts, per categorie: stukjes van een src-URL en
+ * stukjes uit de inhoud van een inline script. Filterbaar via
+ * 'threeducation_cookies_blocklist' voor een plugin die hier niet in staat.
+ *
+ * @return array<string,array{src:string[],inline:string[]}>
+ */
+function threeducation_cookies_blocklist() {
+	$list = array(
+		'statistics' => array(
+			'src'    => array(
+				'googletagmanager.com/',           // gtag.js én GTM-container.
+				'google-analytics.com/',
+				'analytics.google.com/',
+				'frontend-gtag',                   // MonsterInsights wrapper.
+				'stats.wp.com/',                   // Jetpack Stats + WooCommerce Analytics.
+				'woocommerce-analytics-client',    // Jetpack WooCommerce Analytics.
+				'/sourcebuster/',                  // WooCommerce order attribution (sbjs_*-cookies).
+				'/order-attribution',
+			),
+			'inline' => array(
+				'MonsterInsights',
+				'__gtagTracker',
+				'monsterinsights_frontend',
+				'googletagmanager.com/gtm.js',
+				'_stq',
+				'wcAnalytics',
+				'wc_order_attribution',
+			),
+		),
+		'marketing'  => array(
+			'src'    => array(
+				'connect.facebook.net',
+				'googleadservices.com',
+				'googlesyndication.com',
+				'doubleclick.net',
+				'static.hotjar.com',
+				'clarity.ms',
+				'analytics.tiktok.com',
+				'snap.licdn.com',
+				'ct.pinterest.com',
+				's.pinimg.com',
+			),
+			'inline' => array(
+				'fbq(',
+				'connect.facebook.net',
+				'static.hotjar.com',
+				'"clarity"',
+				'ttq.load',
+				'pintrk(',
+				'_linkedin_partner_id',
+			),
+		),
+	);
+	return apply_filters( 'threeducation_cookies_blocklist', $list );
+}
+
+/**
+ * De categorie van een <script>, of '' als het geen tracking-script is.
+ * Een script met src wordt op zijn URL herkend, een inline script op zijn
+ * inhoud (nooit allebei: een src-script heeft geen inhoud).
+ */
+function threeducation_cookies_script_category( $src, $body, $list ) {
+	$src  = trim( (string) $src );
+	$body = (string) $body;
+	foreach ( $list as $cat => $rules ) {
+		if ( '' !== $src ) {
+			foreach ( (array) $rules['src'] as $needle ) {
+				if ( false !== stripos( $src, $needle ) ) {
+					return $cat;
+				}
+			}
+			continue;
+		}
+		foreach ( (array) $rules['inline'] as $needle ) {
+			if ( false !== strpos( $body, $needle ) ) {
+				return $cat;
+			}
+		}
+	}
+	return '';
+}
+
+/**
+ * Herschrijf tracking-<script>s in de volledige pagina-HTML.
+ *
+ * type="text/plain" zorgt dat de browser het script niet ophaalt en niet
+ * uitvoert (en de preload-scanner het overslaat); een eventueel origineel
+ * type (bv. module) gaat mee in data-3du-type. Jetpack's <noscript>-pixel
+ * gaat eruit: zonder JavaScript kan er geen toestemming gegeven worden.
+ */
+function threeducation_cookies_filter_html( $html ) {
+	if ( '' === $html || false === stripos( $html, '<script' ) ) {
+		return $html;
+	}
+	$list = threeducation_cookies_blocklist();
+
+	$out = preg_replace_callback(
+		'~<script\b([^>]*)>((?:[^<]++|<(?!/script>))*+)</script>~i',
+		static function ( $m ) use ( $list ) {
+			$attrs = $m[1];
+			$body  = $m[2];
+
+			if ( false !== stripos( $attrs, 'data-3du-consent' ) ) {
+				return $m[0];
+			}
+
+			$type = '';
+			if ( preg_match( '~\btype\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))~i', $attrs, $t ) ) {
+				$type = strtolower( trim( isset( $t[3] ) ? $t[3] : ( '' !== $t[1] ? $t[1] : $t[2] ) ) );
+			}
+			if ( '' !== $type && ! in_array( $type, array( 'text/javascript', 'application/javascript', 'module' ), true ) ) {
+				return $m[0]; // JSON, importmap, templates: geen script.
+			}
+
+			$src = '';
+			if ( preg_match( '~\bsrc\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))~i', $attrs, $s ) ) {
+				$src = isset( $s[3] ) ? $s[3] : ( '' !== $s[1] ? $s[1] : $s[2] );
+			}
+
+			$cat = threeducation_cookies_script_category( $src, $body, $list );
+			if ( '' === $cat ) {
+				return $m[0];
+			}
+
+			$attrs = preg_replace( '~\s*\btype\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i', '', $attrs );
+			$extra = 'module' === $type ? ' data-3du-type="module"' : '';
+
+			return '<script type="text/plain" data-3du-consent="' . esc_attr( $cat ) . '"' . $extra . rtrim( $attrs ) . '>' . $body . '</script>';
+		},
+		$html
+	);
+	if ( null === $out ) {
+		return $html; // PCRE-limiet geraakt: liever onaangeroerd dan een kapotte pagina.
+	}
+
+	$out = preg_replace( '~<noscript>\s*<img\b[^>]*pixel\.wp\.com[^>]*>\s*</noscript>~i', '', $out );
+
+	return null === $out ? $html : $out;
+}
+
+/** Start de output-buffer, alleen voor gewone front-end pagina's. */
+function threeducation_cookies_start_buffer() {
+	if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || is_feed() || is_embed() || is_customize_preview() ) {
+		return;
+	}
+	if ( ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || wp_is_json_request() ) {
+		return;
+	}
+	$s = threeducation_cookies_settings();
+	if ( empty( $s['active'] ) ) {
+		return;
+	}
+	ob_start( 'threeducation_cookies_filter_html' );
+}
+add_action( 'template_redirect', 'threeducation_cookies_start_buffer', 0 );
+
+/**
+ * Google Consent Mode v2: standaard alles geweigerd, vóór om het even welke
+ * gtag. cookies.js zet het om naar 'granted' zodra de bezoeker toestemt.
+ */
+function threeducation_cookies_consent_mode() {
+	$s = threeducation_cookies_settings();
+	if ( empty( $s['active'] ) ) {
+		return;
+	}
+	?>
+	<script data-3du-consent-mode>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',functionality_storage:'granted',security_storage:'granted',wait_for_update:500});</script>
+	<?php
+}
+add_action( 'wp_head', 'threeducation_cookies_consent_mode', 0 );
+
+/** De <dialog> zelf, onderaan de pagina. Gesloten tot cookies.js beslist. */
+function threeducation_render_cookie_banner() {
+	$s = threeducation_cookies_settings();
+	if ( empty( $s['active'] ) ) {
+		return;
+	}
+	$cats     = threeducation_cookies_categories();
+	$optional = array_keys( array_filter( $cats, static function ( $c ) { return empty( $c['locked'] ); } ) );
+	$title    = '' !== trim( (string) $s['title'] ) ? $s['title'] : __( 'Cookies', '3ducation' );
+	?>
+	<dialog id="cookie-consent" class="cookie-consent" data-consent-id="<?php echo esc_attr( $s['id'] ); ?>" data-consent-cats="<?php echo esc_attr( implode( ',', $optional ) ); ?>" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-body">
+		<div class="cookie-consent__card">
+			<div class="cookie-consent__layer" data-consent-layer="intro">
+				<h2 id="cookie-consent-title" class="cookie-consent__title" tabindex="-1"><?php echo esc_html( $title ); ?></h2>
+				<div id="cookie-consent-body" class="cookie-consent__body">
+					<?php echo threeducation_popup_paragraphs( $s['body'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per line inside. ?>
+					<?php if ( '' !== $s['policy_url'] ) : ?>
+						<p><a href="<?php echo esc_url( $s['policy_url'] ); ?>"><?php echo esc_html__( 'Lees ons cookiebeleid', '3ducation' ); ?></a></p>
+					<?php endif; ?>
+				</div>
+				<div class="cookie-consent__actions">
+					<button type="button" class="cookie-consent__btn cookie-consent__btn--accept" data-consent-action="accept"><?php echo esc_html__( 'Alles aanvaarden', '3ducation' ); ?></button>
+					<button type="button" class="cookie-consent__btn cookie-consent__btn--reject" data-consent-action="reject"><?php echo esc_html__( 'Alles weigeren', '3ducation' ); ?></button>
+					<button type="button" class="cookie-consent__link" data-consent-action="settings"><?php echo esc_html__( 'Zelf kiezen', '3ducation' ); ?></button>
+				</div>
+			</div>
+			<div class="cookie-consent__layer" data-consent-layer="settings" hidden>
+				<h2 id="cookie-consent-settings-title" class="cookie-consent__title" tabindex="-1"><?php echo esc_html__( 'Cookie-instellingen', '3ducation' ); ?></h2>
+				<div class="cookie-consent__body">
+					<p><?php echo esc_html__( 'Kies per categorie of we die cookies mogen gebruiken. Noodzakelijke cookies staan altijd aan.', '3ducation' ); ?></p>
+				</div>
+				<ul class="cookie-consent__cats">
+					<?php foreach ( $cats as $key => $cat ) : ?>
+						<li class="cookie-consent__cat">
+							<label class="cookie-consent__cat-row">
+								<span class="cookie-consent__cat-text">
+									<strong><?php echo esc_html( $cat['label'] ); ?></strong>
+									<?php if ( $cat['locked'] ) : ?>
+										<em><?php echo esc_html__( 'altijd aan', '3ducation' ); ?></em>
+									<?php endif; ?>
+									<small><?php echo esc_html( $cat['description'] ); ?></small>
+								</span>
+								<input type="checkbox" class="cookie-consent__switch" name="<?php echo esc_attr( $key ); ?>" value="1" role="switch"<?php echo $cat['locked'] ? ' checked disabled' : ''; ?> />
+							</label>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+				<div class="cookie-consent__actions">
+					<button type="button" class="cookie-consent__btn cookie-consent__btn--accept" data-consent-action="save"><?php echo esc_html__( 'Keuze opslaan', '3ducation' ); ?></button>
+					<button type="button" class="cookie-consent__btn cookie-consent__btn--ghost" data-consent-action="accept"><?php echo esc_html__( 'Alles aanvaarden', '3ducation' ); ?></button>
+					<button type="button" class="cookie-consent__btn cookie-consent__btn--ghost" data-consent-action="reject"><?php echo esc_html__( 'Alles weigeren', '3ducation' ); ?></button>
+				</div>
+				<?php if ( '' !== $s['policy_url'] ) : ?>
+					<p class="cookie-consent__foot"><a href="<?php echo esc_url( $s['policy_url'] ); ?>"><?php echo esc_html__( 'Lees ons cookiebeleid', '3ducation' ); ?></a></p>
+				<?php endif; ?>
+			</div>
+			<button type="button" class="cookie-consent__close" data-consent-action="close" hidden aria-label="<?php echo esc_attr__( 'Sluiten zonder wijzigen', '3ducation' ); ?>">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+			</button>
+		</div>
+	</dialog>
+	<?php
+}
+add_action( 'wp_footer', 'threeducation_render_cookie_banner', 5 );
+
+/** Registreer de optie bij de Settings API. */
+function threeducation_cookies_register_settings() {
+	register_setting(
+		'threeducation_cookies',
+		'threeducation_cookies',
+		array(
+			'type'              => 'array',
+			'sanitize_callback' => 'threeducation_cookies_sanitize',
+			'default'           => threeducation_cookies_defaults(),
+		)
+	);
+}
+add_action( 'admin_init', 'threeducation_cookies_register_settings' );
+
+/** Saneer de ingevulde waarden. */
+function threeducation_cookies_sanitize( $input ) {
+	$input = (array) $input;
+	return array(
+		'enabled'     => empty( $input['enabled'] ) ? 0 : 1,
+		'title'       => sanitize_text_field( $input['title'] ?? '' ),
+		'body'        => sanitize_textarea_field( $input['body'] ?? '' ),
+		'policy_page' => max( 0, (int) ( $input['policy_page'] ?? 0 ) ),
+		'statistics'  => empty( $input['statistics'] ) ? 0 : 1,
+		'marketing'   => empty( $input['marketing'] ) ? 0 : 1,
+		'revision'    => max( 1, (int) ( $input['revision'] ?? 1 ) ),
+	);
+}
+
+/** Instellingenpagina onder Instellingen. */
+function threeducation_cookies_admin_menu() {
+	add_options_page(
+		__( 'Cookies', '3ducation' ),
+		__( 'Cookies', '3ducation' ),
+		'manage_options',
+		'threeducation-cookies',
+		'threeducation_cookies_render_admin_page'
+	);
+}
+add_action( 'admin_menu', 'threeducation_cookies_admin_menu' );
+
+/** De instellingenpagina. */
+function threeducation_cookies_render_admin_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$s = threeducation_cookies_settings();
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html__( 'Cookies', '3ducation' ); ?></h1>
+		<p><?php echo esc_html__( 'De cookiebanner rechts onderaan de site. Zolang een bezoeker niet toestemt, laadt de site geen statistiek- of marketingscripts (Google Analytics, Jetpack-statistieken, herkomst van bestellingen). Bezoekers kunnen hun keuze altijd aanpassen via “Cookie-instellingen” in de footer.', '3ducation' ); ?></p>
+
+		<p>
+			<strong><?php echo esc_html__( 'Status:', '3ducation' ); ?></strong>
+			<?php if ( $s['active'] ) : ?>
+				<span style="color:#0a7d2c;"><?php echo esc_html__( 'Actief: banner zichtbaar, tracking geblokkeerd tot toestemming.', '3ducation' ); ?></span>
+			<?php else : ?>
+				<span style="color:#b32d2e;"><?php echo esc_html__( 'Uitgeschakeld: geen banner, en tracking-scripts laden meteen. Dat is niet conform de wet.', '3ducation' ); ?></span>
+			<?php endif; ?>
+		</p>
+
+		<form method="post" action="options.php">
+			<?php settings_fields( 'threeducation_cookies' ); ?>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Inschakelen', '3ducation' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" name="threeducation_cookies[enabled]" value="1" <?php checked( $s['enabled'], 1 ); ?> />
+							<?php echo esc_html__( 'Toon de cookiebanner en blokkeer tracking tot toestemming', '3ducation' ); ?>
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdc-title"><?php echo esc_html__( 'Titel', '3ducation' ); ?></label></th>
+					<td><input type="text" id="tdc-title" name="threeducation_cookies[title]" value="<?php echo esc_attr( $s['title'] ); ?>" class="regular-text" /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdc-body"><?php echo esc_html__( 'Tekst', '3ducation' ); ?></label></th>
+					<td>
+						<textarea id="tdc-body" name="threeducation_cookies[body]" rows="6" class="large-text"><?php echo esc_textarea( $s['body'] ); ?></textarea>
+						<p class="description"><?php echo esc_html__( 'Een lege regel begint een nieuwe alinea. Leeg laten zet de standaardtekst terug.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdc-policy"><?php echo esc_html__( 'Pagina met het cookiebeleid', '3ducation' ); ?></label></th>
+					<td>
+						<?php
+						wp_dropdown_pages(
+							array(
+								'name'              => 'threeducation_cookies[policy_page]',
+								'id'                => 'tdc-policy',
+								'selected'          => $s['policy_page'],
+								'show_option_none'  => __( '— Privacyverklaring van WordPress gebruiken —', '3ducation' ),
+								'option_none_value' => 0,
+							)
+						);
+						?>
+						<p class="description"><?php echo esc_html__( 'Maak een pagina “Cookiebeleid” (in de editor: patroon “Cookiebeleid” invoegen en nakijken) en kies ze hier. De banner linkt ernaar.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Categorieën in gebruik', '3ducation' ); ?></th>
+					<td>
+						<fieldset>
+							<label>
+								<input type="checkbox" name="threeducation_cookies[statistics]" value="1" <?php checked( $s['statistics'], 1 ); ?> />
+								<?php echo esc_html__( 'Statistieken (Google Analytics, Jetpack-statistieken, herkomst van bestellingen)', '3ducation' ); ?>
+							</label><br>
+							<label>
+								<input type="checkbox" name="threeducation_cookies[marketing]" value="1" <?php checked( $s['marketing'], 1 ); ?> />
+								<?php echo esc_html__( 'Marketing (advertentiepixels zoals Meta, Google Ads, TikTok)', '3ducation' ); ?>
+							</label>
+						</fieldset>
+						<p class="description"><?php echo esc_html__( 'Toon alleen categorieën die de site echt gebruikt. Scripts van een uitgevinkte categorie blijven sowieso geblokkeerd.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="tdc-revision"><?php echo esc_html__( 'Revisie van de toestemming', '3ducation' ); ?></label></th>
+					<td>
+						<input type="number" id="tdc-revision" name="threeducation_cookies[revision]" value="<?php echo esc_attr( $s['revision'] ); ?>" min="1" step="1" class="small-text" />
+						<p class="description"><?php echo esc_html__( 'Verhoog dit nummer als er nieuwe cookies of een nieuwe dienst bijkomen: alle bezoekers krijgen de banner dan opnieuw. Een gegeven toestemming vervalt sowieso na 6 maanden.', '3ducation' ); ?></p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button(); ?>
+		</form>
+
+		<h2><?php echo esc_html__( 'Wat wordt geblokkeerd?', '3ducation' ); ?></h2>
+		<p><?php echo esc_html__( 'Herkend op de pagina en tegengehouden tot de bezoeker toestemt:', '3ducation' ); ?></p>
+		<ul style="list-style:disc;padding-left:1.4em;">
+			<li><?php echo esc_html__( 'Statistieken: Google Analytics / Google Tag Manager (MonsterInsights), Jetpack Stats, Jetpack WooCommerce Analytics, WooCommerce herkomst van bestellingen (sourcebuster).', '3ducation' ); ?></li>
+			<li><?php echo esc_html__( 'Marketing: Meta-pixel, Google Ads, Hotjar, Microsoft Clarity, TikTok, LinkedIn, Pinterest.', '3ducation' ); ?></li>
+		</ul>
+		<p class="description"><?php echo esc_html__( 'Komt er een andere tool bij, laat het dan weten: de herkenningslijst staat in het thema (filter threeducation_cookies_blocklist).', '3ducation' ); ?></p>
 	</div>
 	<?php
 }

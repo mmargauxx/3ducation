@@ -593,6 +593,274 @@ a:focus-visible {
 }
 
 /* ------------------------------------------------------------------ *
+ * Cookiebanner: niet-modale <dialog> rechts onderaan (Instellingen -> Cookies)
+ *
+ * Zelfde kaarttaal als de pop-up (witte surface, cube-rand bovenaan),
+ * maar vast in de rechterbenedenhoek zodat hij naast de pop-up-pil
+ * (links onderaan) past. Niet-modaal: de site blijft bedienbaar, er is
+ * geen backdrop. "Alles aanvaarden" en "Alles weigeren" zijn even groot
+ * en staan op dezelfde laag: weigeren mag niet moeilijker zijn dan
+ * aanvaarden. Op smalle schermen wordt de kaart een bottom sheet.
+ * ------------------------------------------------------------------ */
+.cookie-consent {
+	position: fixed;
+	inset: auto 1rem 1rem auto;
+	z-index: 95;
+	width: min(100% - 2rem, 26rem);
+	max-height: calc(100dvh - 2rem);
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 18px;
+	background: transparent;
+	color: var(--wp--preset--color--ink);
+	overflow: visible;
+}
+.cookie-consent:not([open]) {
+	display: none;
+}
+.cookie-consent[open] {
+	animation: popup-rise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cookie-consent__card {
+	position: relative;
+	max-height: calc(100dvh - 2rem);
+	overflow: auto;
+	padding: var(--wp--preset--spacing--45) var(--wp--preset--spacing--45) var(--wp--preset--spacing--40);
+	border-radius: 18px;
+	background:
+		var(--wp--preset--gradient--cube, linear-gradient(90deg, #e6186c 0%, #f2562f 26%, #f7941e 50%, #2fb58f 72%, #14b1bb 88%, #0fb1bf 100%)) top / 100% 3px no-repeat,
+		var(--wp--preset--color--surface);
+	box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--wp--preset--color--border);
+}
+.cookie-consent__layer[hidden] {
+	display: none;
+}
+.cookie-consent__title {
+	margin: 0 0 var(--wp--preset--spacing--30);
+	padding-right: 2rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 700;
+	line-height: 1.15;
+	letter-spacing: -0.01em;
+	outline: none;
+}
+.cookie-consent__body {
+	color: var(--wp--preset--color--ink-soft);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.55;
+}
+.cookie-consent__body p {
+	margin: 0 0 0.75em;
+}
+.cookie-consent__body p:last-child {
+	margin-bottom: 0;
+}
+.cookie-consent__body a,
+.cookie-consent__foot a {
+	color: var(--wp--preset--color--ink);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+.cookie-consent__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6rem;
+	margin-top: var(--wp--preset--spacing--40);
+}
+/* Twee klassen zodat we de 48px-touch-target-regel verderop en de
+ * global-styles knop verslaan; 44px blijft een prima tikdoel. */
+.cookie-consent__actions .cookie-consent__btn {
+	display: inline-flex;
+	flex: 1 1 auto;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-height: 44px;
+	padding: 0.55em 1.2em;
+	border: 2px solid transparent;
+	border-radius: 8px;
+	background: var(--wp--preset--color--magenta);
+	color: var(--wp--preset--color--surface);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--medium);
+	font-weight: 500;
+	line-height: 1.2;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.cookie-consent__actions .cookie-consent__btn:hover,
+.cookie-consent__actions .cookie-consent__btn:focus-visible {
+	background: var(--wp--preset--color--magenta-dark);
+	color: var(--wp--preset--color--surface);
+	transform: translateY(-1px);
+}
+.cookie-consent__actions .cookie-consent__btn--reject {
+	background: var(--wp--preset--color--ink);
+}
+.cookie-consent__actions .cookie-consent__btn--reject:hover,
+.cookie-consent__actions .cookie-consent__btn--reject:focus-visible {
+	background: var(--wp--preset--color--surface-dark);
+}
+.cookie-consent__actions .cookie-consent__btn--ghost {
+	border-color: var(--wp--preset--color--border);
+	background: transparent;
+	color: var(--wp--preset--color--ink);
+}
+.cookie-consent__actions .cookie-consent__btn--ghost:hover,
+.cookie-consent__actions .cookie-consent__btn--ghost:focus-visible {
+	border-color: var(--wp--preset--color--ink);
+	background: var(--wp--preset--color--base-soft);
+	color: var(--wp--preset--color--ink);
+}
+.cookie-consent__link {
+	flex: 1 0 100%;
+	padding: 0.4em 0;
+	border: 0;
+	background: none;
+	color: var(--wp--preset--color--ink-soft);
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+.cookie-consent__link:hover,
+.cookie-consent__link:focus-visible {
+	color: var(--wp--preset--color--magenta);
+}
+/* Instellingenlaag: één rij per categorie met een schakelaar. */
+.cookie-consent__cats {
+	margin: var(--wp--preset--spacing--30) 0 0;
+	padding: 0;
+	list-style: none;
+}
+.cookie-consent__cat + .cookie-consent__cat {
+	border-top: 1px solid var(--wp--preset--color--border);
+}
+.cookie-consent__cat-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.8rem 0;
+	cursor: pointer;
+}
+.cookie-consent__cat-text {
+	display: block;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.45;
+}
+.cookie-consent__cat-text strong {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 600;
+	color: var(--wp--preset--color--ink);
+}
+.cookie-consent__cat-text em {
+	margin-left: 0.4em;
+	font-style: normal;
+	font-size: 0.85em;
+	color: var(--wp--preset--color--muted);
+}
+.cookie-consent__cat-text small {
+	display: block;
+	margin-top: 0.2em;
+	font-size: 0.92em;
+	color: var(--wp--preset--color--ink-soft);
+}
+.cookie-consent__switch {
+	flex: 0 0 auto;
+	appearance: none;
+	-webkit-appearance: none;
+	width: 2.75rem;
+	height: 1.6rem;
+	margin: 0.1rem 0 0;
+	border: 0;
+	border-radius: 999px;
+	background: var(--wp--preset--color--muted);
+	cursor: pointer;
+	position: relative;
+	transition: background 0.15s ease;
+}
+.cookie-consent__switch::after {
+	content: "";
+	position: absolute;
+	top: 0.2rem;
+	left: 0.2rem;
+	width: 1.2rem;
+	height: 1.2rem;
+	border-radius: 50%;
+	background: var(--wp--preset--color--surface);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	transition: transform 0.15s ease;
+}
+.cookie-consent__switch:checked {
+	background: var(--wp--preset--color--magenta);
+}
+.cookie-consent__switch:checked::after {
+	transform: translateX(1.15rem);
+}
+.cookie-consent__switch:disabled {
+	background: var(--wp--preset--color--cyan);
+	cursor: default;
+	opacity: 0.8;
+}
+.cookie-consent__switch:focus-visible {
+	outline: 2px solid var(--wp--preset--color--ink);
+	outline-offset: 2px;
+}
+.cookie-consent__foot {
+	margin: var(--wp--preset--spacing--30) 0 0;
+	font-size: var(--wp--preset--font-size--small);
+	color: var(--wp--preset--color--ink-soft);
+}
+.cookie-consent__close {
+	position: absolute;
+	top: 0.9rem;
+	right: 0.9rem;
+	display: grid;
+	place-items: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--wp--preset--color--muted);
+	cursor: pointer;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+.cookie-consent__close[hidden] {
+	display: none;
+}
+.cookie-consent__close:hover,
+.cookie-consent__close:focus-visible {
+	background: var(--wp--preset--color--base-soft);
+	color: var(--wp--preset--color--ink);
+}
+@media (max-width: 600px) {
+	.cookie-consent {
+		inset: auto 0.75rem 0.75rem 0.75rem;
+		width: auto;
+		max-height: calc(100dvh - 1.5rem);
+	}
+	.cookie-consent__card {
+		max-height: calc(100dvh - 1.5rem);
+		padding: var(--wp--preset--spacing--40);
+	}
+	.cookie-consent__actions .cookie-consent__btn {
+		flex-basis: 100%;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.cookie-consent[open] { animation: none; }
+}
+
+/* ------------------------------------------------------------------ *
  * Product banners: flagship hero + category chips
  *
  * The storefront leads with big, image-led product banners that reuse

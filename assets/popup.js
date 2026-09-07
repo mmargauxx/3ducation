@@ -79,6 +79,18 @@
 		return;
 	}
 
-	// Let the page paint first so the pop-up doesn't fight the hero for attention.
-	window.setTimeout( open, 700 );
+	// Let the page paint first so the pop-up doesn't fight the hero for
+	// attention. And let the cookie banner go first: while it is open, wait
+	// for the visitor's choice before showing a second dialog.
+	function openAfterCookies() {
+		var cookies = document.getElementById( 'cookie-consent' );
+		if ( cookies && cookies.open ) {
+			cookies.addEventListener( 'close', function () {
+				window.setTimeout( open, 400 );
+			}, { once: true } );
+			return;
+		}
+		open();
+	}
+	window.setTimeout( openAfterCookies, 700 );
 }() );
