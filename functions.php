@@ -592,10 +592,15 @@ function threeducation_cookies_settings() {
 	$o['active']      = (bool) $o['enabled'];
 	$o['id']          = substr( md5( 'v1|' . $o['revision'] . '|' . $o['statistics'] . '|' . $o['marketing'] ), 0, 8 );
 
+	// Een eigen cookiebeleid-pagina, of anders de privacyverklaring van
+	// WordPress. 'policy_dedicated' zegt welke van de twee het is: de footer
+	// toont de link "Cookiebeleid" alleen naast de privacyverklaring als het
+	// echt een andere pagina is.
 	$policy_url = '';
 	if ( $o['policy_page'] > 0 && 'publish' === get_post_status( $o['policy_page'] ) ) {
 		$policy_url = get_permalink( $o['policy_page'] );
 	}
+	$o['policy_dedicated'] = '' !== $policy_url && (int) get_option( 'wp_page_for_privacy_policy' ) !== $o['policy_page'];
 	if ( '' === $policy_url ) {
 		$policy_url = (string) get_privacy_policy_url();
 	}
@@ -817,6 +822,7 @@ function threeducation_render_cookie_banner() {
 	$cats     = threeducation_cookies_categories();
 	$optional = array_keys( array_filter( $cats, static function ( $c ) { return empty( $c['locked'] ); } ) );
 	$title    = '' !== trim( (string) $s['title'] ) ? $s['title'] : __( 'Cookies', '3ducation' );
+	$policy   = $s['policy_dedicated'] ? __( 'Lees ons cookiebeleid', '3ducation' ) : __( 'Lees onze privacyverklaring', '3ducation' );
 	?>
 	<dialog id="cookie-consent" class="cookie-consent" data-consent-id="<?php echo esc_attr( $s['id'] ); ?>" data-consent-cats="<?php echo esc_attr( implode( ',', $optional ) ); ?>" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-body">
 		<div class="cookie-consent__card">
@@ -825,7 +831,7 @@ function threeducation_render_cookie_banner() {
 				<div id="cookie-consent-body" class="cookie-consent__body">
 					<?php echo threeducation_popup_paragraphs( $s['body'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per line inside. ?>
 					<?php if ( '' !== $s['policy_url'] ) : ?>
-						<p><a href="<?php echo esc_url( $s['policy_url'] ); ?>"><?php echo esc_html__( 'Lees ons cookiebeleid', '3ducation' ); ?></a></p>
+						<p><a href="<?php echo esc_url( $s['policy_url'] ); ?>"><?php echo esc_html( $policy ); ?></a></p>
 					<?php endif; ?>
 				</div>
 				<div class="cookie-consent__actions">
@@ -861,7 +867,7 @@ function threeducation_render_cookie_banner() {
 					<button type="button" class="cookie-consent__btn cookie-consent__btn--ghost" data-consent-action="reject"><?php echo esc_html__( 'Alles weigeren', '3ducation' ); ?></button>
 				</div>
 				<?php if ( '' !== $s['policy_url'] ) : ?>
-					<p class="cookie-consent__foot"><a href="<?php echo esc_url( $s['policy_url'] ); ?>"><?php echo esc_html__( 'Lees ons cookiebeleid', '3ducation' ); ?></a></p>
+					<p class="cookie-consent__foot"><a href="<?php echo esc_url( $s['policy_url'] ); ?>"><?php echo esc_html( $policy ); ?></a></p>
 				<?php endif; ?>
 			</div>
 			<button type="button" class="cookie-consent__close" data-consent-action="close" hidden aria-label="<?php echo esc_attr__( 'Sluiten zonder wijzigen', '3ducation' ); ?>">
