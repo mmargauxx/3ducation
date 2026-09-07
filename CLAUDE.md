@@ -90,4 +90,6 @@ Live site runs on **EasyHost Managed WordPress**. Full procedure in `GO-LIVE.md`
 git archive --format=zip --prefix=3ducation/ -o 3ducation-<versie>.zip HEAD
 ```
 
+**Asset URLs carry the version in the path**, not only in `?ver=`: `threeducation_asset_url( 'custom.css' )` → `/assets/v0.18.33/custom.css`, which `assets/.htaccess` rewrites to `assets/custom.css`. EasyHost's nginx cache keys static files on path only (query string ignored, 30-day TTL, separate entries per `Accept-Encoding`), so a CSS/JS change without a version bump never reaches browsers — and a plain `curl` (no gzip) will still show you the fresh file while Chrome gets the stale one. **Always bump the version, and verify live with `-H 'Accept-Encoding: gzip, br' --compressed`.**
+
 `--prefix=3ducation/` is mandatory — without it WordPress creates a second theme folder named after the zip and Site Editor customisations detach. Upload via Appearance → Themes (replace) or SFTP into `wp-content/themes/3ducation/`. The version bump is the cache flush; no WP-CLI needed on the host. The mu-plugin is uploaded separately to `wp-content/mu-plugins/`. Content, WooCommerce settings and plugins do not travel with the theme — never copy the local wp-env database to the server.
