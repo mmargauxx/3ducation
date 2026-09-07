@@ -1887,6 +1887,13 @@ body:has(.cookie-consent[open]) .site-popup-pill {
 }
 /* A phone number must never break across digits. */
 .site-footer a[href^="tel:"] { white-space: nowrap; }
+/* Zodra de pop-up-pil (links onderaan, vast) zichtbaar is, krijgt de footer
+ * onderaan extra ruimte: pil (±2.5rem) + marge (1rem) + adem. Zo staat de pil
+ * nooit over de copyright- en beleidslinks. !important wint van de inline
+ * padding van het groepsblok. */
+body:has(.site-popup-pill:not([hidden])) .site-footer {
+	padding-bottom: calc(var(--wp--preset--spacing--50) + 4.5rem) !important;
+}
 /* Tablet band (782–900px): core columns only stack below 782px, so the 4-up
  * footer stays side-by-side here and squeezes the narrow Contact column —
  * wrapping the address and phone number mid-token. Wrap the columns two-up into
