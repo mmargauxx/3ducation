@@ -1,0 +1,6 @@
+# Versiepad voor thema-assets (zie functions.php, threeducation_asset_url()).
+# De nginx-cache van EasyHost negeert de querystring (?ver=) en bewaart
+# statische bestanden 30 dagen, dus een nieuwe versie moet een nieuw PAD
+# hebben: /assets/v0.18.33/custom.css wordt hier /assets/custom.css.
+RewriteEngine On
+RewriteRule ^v[0-9.]+/(.+)$ $1 [L]

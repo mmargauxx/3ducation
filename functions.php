@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.32' );
+	define( 'THREEDUCATION_VERSION', '0.18.33' );
 }
 
 /**
@@ -54,10 +54,20 @@ add_action( 'after_setup_theme', 'threeducation_woocommerce_setup' );
  * theme.json drives the design system; custom.css holds only the
  * supplementary rules that theme.json can't express.
  */
+/**
+ * URL van een bestand in assets/, met de themaversie in het PAD:
+ * /assets/v0.18.33/custom.css (assets/.htaccess herschrijft dat naar
+ * assets/custom.css). De hostingcache van EasyHost negeert de querystring
+ * en bewaart statische bestanden 30 dagen; alleen een nieuw pad omzeilt hem.
+ */
+function threeducation_asset_url( $file ) {
+	return get_template_directory_uri() . '/assets/v' . THREEDUCATION_VERSION . '/' . ltrim( $file, '/' );
+}
+
 function threducation_enqueue_assets() {
 	wp_enqueue_style(
 		'threeducation-custom',
-		get_template_directory_uri() . '/assets/custom.css',
+		threeducation_asset_url( 'custom.css' ),
 		array(),
 		THREEDUCATION_VERSION
 	);
@@ -67,7 +77,7 @@ function threducation_enqueue_assets() {
 	if ( ! empty( $notice['active'] ) ) {
 		wp_enqueue_script(
 			'threeducation-notice',
-			get_template_directory_uri() . '/assets/notice.js',
+			threeducation_asset_url( 'notice.js' ),
 			array(),
 			THREEDUCATION_VERSION,
 			true
@@ -79,7 +89,7 @@ function threducation_enqueue_assets() {
 	if ( ! empty( $popup['active'] ) ) {
 		wp_enqueue_script(
 			'threeducation-popup',
-			get_template_directory_uri() . '/assets/popup.js',
+			threeducation_asset_url( 'popup.js' ),
 			array(),
 			THREEDUCATION_VERSION,
 			true
@@ -91,7 +101,7 @@ function threducation_enqueue_assets() {
 	if ( ! empty( $cookies['active'] ) ) {
 		wp_enqueue_script(
 			'threeducation-cookies',
-			get_template_directory_uri() . '/assets/cookies.js',
+			threeducation_asset_url( 'cookies.js' ),
 			array(),
 			THREEDUCATION_VERSION,
 			true
@@ -3416,7 +3426,7 @@ function threeducation_calcom_button_attrs( $event ) {
 
 	wp_enqueue_script(
 		'threeducation-cal-embed',
-		get_theme_file_uri( 'assets/cal-embed.js' ),
+		threeducation_asset_url( 'cal-embed.js' ),
 		array(),
 		THREEDUCATION_VERSION,
 		true

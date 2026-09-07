@@ -842,7 +842,12 @@ a:focus-visible {
 	background: var(--wp--preset--color--base-soft);
 	color: var(--wp--preset--color--ink);
 }
-@media (max-width: 600px) {
+/* Zolang de banner open staat, verdwijnt de pop-up-pil (links onderaan):
+ * op tablets zouden ze elkaar anders raken en de knoppen afdekken. */
+body:has(.cookie-consent[open]) .site-popup-pill {
+	display: none;
+}
+@media (max-width: 782px) {
 	.cookie-consent {
 		inset: auto 0.75rem 0.75rem 0.75rem;
 		width: auto;
