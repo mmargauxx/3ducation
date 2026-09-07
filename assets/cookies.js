@@ -338,6 +338,20 @@
 			}
 			return !! granted[ cat ];
 		};
+		// Google Analytics for WooCommerce controleert naast wp_has_consent()
+		// ook de cookie-helper van de WP Consent API. Ontbreekt die, dan
+		// crasht zijn script en verstuurt het geen enkel e-commerce-event.
+		// Zolang er geen keuze is, geeft de helper '' terug (= geen cookie),
+		// daarna 'allow'/'deny' zoals de echte API.
+		window.consent_api = window.consent_api || { cookie_prefix: 'wp_consent' };
+		window.consent_api_get_cookie = function ( name ) {
+			var prefix = window.consent_api.cookie_prefix + '_';
+			var cat = String( name ).indexOf( prefix ) === 0 ? String( name ).slice( prefix.length ) : String( name );
+			if ( ! hasChoice ) {
+				return '';
+			}
+			return window.wp_has_consent( cat ) ? 'allow' : 'deny';
+		};
 	}
 
 	/* ---- start ----------------------------------------------------- */
