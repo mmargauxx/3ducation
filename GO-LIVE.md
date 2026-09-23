@@ -56,13 +56,11 @@ op de bestelling; zonder klant-e-mail gaat hij naar het beheerdersadres. Tik in 
 `mu-plugins/3ducation-cadeaubon-vervaldatum.php` hoort eveneens in **`wp-content/mu-plugins/`**.
 De gratis PW Gift Cards kan geen vervaldatum zetten (niet bij aankoop, niet in het beheer);
 dit bestand geeft elke nieuwe bon — webshop, kassa én beheer — een vervaldatum van 2 jaar na
-aankoop en zet "Geldig tot <datum>." in de bonmail. Eenmalig na de upload: surf als beheerder
-naar `?3du_verval_bonnen=test` en daarna `?3du_verval_bonnen=doen`: elke actieve, niet-vervallen
-bon van de nieuwe shop krijgt aanmaakdatum + 2 jaar. Gemigreerde bonnen slaat het over — die
-doet het eenmalige `3ducation-vervaldatum-migratie.php` (Drive, `OK-Gift Cards`, niet in de
-repo omdat er boncodes in staan) met `?3du_verval_migratie=test|doen`: aankoopdatum uit de oude
-export + 2 jaar; de drie bonnen uit 2023/2024 zonder datum blijven staan en worden gemeld.
-Beide herhaalbaar. Live sinds 2026-09-04.
+aankoop en zet "Geldig tot <datum>." in de bonmail. Live sinds 2026-09-04. De bestaande bonnen
+zijn op 2026-09-04 eenmalig bijgewerkt (aanmaakdatum + 2 jaar; gemigreerde bonnen via het
+Drive-script `3ducation-vervaldatum-migratie.php`); die eenmalige routine
+`?3du_verval_bonnen=test|doen` is in 1.1.0 uit de mu-plugin gehaald (geen nonce, toonde alle
+bonnummers).
 
 ### Ook uploaden: onderhoudsmodus (vijfde mu-plugin)
 `mu-plugins/3ducation-onderhoudsmodus.php` hoort eveneens in **`wp-content/mu-plugins/`**.

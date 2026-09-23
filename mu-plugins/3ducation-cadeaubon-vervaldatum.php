@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: 3DUCATION cadeaubon vervaldatum
- * Description: Geeft elke nieuw aangemaakte PW-cadeaubon (webshop, kassa én beheer) een vervaldatum van 2 jaar na aankoop, zet "Geldig tot …" in de bonmail, en kan eenmalig de bestaande bonnen van de nieuwe shop op aanmaakdatum + 2 jaar zetten (?3du_verval_bonnen=test, dan =doen).
- * Version: 1.0.0
+ * Description: Geeft elke nieuw aangemaakte PW-cadeaubon (webshop, kassa én beheer) een vervaldatum van 2 jaar na aankoop en zet "Geldig tot …" in de bonmail.
+ * Version: 1.1.0
  * Author: 3DUCATION
  *
  * Waarom: de gratis versie van PW WooCommerce Gift Cards kan geen vervaldatum
@@ -20,14 +20,10 @@
  *  2. In de bonmail aan de klant voegen we "Geldig tot <datum>." toe onder het
  *     persoonlijke bericht — het standaardsjabloon toont de vervaldatum nergens,
  *     en de klant hoort te weten tot wanneer de bon geldig is.
- *  3. Eenmalig bijwerken van de bestaande bonnen van de nieuwe shop: surf als
- *     beheerder naar ?3du_verval_bonnen=test (toont wat er zou gebeuren) en
- *     daarna ?3du_verval_bonnen=doen. Regel (afgesproken 2026-09-04): elke
- *     actieve, nog niet vervallen bon krijgt aanmaakdatum + 2 jaar. Bonnen die
- *     uit de oude webshop gemigreerd zijn, worden hier overgeslagen: hun echte
- *     aankoopdatum zit alleen in de oude export, en die verwerkt een apart
- *     eenmalig script (3ducation-vervaldatum-migratie.php, buiten de repo).
- *     Veilig om te herhalen: er verandert alleen iets als de datum afwijkt.
+ *
+ * Het eenmalige bijwerken van de bestaande bonnen (?3du_verval_bonnen=test|doen)
+ * is afgerond en in 1.1.0 verwijderd: het draaide zonder nonce en toonde alle
+ * bonnummers. Gemigreerde bonnen liepen via een apart script buiten de repo.
  *
  * Installeren: dit bestand naar wp-content/mu-plugins/ uploaden. Geen
  * activatiestap. Zonder PW Gift Cards doet het bestand niets.
@@ -92,78 +88,4 @@ add_filter( 'pwgc_customer_email_item_data', function ( $data ) {
 	);
 	$data->message = empty( $data->message ) ? $regel : rtrim( $data->message ) . "\n\n" . $regel;
 	return $data;
-} );
-
-/*
- * 3. Eenmalig bijwerken van de bestaande bonnen van de nieuwe shop.
- */
-add_action( 'admin_init', function () {
-	if ( empty( $_GET['3du_verval_bonnen'] ) || ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-	$echt = ( 'doen' === $_GET['3du_verval_bonnen'] );
-
-	if ( ! class_exists( 'PW_Gift_Card' ) ) {
-		wp_die( 'PW WooCommerce Gift Cards is niet actief.' );
-	}
-
-	global $wpdb;
-	$vandaag = current_time( 'Y-m-d' );
-
-	$rijen = $wpdb->get_results( $wpdb->prepare(
-		"SELECT c.pimwick_gift_card_id AS id, c.number, c.expiration_date,
-		        CONVERT_TZ( c.create_date, @@session.time_zone, '+00:00' ) AS create_date_gmt,
-		        ( SELECT a.note FROM {$wpdb->pimwick_gift_card_activity} a
-		          WHERE a.pimwick_gift_card_id = c.pimwick_gift_card_id AND a.action = %s
-		          ORDER BY a.pimwick_gift_card_activity_id ASC LIMIT 1 ) AS aanmaak_notitie
-		 FROM {$wpdb->pimwick_gift_card} c
-		 WHERE c.active = 1
-		 ORDER BY c.create_date ASC",
-		'create'
-	) );
-
-	$gedaan = $ongewijzigd = $overgeslagen = $mislukt = 0;
-	echo '<pre style="padding:20px;font:13px/1.6 monospace">';
-	echo $echt ? "VERVALDATUM ZETTEN\n\n" : "TESTLOOP - er wordt niets gewijzigd\n\n";
-	echo sprintf( "Regel: actieve, niet-vervallen bon -> aanmaakdatum %s. Gemigreerde bonnen: apart script.\nActieve bonnen: %d\n\n", THREEDUCATION_BON_GELDIGHEID, count( $rijen ) );
-
-	foreach ( $rijen as $rij ) {
-		$huidig     = $rij->expiration_date ?: null;
-		// Aanmaakdatum in de tijdzone van de site, zoals de haak hierboven ook rekent.
-		$aangemaakt = get_date_from_gmt( $rij->create_date_gmt, 'Y-m-d' );
-		$migratie   = is_string( $rij->aanmaak_notitie ) && 0 === strpos( $rij->aanmaak_notitie, THREEDUCATION_BON_MIGRATIE_PREFIX );
-
-		if ( $migratie ) {
-			$overgeslagen++;
-			continue;
-		}
-		if ( null !== $huidig && $huidig < $vandaag ) {
-			echo sprintf( "overgeslagen  %s  al vervallen op %s\n", $rij->number, $huidig );
-			$overgeslagen++;
-			continue;
-		}
-
-		$nieuw = threeducation_bon_vervaldatum( strtotime( $aangemaakt ) );
-		if ( $nieuw === $huidig ) {
-			$ongewijzigd++;
-			continue;
-		}
-
-		if ( ! $echt ) {
-			echo sprintf( "zou zetten    %s  %s  ->  geldig tot %s  (aangemaakt %s)\n", $rij->number, $huidig ?: '(geen)    ', $nieuw, $aangemaakt );
-			$gedaan++;
-			continue;
-		}
-		if ( threeducation_bon_zet_vervaldatum( $rij->id, $nieuw ) ) {
-			echo sprintf( "gezet         %s  %s  ->  geldig tot %s  (aangemaakt %s)\n", $rij->number, $huidig ?: '(geen)    ', $nieuw, $aangemaakt );
-			$gedaan++;
-		} else {
-			echo sprintf( "MISLUKT       %s: %s\n", $rij->number, $wpdb->last_error );
-			$mislukt++;
-		}
-	}
-
-	echo sprintf( "\n%d %s, %d al in orde, %d overgeslagen (gemigreerd of al vervallen), %d mislukt\n", $gedaan, $echt ? 'gezet' : 'te zetten', $ongewijzigd, $overgeslagen, $mislukt );
-	echo '</pre>';
-	exit;
 } );
