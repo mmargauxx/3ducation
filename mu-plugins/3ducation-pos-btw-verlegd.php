@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION btw verlegd aan de kassa
  * Description: Rekent een kassaverkoop zonder btw af voor een klant die als "btw verlegd" is aangeduid en een niet-Belgisch EU-btw-nummer heeft (intracommunautaire levering).
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: 3DUCATION
  *
  * Vraag van Patrick (2026-09-18): Nederlandse zakelijke klanten in de winkel
@@ -229,7 +229,7 @@ function threeducation_verlegd_record( $order, $request, $creating ) {
 		$order->add_order_note(
 			sprintf(
 				/* translators: %s: btw-nummer van de klant */
-				esc_html__( 'Btw verlegd toegepast (kassaverkoop, vrijstelling ingesteld op de klant). Btw-nummer: %s', '3ducation' ),
+				esc_html__( 'Btw verlegd toegepast (kassaverkoop, vrijstelling ingesteld op de klant). BTW-Nummer: %s', '3ducation' ),
 				$vat
 			)
 		);
@@ -265,12 +265,12 @@ function threeducation_verlegd_user_field( $user ) {
 					<?php esc_html_e( 'Kassaverkopen aan deze klant zonder btw afrekenen', '3ducation' ); ?>
 				</label>
 				<p class="description">
-					<?php esc_html_e( 'Alleen aanvinken bij een intracommunautaire levering: de goederen gaan aantoonbaar naar een andere EU-lidstaat en het btw-nummer is gecontroleerd. Zonder niet-Belgisch EU-btw-nummer doet dit vinkje niets.', '3ducation' ); ?>
+					<?php esc_html_e( 'Alleen aanvinken bij een intracommunautaire levering: de goederen gaan aantoonbaar naar een andere EU-lidstaat en het BTW-Nummer is gecontroleerd. Zonder niet-Belgisch EU-BTW-Nummer doet dit vinkje niets.', '3ducation' ); ?>
 					<br />
 					<?php
 					printf(
 						/* translators: %s: btw-nummer van de klant, of een streepje */
-						esc_html__( 'Btw-nummer van deze klant: %s', '3ducation' ),
+						esc_html__( 'BTW-Nummer van deze klant: %s', '3ducation' ),
 						'<code>' . esc_html( '' !== $vat ? $vat : '—' ) . '</code>'
 					);
 					?>

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.37' );
+	define( 'THREEDUCATION_VERSION', '0.18.38' );
 }
 
 /**
@@ -2766,7 +2766,7 @@ add_filter( 'render_block', 'threeducation_indent_cat_filter', 10, 2 );
  *   nooit opnieuw een tweede veld ontstaat.
  *
  * Het oude veld:
- * - klanten zet je eenmalig over via Gereedschap → BTW-nummers, alleen waar het
+ * - klanten zet je eenmalig over via Gereedschap → BTW-Nummers, alleen waar het
  *   pluginveld leeg is; een verschil wordt getoond en niet overschreven, en de
  *   oude waarde blijft staan als terugvalpunt;
  * - bestellingen worden bewust niet omgezet: elke opgeslagen bestelling vuurt de
@@ -2824,7 +2824,7 @@ function threeducation_admin_billing_vat_field( $fields, $order = false, $contex
 	$key   = threeducation_vat_field_key();
 	$field = isset( $fields[ $key ] ) && is_array( $fields[ $key ] )
 		? $fields[ $key ]
-		: array( 'label' => __( 'BTW-nummer', '3ducation' ) );
+		: array( 'label' => __( 'BTW-Nummer', '3ducation' ) );
 	unset( $fields[ $key ] );
 
 	$field['update_callback'] = 'threeducation_save_order_vat';
@@ -2832,7 +2832,7 @@ function threeducation_admin_billing_vat_field( $fields, $order = false, $contex
 
 	if ( $order instanceof WC_Order && '' !== (string) $order->get_meta( '_' . THREEDUCATION_VAT_META_LEGACY ) ) {
 		$insert['vat'] = array(
-			'label'           => __( 'BTW-nummer (oud veld)', '3ducation' ),
+			'label'           => __( 'BTW-Nummer (oud veld)', '3ducation' ),
 			'update_callback' => 'threeducation_save_order_vat',
 		);
 	}
@@ -2877,7 +2877,7 @@ function threeducation_customer_search_labels( $customers ) {
 		$vat = threeducation_customer_vat( $user_id );
 		if ( $vat ) {
 			/* translators: %1$s: customer label, %2$s: BTW number. */
-			$customers[ $key ] = sprintf( __( '%1$s · BTW %2$s', '3ducation' ), $label, $vat );
+			$customers[ $key ] = sprintf( __( '%1$s · BTW-Nummer %2$s', '3ducation' ), $label, $vat );
 		}
 	}
 	return $customers;
@@ -2924,7 +2924,7 @@ function threeducation_customer_meta_vat_field( $fields ) {
 	$billing = $fields['billing']['fields'];
 	$field   = isset( $billing[ THREEDUCATION_VAT_META ] ) && is_array( $billing[ THREEDUCATION_VAT_META ] )
 		? $billing[ THREEDUCATION_VAT_META ]
-		: array( 'label' => __( 'BTW-nummer', '3ducation' ) );
+		: array( 'label' => __( 'BTW-Nummer', '3ducation' ) );
 	unset( $billing[ THREEDUCATION_VAT_META ] );
 
 	if ( empty( $field['description'] ) ) {
@@ -2955,7 +2955,7 @@ add_action( 'personal_options_update', 'threeducation_normalize_saved_vat', 20 )
 add_action( 'edit_user_profile_update', 'threeducation_normalize_saved_vat', 20 );
 
 /**
- * Overzetten van het oude veld (Gereedschap → BTW-nummers).
+ * Overzetten van het oude veld (Gereedschap → BTW-Nummers).
  *
  * Elke klant met een oud btw-nummer valt in één van drie groepen:
  * - `copy`     — het pluginveld is leeg: de knop zet het oude nummer erin;
@@ -3011,11 +3011,11 @@ function threeducation_vat_migration_status() {
 	return $status;
 }
 
-/** Register Gereedschap → BTW-nummers. */
+/** Register Gereedschap → BTW-Nummers. */
 function threeducation_vat_migration_menu() {
 	add_management_page(
-		__( 'BTW-nummers', '3ducation' ),
-		__( 'BTW-nummers', '3ducation' ),
+		__( 'BTW-Nummers', '3ducation' ),
+		__( 'BTW-Nummers', '3ducation' ),
 		'manage_woocommerce',
 		'threeducation-btw-nummers',
 		'threeducation_vat_migration_page'
@@ -3023,7 +3023,7 @@ function threeducation_vat_migration_menu() {
 }
 add_action( 'admin_menu', 'threeducation_vat_migration_menu' );
 
-/** Render Gereedschap → BTW-nummers. */
+/** Render Gereedschap → BTW-Nummers. */
 function threeducation_vat_migration_page() {
 	if ( ! current_user_can( 'manage_woocommerce' ) ) {
 		return;
@@ -3032,14 +3032,14 @@ function threeducation_vat_migration_page() {
 	$copied = isset( $_GET['gekopieerd'] ) ? absint( $_GET['gekopieerd'] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'BTW-nummers', '3ducation' ); ?></h1>
-		<p><?php esc_html_e( 'Het btw-nummer van een klant staat in één veld: dat van de EU VAT-plugin. Dat veld leest OnFact, de kassa schrijft erin en de webshop vult het bij het afrekenen. Het oude veld van het thema wordt niet meer gebruikt; hier zet je de oude nummers over.', '3ducation' ); ?></p>
+		<h1><?php esc_html_e( 'BTW-Nummers', '3ducation' ); ?></h1>
+		<p><?php esc_html_e( 'Het BTW-Nummer van een klant staat in één veld: dat van de EU VAT-plugin. Dat veld leest OnFact, de kassa schrijft erin en de webshop vult het bij het afrekenen. Het oude veld van het thema wordt niet meer gebruikt; hier zet je de oude nummers over.', '3ducation' ); ?></p>
 
 		<?php if ( null !== $copied ) : ?>
 			<div class="notice notice-success"><p>
 				<?php
 				/* translators: %d: number of customers */
-				echo esc_html( sprintf( _n( '%d btw-nummer overgezet.', '%d btw-nummers overgezet.', $copied, '3ducation' ), $copied ) );
+				echo esc_html( sprintf( _n( '%d BTW-Nummer overgezet.', '%d BTW-Nummers overgezet.', $copied, '3ducation' ), $copied ) );
 				?>
 			</p></div>
 		<?php endif; ?>
@@ -3069,7 +3069,7 @@ function threeducation_vat_migration_page() {
 					<?php
 					submit_button(
 						/* translators: %d: number of customers */
-						sprintf( _n( 'Zet %d btw-nummer over', 'Zet %d btw-nummers over', count( $status['copy'] ), '3ducation' ), count( $status['copy'] ) ),
+						sprintf( _n( 'Zet %d BTW-Nummer over', 'Zet %d BTW-Nummers over', count( $status['copy'] ), '3ducation' ), count( $status['copy'] ) ),
 						'primary',
 						'submit',
 						false
@@ -3085,7 +3085,7 @@ function threeducation_vat_migration_page() {
 		$groups = array(
 			'conflict' => array(
 				__( 'Verschillende nummers', '3ducation' ),
-				__( 'Open het profiel en vul in het veld BTW-nummer het juiste nummer in. Het oude nummer staat hier alleen ter vergelijking.', '3ducation' ),
+				__( 'Open het profiel en vul in het veld BTW-Nummer het juiste nummer in. Het oude nummer staat hier alleen ter vergelijking.', '3ducation' ),
 			),
 			'copy'     => array(
 				__( 'Klaar om over te zetten', '3ducation' ),
@@ -3108,7 +3108,7 @@ function threeducation_vat_migration_page() {
 					<tr>
 						<th><?php esc_html_e( 'Klant', '3ducation' ); ?></th>
 						<th><?php esc_html_e( 'E-mailadres', '3ducation' ); ?></th>
-						<th><?php esc_html_e( 'BTW-nummer (huidig)', '3ducation' ); ?></th>
+						<th><?php esc_html_e( 'BTW-Nummer (huidig)', '3ducation' ); ?></th>
 						<th><?php esc_html_e( 'Oud veld', '3ducation' ); ?></th>
 					</tr>
 				</thead>
