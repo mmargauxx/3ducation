@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.38' );
+	define( 'THREEDUCATION_VERSION', '0.18.39' );
 }
 
 /**
@@ -3030,6 +3030,7 @@ function threeducation_vat_migration_page() {
 	}
 	$status = threeducation_vat_migration_status();
 	$copied = isset( $_GET['gekopieerd'] ) ? absint( $_GET['gekopieerd'] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$wiped  = isset( $_GET['gewist'] ) ? get_userdata( absint( $_GET['gewist'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'BTW-Nummers', '3ducation' ); ?></h1>
@@ -3040,6 +3041,15 @@ function threeducation_vat_migration_page() {
 				<?php
 				/* translators: %d: number of customers */
 				echo esc_html( sprintf( _n( '%d BTW-Nummer overgezet.', '%d BTW-Nummers overgezet.', $copied, '3ducation' ), $copied ) );
+				?>
+			</p></div>
+		<?php endif; ?>
+
+		<?php if ( $wiped ) : ?>
+			<div class="notice notice-success"><p>
+				<?php
+				/* translators: %s: customer name */
+				echo esc_html( sprintf( __( 'Oud nummer van %s gewist.', '3ducation' ), $wiped->display_name ) );
 				?>
 			</p></div>
 		<?php endif; ?>
@@ -3110,6 +3120,7 @@ function threeducation_vat_migration_page() {
 						<th><?php esc_html_e( 'E-mailadres', '3ducation' ); ?></th>
 						<th><?php esc_html_e( 'BTW-Nummer (huidig)', '3ducation' ); ?></th>
 						<th><?php esc_html_e( 'Oud veld', '3ducation' ); ?></th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -3120,6 +3131,14 @@ function threeducation_vat_migration_page() {
 							<td><?php echo esc_html( $user ? $user->user_email : '' ); ?></td>
 							<td><?php echo '' !== $entry['current'] ? '<code>' . esc_html( $entry['current'] ) . '</code>' : '—'; ?></td>
 							<td><code><?php echo esc_html( $entry['legacy'] ); ?></code></td>
+							<td>
+								<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Het oude nummer van deze klant wissen? Het nieuwe veld blijft zoals het is.', '3ducation' ) ) ); ?>);">
+									<input type="hidden" name="action" value="threeducation_vat_clear_legacy" />
+									<input type="hidden" name="user_id" value="<?php echo esc_attr( $entry['user_id'] ); ?>" />
+									<?php wp_nonce_field( 'threeducation_vat_clear_legacy_' . $entry['user_id'] ); ?>
+									<button type="submit" class="button button-small"><?php esc_html_e( 'Oud nummer wissen', '3ducation' ); ?></button>
+								</form>
+							</td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
@@ -3150,6 +3169,25 @@ function threeducation_vat_migrate() {
 	exit;
 }
 add_action( 'admin_post_threeducation_vat_migrate', 'threeducation_vat_migrate' );
+
+/**
+ * Handle "Oud nummer wissen": delete one customer's old `billing_vat`, for a
+ * number that must not be copied over (bijvoorbeeld het winkelnummer op de
+ * eigen beheeraccount). Raakt het nieuwe veld en bestellingen niet.
+ */
+function threeducation_vat_clear_legacy() {
+	$user_id = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- checked below.
+	if ( ! $user_id || ! current_user_can( 'manage_woocommerce' ) || ! current_user_can( 'edit_user', $user_id ) ) {
+		wp_die( esc_html__( 'Je hebt geen toegang tot deze pagina.', '3ducation' ), 403 );
+	}
+	check_admin_referer( 'threeducation_vat_clear_legacy_' . $user_id );
+
+	delete_user_meta( $user_id, THREEDUCATION_VAT_META_LEGACY );
+
+	wp_safe_redirect( add_query_arg( 'gewist', $user_id, admin_url( 'tools.php?page=threeducation-btw-nummers' ) ) );
+	exit;
+}
+add_action( 'admin_post_threeducation_vat_clear_legacy', 'threeducation_vat_clear_legacy' );
 
 /*
  * De 301-redirects voor de oude Duda-webshop-URLs stonden hier, maar zijn
