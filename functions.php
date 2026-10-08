@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.40' );
+	define( 'THREEDUCATION_VERSION', '0.18.41' );
 }
 
 /**
@@ -3647,6 +3647,9 @@ function threeducation_calcom_render_admin_page() {
  * popup — de knop blijft dan een gewone link:
  * - een pad van één segment: dat is een Events-pagina (`cal.com/<slug>`, de
  *   nieuwe vaste-datum ticketpagina's);
+ * - een pad met een `events`-segment (`cal.com/<user>/events`): het overzicht
+ *   van alle vaste-datum events, geen event type — de popup toont daar
+ *   "Error Code: 404. Cal Link seems to be wrong.";
  * - een link naar een andere host, want de klant kan in wp-admin elke URL
  *   invullen en die hoeft geen Cal.com te zijn (mailto: en de eigen webshop
  *   vallen hier vanzelf ook af).
@@ -3665,6 +3668,9 @@ function threeducation_calcom_popup_path_for_url( $url ) {
 
 	$path = trim( (string) wp_parse_url( $url, PHP_URL_PATH ), '/' );
 	if ( '' === $path || false === strpos( $path, '/' ) ) {
+		return '';
+	}
+	if ( in_array( 'events', array_map( 'strtolower', explode( '/', $path ) ), true ) ) {
 		return '';
 	}
 
