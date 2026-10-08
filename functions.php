@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.36' );
+	define( 'THREEDUCATION_VERSION', '0.18.37' );
 }
 
 /**
@@ -3080,29 +3080,51 @@ function threeducation_vat_migration_page() {
 			</form>
 		<?php endif; ?>
 
-		<?php if ( $status['conflict'] ) : ?>
-			<h2><?php esc_html_e( 'Verschillende nummers', '3ducation' ); ?></h2>
-			<p><?php esc_html_e( 'Open het profiel en vul in het veld BTW-nummer het juiste nummer in. Het oude nummer staat hier alleen ter vergelijking.', '3ducation' ); ?></p>
+		<?php
+		// Per groep wie het is, zodat je vóór de klik ziet welke klanten de knop raakt.
+		$groups = array(
+			'conflict' => array(
+				__( 'Verschillende nummers', '3ducation' ),
+				__( 'Open het profiel en vul in het veld BTW-nummer het juiste nummer in. Het oude nummer staat hier alleen ter vergelijking.', '3ducation' ),
+			),
+			'copy'     => array(
+				__( 'Klaar om over te zetten', '3ducation' ),
+				__( 'Deze klanten krijgen het nummer uit het oude veld in het nieuwe veld. Alleen hun profiel verandert, geen bestelling.', '3ducation' ),
+			),
+			'same'     => array(
+				__( 'Al gelijk', '3ducation' ),
+				__( 'Niets te doen.', '3ducation' ),
+			),
+		);
+		foreach ( $groups as $group => $texts ) :
+			if ( ! $status[ $group ] ) {
+				continue;
+			}
+			?>
+			<h2><?php echo esc_html( $texts[0] ); ?></h2>
+			<p><?php echo esc_html( $texts[1] ); ?></p>
 			<table class="widefat striped">
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Klant', '3ducation' ); ?></th>
+						<th><?php esc_html_e( 'E-mailadres', '3ducation' ); ?></th>
 						<th><?php esc_html_e( 'BTW-nummer (huidig)', '3ducation' ); ?></th>
 						<th><?php esc_html_e( 'Oud veld', '3ducation' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach ( $status['conflict'] as $entry ) : ?>
+					<?php foreach ( $status[ $group ] as $entry ) : ?>
 						<?php $user = get_userdata( $entry['user_id'] ); ?>
 						<tr>
 							<td><a href="<?php echo esc_url( get_edit_user_link( $entry['user_id'] ) ); ?>"><?php echo esc_html( $user ? $user->display_name : '#' . $entry['user_id'] ); ?></a></td>
-							<td><code><?php echo esc_html( $entry['current'] ); ?></code></td>
+							<td><?php echo esc_html( $user ? $user->user_email : '' ); ?></td>
+							<td><?php echo '' !== $entry['current'] ? '<code>' . esc_html( $entry['current'] ) . '</code>' : '—'; ?></td>
 							<td><code><?php echo esc_html( $entry['legacy'] ); ?></code></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-		<?php endif; ?>
+		<?php endforeach; ?>
 	</div>
 	<?php
 }
