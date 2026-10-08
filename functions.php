@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.39' );
+	define( 'THREEDUCATION_VERSION', '0.18.40' );
 }
 
 /**
@@ -3748,6 +3748,42 @@ function threeducation_booking_button_attrs( $event ) {
 	}
 	return $attrs . threeducation_calcom_button_attrs( $event );
 }
+
+/* -------------------------------------------------------------------------
+ * Paginacache legen na het bewaren van een instellingenscherm
+ *
+ * Live draait WP Super Cache: bezoekers krijgen een bewaarde HTML-kopie. Die
+ * plugin leegt zijn cache bij het bewaren van een bericht, niet bij het
+ * wijzigen van een optie — dus na een nieuwe boekingslink, footertekst,
+ * melding, … bleef de oude versie staan tot de kopie verliep. Elke optie hier
+ * komt in de HTML van (bijna) elke pagina terecht, dus we legen alles.
+ * ---------------------------------------------------------------------- */
+
+/** De opties van de instellingenschermen van het thema. */
+function threeducation_page_cache_options() {
+	return array(
+		'threeducation_notice',
+		'threeducation_popup',
+		'threeducation_cookies',
+		'threeducation_spotlights',
+		'threeducation_trust_badges',
+		'threeducation_calcom_urls',
+		'threeducation_footer',
+	);
+}
+
+/** Leeg de paginacache (WP Super Cache) als die plugin actief is. */
+function threeducation_clear_page_cache() {
+	if ( function_exists( 'wp_cache_clear_cache' ) ) {
+		wp_cache_clear_cache();
+	}
+}
+
+foreach ( threeducation_page_cache_options() as $threeducation_option ) {
+	add_action( 'add_option_' . $threeducation_option, 'threeducation_clear_page_cache' );
+	add_action( 'update_option_' . $threeducation_option, 'threeducation_clear_page_cache' );
+}
+unset( $threeducation_option );
 
 /* -------------------------------------------------------------------------
  * Footer-gegevens (Instellingen -> Footer)
