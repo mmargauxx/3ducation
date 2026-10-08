@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION btw verlegd aan de kassa
  * Description: Rekent een kassaverkoop zonder btw af voor een klant die als "btw verlegd" is aangeduid en een niet-Belgisch EU-btw-nummer heeft (intracommunautaire levering).
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: 3DUCATION
  *
  * Vraag van Patrick (2026-09-18): Nederlandse zakelijke klanten in de winkel
@@ -47,14 +47,19 @@
  *
  * WAT DIT BESTAND OP DE BESTELLING SCHRIJFT (voor de boekhouding, niet voor de
  * berekening):
- *  - `_billing_vat` als dat leeg was, zodat het nummer op de kassabon en de
- *    factuur staat (WCPOS leest die sleutel zelf al uit);
+ *  - `_billing_eu_vat_number` als dat leeg was, zodat het nummer op de
+ *    kassabon en de factuur staat (OnFact en WCPOS lezen die sleutel);
  *  - `is_vat_exempt = yes`, zodat de vrijstelling ook zichtbaar is buiten deze
  *    filter en bij een latere herberekening overeind blijft;
  *  - één bestelnota met het gebruikte nummer.
  *
- * AFHANKELIJKHEDEN (zie memory mu-plugins-update-checks): het thema-veld
- * `billing_vat` / `_billing_vat` en de WooCommerce-filter
+ * BTW-NUMMER. Sinds 1.1.0 is het btw-veld dat van de EU VAT-plugin
+ * (`billing_eu_vat_number` / `_billing_eu_vat_number`), net als in het thema
+ * vanaf v0.18.36. Het oude themaveld (`billing_vat` / `_billing_vat`) blijft
+ * terugval voor klanten en bestellingen van vóór de overzetting.
+ *
+ * AFHANKELIJKHEDEN (zie memory mu-plugins-update-checks): het btw-veld
+ * hierboven en de WooCommerce-filter
  * `woocommerce_order_is_vat_exempt`. Voor "is dit een kassabestelling?"
  * gebruiken we `wcpos_is_pos_order()`, met de verouderde alias
  * `woocommerce_pos_is_pos_order()` en daarna een eigen controle op
@@ -123,21 +128,33 @@ function threeducation_verlegd_normalize_vat( $vat ) {
 /**
  * Het btw-nummer van de bestelling, met de klant als terugval.
  *
- * De kassa schrijft zelf geen btw-nummer op de bestelling, dus bij een nieuwe
- * kassaverkoop staat het alleen nog bij de klant.
+ * Eerst het pluginveld, dan het oude themaveld; eerst de bestelling, dan de
+ * klant. De kassa zet het nummer meestal zelf op de bestelling (WCPOS
+ * Tax_Id_Writer), maar niet altijd.
  */
 function threeducation_verlegd_vat_number( $order ) {
-	$vat = threeducation_verlegd_normalize_vat( $order->get_meta( '_billing_vat' ) );
-
-	if ( '' === $vat ) {
-		$customer_id = $order->get_customer_id();
-
-		if ( $customer_id ) {
-			$vat = threeducation_verlegd_normalize_vat( get_user_meta( $customer_id, 'billing_vat', true ) );
+	foreach ( array( '_billing_eu_vat_number', '_billing_vat' ) as $key ) {
+		$vat = threeducation_verlegd_normalize_vat( $order->get_meta( $key ) );
+		if ( '' !== $vat ) {
+			return $vat;
 		}
 	}
 
-	return $vat;
+	$customer_id = $order->get_customer_id();
+
+	return $customer_id ? threeducation_verlegd_customer_vat( $customer_id ) : '';
+}
+
+/** Het btw-nummer van een klant: pluginveld, dan het oude themaveld. */
+function threeducation_verlegd_customer_vat( $user_id ) {
+	foreach ( array( 'billing_eu_vat_number', 'billing_vat' ) as $key ) {
+		$vat = threeducation_verlegd_normalize_vat( get_user_meta( $user_id, $key, true ) );
+		if ( '' !== $vat ) {
+			return $vat;
+		}
+	}
+
+	return '';
 }
 
 /** Geldt verlegging voor deze bestelling? */
@@ -197,8 +214,8 @@ function threeducation_verlegd_record( $order, $request, $creating ) {
 	$vat     = threeducation_verlegd_vat_number( $order );
 	$changed = false;
 
-	if ( '' !== $vat && threeducation_verlegd_normalize_vat( $order->get_meta( '_billing_vat' ) ) !== $vat ) {
-		$order->update_meta_data( '_billing_vat', $vat );
+	if ( '' !== $vat && threeducation_verlegd_normalize_vat( $order->get_meta( '_billing_eu_vat_number' ) ) !== $vat ) {
+		$order->update_meta_data( '_billing_eu_vat_number', $vat );
 		$changed = true;
 	}
 
@@ -234,7 +251,7 @@ function threeducation_verlegd_user_field( $user ) {
 	}
 
 	$checked = 'yes' === get_user_meta( $user->ID, THREEDUCATION_VERLEGD_META, true );
-	$vat     = threeducation_verlegd_normalize_vat( get_user_meta( $user->ID, 'billing_vat', true ) );
+	$vat     = threeducation_verlegd_customer_vat( $user->ID );
 	?>
 	<h2><?php esc_html_e( 'Btw-verlegging (kassa)', '3ducation' ); ?></h2>
 	<table class="form-table" role="presentation">

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.35' );
+	define( 'THREEDUCATION_VERSION', '0.18.36' );
 }
 
 /**
@@ -2745,30 +2745,59 @@ function threeducation_indent_cat_filter( $content, $block ) {
 add_filter( 'render_block', 'threeducation_indent_cat_filter', 10, 2 );
 
 /**
- * BTW-nummer (VAT) on customers and orders.
+ * BTW-nummer (VAT) op klanten en bestellingen — één veld.
  *
- * The shop's B2B customers each have a BTW number, stored as user meta
- * `billing_vat`. WooCommerce ships no VAT field of its own, so this section
- * wires that one key into the places the shop needs it:
+ * Het enige btw-veld is dat van de EU VAT-plugin (map eu-vat-for-woocommerce):
+ * user meta `billing_eu_vat_number`, order meta `_billing_eu_vat_number`. Dat is
+ * het veld dat de webshop-checkout vult (met VIES-controle), waar WCPOS zijn
+ * btw-nummers naartoe schrijft en dat OnFact op de factuur zet.
  *
- * - the order screen's Facturering column, both the read-only view and the
- *   edit form (WooCommerce stores it as order meta `_billing_vat`, a key it
- *   derives from the 'vat' field key below — so the two stay in step);
- * - "Factuuradres laden", which now pulls the BTW off the customer along with
- *   the address, so a new order for a B2B customer is complete in one click;
- * - the Klant: lookup, whose labels show the BTW and whose search matches it;
- * - the user profile, so it can be corrected in wp-admin.
+ * Tot v0.18.35 had het thema een eigen veld daarnaast (`billing_vat` /
+ * `_billing_vat`). Twee velden gaven twee waarheden per klant: op 07-10-2026
+ * zette de kassa het btw-nummer van de winkel in het pluginveld, ons veld bleef
+ * leeg, en de facturen gingen naar de eigen Peppol-inbox.
  *
- * Values are normalised (uppercase, no spaces or dots) on every write, matching
- * how the customer import stored them: BE 0772.923.417 -> BE0772923417.
+ * De plugin zet zelf het veld op het orderscherm, op het profiel en in
+ * "Factuuradres laden". Dit thema vult aan wat de plugin niet doet:
+ * - het veld staat direct onder Bedrijfsnaam (de plugin hangt het achteraan);
+ * - normalisatie bij opslaan in wp-admin: BE 0772.923.417 -> BE0772923417;
+ * - de Klant:-zoeker toont en vindt het btw-nummer;
+ * - zonder de plugin blijft hetzelfde veld bestaan (zelfde sleutels), zodat er
+ *   nooit opnieuw een tweede veld ontstaat.
+ *
+ * Het oude veld:
+ * - klanten zet je eenmalig over via Gereedschap → BTW-nummers, alleen waar het
+ *   pluginveld leeg is; een verschil wordt getoond en niet overschreven, en de
+ *   oude waarde blijft staan als terugvalpunt;
+ * - bestellingen worden bewust niet omgezet: elke opgeslagen bestelling vuurt de
+ *   OnFact-webhook af. Een oude bestelling houdt haar `_billing_vat` (een factuur
+ *   houdt het nummer waarmee hij is uitgeschreven) en toont het als
+ *   "BTW-nummer (oud veld)" zolang het gevuld is.
  */
 if ( ! defined( 'THREEDUCATION_VAT_META' ) ) {
-	define( 'THREEDUCATION_VAT_META', 'billing_vat' );
+	define( 'THREEDUCATION_VAT_META', 'billing_eu_vat_number' );
+}
+if ( ! defined( 'THREEDUCATION_VAT_META_LEGACY' ) ) {
+	define( 'THREEDUCATION_VAT_META_LEGACY', 'billing_vat' );
+}
+
+/** De veldsleutel zonder `billing_`, zoals WooCommerce' adresvelden hem gebruiken: `eu_vat_number`. */
+function threeducation_vat_field_key() {
+	return substr( THREEDUCATION_VAT_META, strlen( 'billing_' ) );
 }
 
 /** Normalise a BTW number: uppercase, strip spaces, dots and dashes. */
 function threeducation_normalize_vat( $vat ) {
 	return strtoupper( preg_replace( '/[^0-9A-Za-z]/', '', (string) $vat ) );
+}
+
+/** Het btw-nummer van een klant: het pluginveld, met het oude themaveld als terugval zolang de klant niet is overgezet. */
+function threeducation_customer_vat( $user_id ) {
+	$vat = (string) get_user_meta( $user_id, THREEDUCATION_VAT_META, true );
+	if ( '' === $vat ) {
+		$vat = (string) get_user_meta( $user_id, THREEDUCATION_VAT_META_LEGACY, true );
+	}
+	return $vat;
 }
 
 /** Insert $insert into $fields directly after $after_key (append if absent). */
@@ -2783,31 +2812,34 @@ function threeducation_insert_after_key( array $fields, $after_key, array $inser
 }
 
 /**
- * Add BTW-nummer to the order screen's billing column, right after Bedrijfsnaam.
+ * Het btw-veld in de kolom Facturering van het orderscherm, direct onder
+ * Bedrijfsnaam.
  *
- * The field falls back to the customer's own BTW number when the order doesn't
- * carry one yet, so an order for a known B2B customer shows it straight away
- * instead of only after "Factuuradres laden". Once the order is saved the value
- * is stored on the order, and that stored value wins from then on — an invoice
- * keeps the number it was issued with, even if the customer's changes later.
+ * We nemen het veld van de plugin over (label, validatie-instellingen) en
+ * hangen er alleen de normalisatie aan. Het veld toont wat er op de bestelling
+ * staat, zonder terugval op het klantprofiel: wat je hier ziet is wat OnFact
+ * krijgt. Voor een nieuwe bestelling vult "Factuuradres laden" het nummer in.
  */
 function threeducation_admin_billing_vat_field( $fields, $order = false, $context = 'edit' ) {
-	$vat = array(
-		'label'           => __( 'BTW-nummer', '3ducation' ),
-		'update_callback' => 'threeducation_save_order_vat',
-	);
+	$key   = threeducation_vat_field_key();
+	$field = isset( $fields[ $key ] ) && is_array( $fields[ $key ] )
+		? $fields[ $key ]
+		: array( 'label' => __( 'BTW-nummer', '3ducation' ) );
+	unset( $fields[ $key ] );
 
-	if ( $order instanceof WC_Order ) {
-		$value = (string) $order->get_meta( '_billing_vat' );
-		if ( '' === $value && $order->get_customer_id() ) {
-			$value = (string) get_user_meta( $order->get_customer_id(), THREEDUCATION_VAT_META, true );
-		}
-		$vat['value'] = $value;
+	$field['update_callback'] = 'threeducation_save_order_vat';
+	$insert                   = array( $key => $field );
+
+	if ( $order instanceof WC_Order && '' !== (string) $order->get_meta( '_' . THREEDUCATION_VAT_META_LEGACY ) ) {
+		$insert['vat'] = array(
+			'label'           => __( 'BTW-nummer (oud veld)', '3ducation' ),
+			'update_callback' => 'threeducation_save_order_vat',
+		);
 	}
 
-	return threeducation_insert_after_key( $fields, 'company', array( 'vat' => $vat ) );
+	return threeducation_insert_after_key( $fields, 'company', $insert );
 }
-add_filter( 'woocommerce_admin_billing_fields', 'threeducation_admin_billing_vat_field', 10, 3 );
+add_filter( 'woocommerce_admin_billing_fields', 'threeducation_admin_billing_vat_field', PHP_INT_MAX, 3 );
 
 /**
  * Store the order's BTW number normalised. Core saves the order itself right
@@ -2817,14 +2849,14 @@ function threeducation_save_order_vat( $field_id, $value, $order ) {
 	$order->update_meta_data( $field_id, threeducation_normalize_vat( $value ) );
 }
 
-/** Send the customer's BTW along with "Factuuradres laden" (fills #_billing_vat). */
+/** Send the customer's BTW along with "Factuuradres laden" (fills #_billing_eu_vat_number). */
 function threeducation_ajax_customer_vat( $data, $customer, $user_id ) {
 	if ( isset( $data['billing'] ) && is_array( $data['billing'] ) ) {
-		$data['billing']['vat'] = get_user_meta( $user_id, THREEDUCATION_VAT_META, true );
+		$data['billing'][ threeducation_vat_field_key() ] = threeducation_customer_vat( $user_id );
 	}
 	return $data;
 }
-add_filter( 'woocommerce_ajax_get_customer_details', 'threeducation_ajax_customer_vat', 10, 3 );
+add_filter( 'woocommerce_ajax_get_customer_details', 'threeducation_ajax_customer_vat', PHP_INT_MAX, 3 );
 
 /**
  * Show the BTW number in the Klant: lookup labels.
@@ -2842,7 +2874,7 @@ function threeducation_customer_search_labels( $customers ) {
 		if ( ! $user_id ) {
 			continue;
 		}
-		$vat = get_user_meta( $user_id, THREEDUCATION_VAT_META, true );
+		$vat = threeducation_customer_vat( $user_id );
 		if ( $vat ) {
 			/* translators: %1$s: customer label, %2$s: BTW number. */
 			$customers[ $key ] = sprintf( __( '%1$s · BTW %2$s', '3ducation' ), $label, $vat );
@@ -2854,8 +2886,10 @@ add_filter( 'woocommerce_json_search_found_customers', 'threeducation_customer_s
 
 /**
  * Let the Klant: lookup find customers by BTW number. WooCommerce runs a second
- * user query for meta matches, which is the one we extend; typing 0772923417 or
- * BE0772923417 both hit, since stored values are normalised.
+ * user query for meta matches, which is the one we extend. Both fields are
+ * searched (the old one until every customer is moved over), with the
+ * normalised term and with the term as typed, because a number entered at the
+ * checkout is stored as the customer wrote it.
  */
 function threeducation_customer_search_by_vat( $query, $term, $limit, $context ) {
 	if ( 'meta_query' !== $context || empty( $query['meta_query'] ) ) {
@@ -2865,33 +2899,46 @@ function threeducation_customer_search_by_vat( $query, $term, $limit, $context )
 	if ( strlen( $vat ) < 3 ) {
 		return $query;
 	}
-	$query['meta_query'][] = array(
-		'key'     => THREEDUCATION_VAT_META,
-		'value'   => $vat,
-		'compare' => 'LIKE',
-	);
+	foreach ( array_unique( array( $vat, trim( (string) $term ) ) ) as $value ) {
+		foreach ( array( THREEDUCATION_VAT_META, THREEDUCATION_VAT_META_LEGACY ) as $meta_key ) {
+			$query['meta_query'][] = array(
+				'key'     => $meta_key,
+				'value'   => $value,
+				'compare' => 'LIKE',
+			);
+		}
+	}
 	return $query;
 }
 add_filter( 'woocommerce_customer_search_customers', 'threeducation_customer_search_by_vat', 10, 4 );
 
-/** Add BTW-nummer to the customer's billing fields on the user profile screen. */
+/**
+ * Het btw-veld op het profielscherm, direct onder Bedrijfsnaam. De plugin
+ * voegt het veld zelf toe (met een link "Validate VAT ID"); wij verplaatsen het
+ * alleen, of maken het aan als de plugin er niet is.
+ */
 function threeducation_customer_meta_vat_field( $fields ) {
 	if ( ! isset( $fields['billing']['fields'] ) || ! is_array( $fields['billing']['fields'] ) ) {
 		return $fields;
 	}
+	$billing = $fields['billing']['fields'];
+	$field   = isset( $billing[ THREEDUCATION_VAT_META ] ) && is_array( $billing[ THREEDUCATION_VAT_META ] )
+		? $billing[ THREEDUCATION_VAT_META ]
+		: array( 'label' => __( 'BTW-nummer', '3ducation' ) );
+	unset( $billing[ THREEDUCATION_VAT_META ] );
+
+	if ( empty( $field['description'] ) ) {
+		$field['description'] = __( 'Bijvoorbeeld BE0772923417. Verschijnt op de bestelling, de factuur en in de klantenzoeker.', '3ducation' );
+	}
+
 	$fields['billing']['fields'] = threeducation_insert_after_key(
-		$fields['billing']['fields'],
+		$billing,
 		'billing_company',
-		array(
-			THREEDUCATION_VAT_META => array(
-				'label'       => __( 'BTW-nummer', '3ducation' ),
-				'description' => __( 'Bijvoorbeeld BE0772923417. Verschijnt op de bestelling en in de klantenzoeker.', '3ducation' ),
-			),
-		)
+		array( THREEDUCATION_VAT_META => $field )
 	);
 	return $fields;
 }
-add_filter( 'woocommerce_customer_meta_fields', 'threeducation_customer_meta_vat_field' );
+add_filter( 'woocommerce_customer_meta_fields', 'threeducation_customer_meta_vat_field', 20 );
 
 /** Normalise the BTW number saved from the user profile (runs after WooCommerce). */
 function threeducation_normalize_saved_vat( $user_id ) {
@@ -2906,6 +2953,181 @@ function threeducation_normalize_saved_vat( $user_id ) {
 }
 add_action( 'personal_options_update', 'threeducation_normalize_saved_vat', 20 );
 add_action( 'edit_user_profile_update', 'threeducation_normalize_saved_vat', 20 );
+
+/**
+ * Overzetten van het oude veld (Gereedschap → BTW-nummers).
+ *
+ * Elke klant met een oud btw-nummer valt in één van drie groepen:
+ * - `copy`     — het pluginveld is leeg: de knop zet het oude nummer erin;
+ * - `same`     — beide velden hebben hetzelfde nummer: niets te doen;
+ * - `conflict` — beide velden zijn gevuld en verschillen: iemand kiest op het
+ *                profiel, de knop raakt ze niet aan.
+ * De oude waarde wordt nooit gewist. Klantmeta raakt geen bestelling, dus dit
+ * stuurt niets naar OnFact.
+ *
+ * @return array{copy:array,same:array,conflict:array} Per groep een lijst van
+ *         array( 'user_id' => int, 'legacy' => string, 'current' => string ).
+ */
+function threeducation_vat_migration_status() {
+	global $wpdb;
+
+	$rows = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT o.user_id, o.meta_value AS legacy, n.meta_value AS current
+			FROM {$wpdb->usermeta} o
+			LEFT JOIN {$wpdb->usermeta} n ON n.user_id = o.user_id AND n.meta_key = %s
+			WHERE o.meta_key = %s AND o.meta_value <> ''
+			ORDER BY o.user_id",
+			THREEDUCATION_VAT_META,
+			THREEDUCATION_VAT_META_LEGACY
+		),
+		ARRAY_A
+	);
+
+	$status = array(
+		'copy'     => array(),
+		'same'     => array(),
+		'conflict' => array(),
+	);
+	foreach ( (array) $rows as $row ) {
+		$legacy  = threeducation_normalize_vat( $row['legacy'] );
+		$current = (string) $row['current'];
+		if ( '' === $legacy ) {
+			continue;
+		}
+		$entry = array(
+			'user_id' => (int) $row['user_id'],
+			'legacy'  => $legacy,
+			'current' => $current,
+		);
+		if ( '' === trim( $current ) ) {
+			$status['copy'][ $entry['user_id'] ] = $entry;
+		} elseif ( threeducation_normalize_vat( $current ) === $legacy ) {
+			$status['same'][ $entry['user_id'] ] = $entry;
+		} else {
+			$status['conflict'][ $entry['user_id'] ] = $entry;
+		}
+	}
+	return $status;
+}
+
+/** Register Gereedschap → BTW-nummers. */
+function threeducation_vat_migration_menu() {
+	add_management_page(
+		__( 'BTW-nummers', '3ducation' ),
+		__( 'BTW-nummers', '3ducation' ),
+		'manage_woocommerce',
+		'threeducation-btw-nummers',
+		'threeducation_vat_migration_page'
+	);
+}
+add_action( 'admin_menu', 'threeducation_vat_migration_menu' );
+
+/** Render Gereedschap → BTW-nummers. */
+function threeducation_vat_migration_page() {
+	if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		return;
+	}
+	$status = threeducation_vat_migration_status();
+	$copied = isset( $_GET['gekopieerd'] ) ? absint( $_GET['gekopieerd'] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	?>
+	<div class="wrap">
+		<h1><?php esc_html_e( 'BTW-nummers', '3ducation' ); ?></h1>
+		<p><?php esc_html_e( 'Het btw-nummer van een klant staat in één veld: dat van de EU VAT-plugin. Dat veld leest OnFact, de kassa schrijft erin en de webshop vult het bij het afrekenen. Het oude veld van het thema wordt niet meer gebruikt; hier zet je de oude nummers over.', '3ducation' ); ?></p>
+
+		<?php if ( null !== $copied ) : ?>
+			<div class="notice notice-success"><p>
+				<?php
+				/* translators: %d: number of customers */
+				echo esc_html( sprintf( _n( '%d btw-nummer overgezet.', '%d btw-nummers overgezet.', $copied, '3ducation' ), $copied ) );
+				?>
+			</p></div>
+		<?php endif; ?>
+
+		<table class="widefat striped" style="max-width:40rem">
+			<tbody>
+				<tr>
+					<td><?php esc_html_e( 'Klaar om over te zetten (nieuw veld leeg)', '3ducation' ); ?></td>
+					<td><strong><?php echo esc_html( number_format_i18n( count( $status['copy'] ) ) ); ?></strong></td>
+				</tr>
+				<tr>
+					<td><?php esc_html_e( 'Al gelijk in beide velden', '3ducation' ); ?></td>
+					<td><strong><?php echo esc_html( number_format_i18n( count( $status['same'] ) ) ); ?></strong></td>
+				</tr>
+				<tr>
+					<td><?php esc_html_e( 'Verschillend — kies zelf op het profiel', '3ducation' ); ?></td>
+					<td><strong><?php echo esc_html( number_format_i18n( count( $status['conflict'] ) ) ); ?></strong></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<?php if ( $status['copy'] ) : ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="threeducation_vat_migrate" />
+				<?php wp_nonce_field( 'threeducation_vat_migrate' ); ?>
+				<p>
+					<?php
+					submit_button(
+						/* translators: %d: number of customers */
+						sprintf( _n( 'Zet %d btw-nummer over', 'Zet %d btw-nummers over', count( $status['copy'] ), '3ducation' ), count( $status['copy'] ) ),
+						'primary',
+						'submit',
+						false
+					);
+					?>
+				</p>
+				<p class="description"><?php esc_html_e( 'Alleen klanten met een leeg nieuw veld. Het oude veld blijft bewaard. Bestellingen worden niet aangeraakt, dus OnFact krijgt niets door.', '3ducation' ); ?></p>
+			</form>
+		<?php endif; ?>
+
+		<?php if ( $status['conflict'] ) : ?>
+			<h2><?php esc_html_e( 'Verschillende nummers', '3ducation' ); ?></h2>
+			<p><?php esc_html_e( 'Open het profiel en vul in het veld BTW-nummer het juiste nummer in. Het oude nummer staat hier alleen ter vergelijking.', '3ducation' ); ?></p>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Klant', '3ducation' ); ?></th>
+						<th><?php esc_html_e( 'BTW-nummer (huidig)', '3ducation' ); ?></th>
+						<th><?php esc_html_e( 'Oud veld', '3ducation' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $status['conflict'] as $entry ) : ?>
+						<?php $user = get_userdata( $entry['user_id'] ); ?>
+						<tr>
+							<td><a href="<?php echo esc_url( get_edit_user_link( $entry['user_id'] ) ); ?>"><?php echo esc_html( $user ? $user->display_name : '#' . $entry['user_id'] ); ?></a></td>
+							<td><code><?php echo esc_html( $entry['current'] ); ?></code></td>
+							<td><code><?php echo esc_html( $entry['legacy'] ); ?></code></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		<?php endif; ?>
+	</div>
+	<?php
+}
+
+/** Handle the "Zet … over" button: copy the old number where the new field is still empty. */
+function threeducation_vat_migrate() {
+	if ( ! current_user_can( 'manage_woocommerce' ) ) {
+		wp_die( esc_html__( 'Je hebt geen toegang tot deze pagina.', '3ducation' ), 403 );
+	}
+	check_admin_referer( 'threeducation_vat_migrate' );
+
+	$copied = 0;
+	foreach ( threeducation_vat_migration_status()['copy'] as $entry ) {
+		// Opnieuw kijken: tussen het laden van de pagina en de klik kan iemand het veld al gevuld hebben.
+		if ( '' !== trim( (string) get_user_meta( $entry['user_id'], THREEDUCATION_VAT_META, true ) ) ) {
+			continue;
+		}
+		update_user_meta( $entry['user_id'], THREEDUCATION_VAT_META, $entry['legacy'] );
+		++$copied;
+	}
+
+	wp_safe_redirect( add_query_arg( 'gekopieerd', $copied, admin_url( 'tools.php?page=threeducation-btw-nummers' ) ) );
+	exit;
+}
+add_action( 'admin_post_threeducation_vat_migrate', 'threeducation_vat_migrate' );
 
 /*
  * De 301-redirects voor de oude Duda-webshop-URLs stonden hier, maar zijn
