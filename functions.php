@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.41' );
+	define( 'THREEDUCATION_VERSION', '0.18.42' );
 }
 
 /**
@@ -2490,6 +2490,58 @@ function threeducation_intake_notice() {
 		esc_html( $msg )
 	);
 }
+
+/**
+ * Bewaarde kopie van een formulier weer werkend maken.
+ *
+ * Wie een sjabloon met een intakeformulier bewaart in de editor, bevriest de
+ * HTML van dat moment in de database: de nonce van die beheerder (ongeldig
+ * voor bezoekers, verloopt na een dag), een _redirect naar wp-admin en geen
+ * resultaatmelding. Elke inzending gaf dan "Er ging iets mis" en er vertrok
+ * geen mail (service-pagina, 16-10-2026). Daarom krijgt elk gerenderd blok
+ * met een intakeformulier hier verse verborgen velden en een verse melding.
+ * Idempotent: geneste blokken passeren hier meermaals, met hetzelfde resultaat.
+ *
+ * @param string $block_content Gerenderde HTML van het blok.
+ * @return string
+ */
+function threeducation_intake_refresh_form( $block_content ) {
+	if ( false === strpos( $block_content, 'name="_intake_nonce"' ) ) {
+		return $block_content;
+	}
+
+	$uri    = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+	$fields = array(
+		'_intake_nonce'    => '<input type="hidden" id="_intake_nonce" name="_intake_nonce" value="' . esc_attr( wp_create_nonce( 'threeducation_intake' ) ) . '" />',
+		'_redirect'        => '<input type="hidden" name="_redirect" value="' . esc_url( home_url( $uri ) ) . '" />',
+		'_wp_http_referer' => '<input type="hidden" name="_wp_http_referer" value="' . esc_attr( remove_query_arg( '_wp_http_referer', $uri ) ) . '" />',
+	);
+	foreach ( $fields as $name => $input ) {
+		$block_content = preg_replace_callback(
+			'/<input\b[^>]*\bname="' . preg_quote( $name, '/' ) . '"[^>]*>/',
+			static function () use ( $input ) {
+				return $input;
+			},
+			$block_content
+		);
+	}
+
+	// Melding: een bevroren (of ontbrekende) melding vervangen door de huidige.
+	$block_content = preg_replace( '#<p class="intake-form__status[^"]*"[^>]*>.*?</p>#s', '', $block_content );
+	$notice        = threeducation_intake_notice();
+	if ( '' !== $notice ) {
+		$block_content = preg_replace_callback(
+			'/<form\b[^>]*\bclass="intake-form"[^>]*>/',
+			static function ( $m ) use ( $notice ) {
+				return $m[0] . $notice;
+			},
+			$block_content
+		);
+	}
+
+	return $block_content;
+}
+add_filter( 'render_block', 'threeducation_intake_refresh_form' );
 
 /**
  * admin-post handler: validate, e-mail, redirect back to the form.
