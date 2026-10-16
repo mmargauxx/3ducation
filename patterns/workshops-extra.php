@@ -43,7 +43,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
-<p class="wsaud-link has-display-font-family"><a class="stretched" href="mailto:info@3ducation.be?subject=Demo%203D-printen">Vraag een demo →</a></p>
+<p class="wsaud-link has-display-font-family"><a class="stretched" href="#intake">Vraag een demo →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:column -->
@@ -63,7 +63,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"wsaud-link","fontFamily":"display"} -->
-<p class="wsaud-link has-display-font-family"><a class="stretched" href="mailto:info@3ducation.be?subject=Studiedag%203D-printen">Plan een studiedag →</a></p>
+<p class="wsaud-link has-display-font-family"><a class="stretched" href="#intake">Plan een studiedag →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:column --></div>

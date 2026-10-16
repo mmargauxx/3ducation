@@ -85,7 +85,7 @@
 <!-- wp:column {"verticalAlignment":"center"} -->
 <div class="wp-block-column is-vertically-aligned-center"><!-- wp:buttons {"layout":{"type":"flex","justifyContent":"right"}} -->
 <div class="wp-block-buttons"><!-- wp:button -->
-<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="mailto:info@3ducation.be?subject=Offerte%20educatief%20pakket">Offerte aanvragen</a></div>
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/#contact-form">Offerte aanvragen</a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:column --></div>

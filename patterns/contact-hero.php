@@ -22,7 +22,7 @@
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"style":{"color":{"text":"var:preset|color|ink-soft"}},"fontSize":"large"} -->
-<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Een vraag over een product, een workshop of een herstelling? Loop gerust binnen in onze showroom in Nieuwkerken-Waas, bel of mail ons, of laat hieronder een bericht na. We helpen je graag verder.</p>
+<p class="has-text-color has-large-font-size" style="color:var(--wp--preset--color--ink-soft)">Een vraag over een product, een workshop of een herstelling? Loop gerust binnen in onze showroom in Nieuwkerken-Waas, laat hieronder een bericht na of bel ons. We helpen je graag verder.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:spacer {"height":"var:preset|spacing|20"} -->

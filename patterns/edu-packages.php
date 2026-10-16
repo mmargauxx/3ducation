@@ -50,7 +50,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"edu-cta","fontFamily":"display"} -->
-<p class="edu-cta has-display-font-family"><a class="stretched" href="mailto:info@3ducation.be?subject=Offerte%20educatief%20pakket%20Single">Offerte aanvragen →</a></p>
+<p class="edu-cta has-display-font-family"><a class="stretched" href="/contact/#contact-form">Offerte aanvragen →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group -->
@@ -82,7 +82,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"edu-cta","fontFamily":"display"} -->
-<p class="edu-cta has-display-font-family"><a class="stretched" href="mailto:info@3ducation.be?subject=Offerte%20educatief%20pakket%20Double">Offerte aanvragen →</a></p>
+<p class="edu-cta has-display-font-family"><a class="stretched" href="/contact/#contact-form">Offerte aanvragen →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group -->
@@ -114,7 +114,7 @@
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph {"className":"edu-cta","fontFamily":"display"} -->
-<p class="edu-cta has-display-font-family"><a class="stretched" href="mailto:info@3ducation.be?subject=Offerte%20educatief%20pakket%20Multi">Offerte aanvragen →</a></p>
+<p class="edu-cta has-display-font-family"><a class="stretched" href="/contact/#contact-form">Offerte aanvragen →</a></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:group --></div>
 <!-- /wp:group --></div>
