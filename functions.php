@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.43' );
+	define( 'THREEDUCATION_VERSION', '0.18.44' );
 }
 
 /**
@@ -2550,6 +2550,23 @@ function threeducation_handle_intake() {
 	$config = threeducation_intake_config();
 	$type   = isset( $_POST['intake_type'] ) ? sanitize_key( wp_unslash( $_POST['intake_type'] ) ) : '';
 	$back   = isset( $_POST['_redirect'] ) ? wp_validate_redirect( wp_unslash( $_POST['_redirect'] ), home_url( '/' ) ) : home_url( '/' );
+
+	// Nooit terug naar wp-admin of de loginpagina: een in de editor bewaard of
+	// uit de cache geserveerd formulier kan een _redirect naar de editor dragen,
+	// en dan belandt een bezoeker op wp-login (service-pagina, 16-10-2026).
+	// Dan de pagina waar het formulier stond (referer), anders de eigen pagina.
+	$is_admin_url = static function ( $url ) {
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		return false !== strpos( $path, '/wp-admin' ) || false !== strpos( $path, 'wp-login.php' );
+	};
+	if ( $is_admin_url( $back ) ) {
+		$referer = wp_get_raw_referer() ? wp_validate_redirect( wp_get_raw_referer(), '' ) : '';
+		if ( $referer && ! $is_admin_url( $referer ) ) {
+			$back = $referer;
+		} else {
+			$back = isset( $config[ $type ] ) ? home_url( '/' . $type . '/' ) : home_url( '/' );
+		}
+	}
 
 	$redirect = function ( $flag ) use ( $back, $config, $type ) {
 		$anchor = isset( $config[ $type ]['anchor'] ) ? $config[ $type ]['anchor'] : '';
