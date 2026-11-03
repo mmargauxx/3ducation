@@ -24,7 +24,7 @@
 
 <!-- wp:buttons {"fontSize":"small","style":{"spacing":{"margin":{"top":"var:preset|spacing|20"}}}} -->
 <div class="wp-block-buttons has-custom-font-size has-small-font-size" style="margin-top:var(--wp--preset--spacing--20)"><!-- wp:button {"className":"is-style-outline"} -->
-<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Vrasenestraat+40,+9100+Nieuwkerken-Waas" target="_blank" rel="noreferrer noopener">Routebeschrijving</a></div>
+<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="https://www.google.com/maps/dir/?api=1&amp;destination=Vrasenestraat+40,+9100+Sint-Niklaas,+Belgi%C3%AB" target="_blank" rel="noreferrer noopener">Routebeschrijving</a></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
 <!-- /wp:group -->
@@ -59,7 +59,7 @@
 <div class="contact-map">
 	<iframe
 		title="<?php echo esc_attr__( 'Kaart met de locatie van 3DUCATION, Vrasenestraat 40, 9100 Nieuwkerken-Waas', '3ducation' ); ?>"
-		src="https://www.google.com/maps?q=Vrasenestraat+40,+9100+Nieuwkerken-Waas&amp;z=15&amp;output=embed"
+		src="https://www.google.com/maps?q=Vrasenestraat+40,+9100+Sint-Niklaas,+Belgi%C3%AB&amp;z=15&amp;output=embed"
 		width="600" height="450" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
 		style="border:0"></iframe>
 </div>
