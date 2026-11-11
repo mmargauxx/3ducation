@@ -1894,6 +1894,39 @@ body:has(.cookie-consent[open]) .site-popup-pill {
 body:has(.site-popup-pill:not([hidden])) .site-footer {
 	padding-bottom: calc(var(--wp--preset--spacing--50) + 4.5rem) !important;
 }
+/* Betaalmethodes (patterns/footer.php): een gecentreerde rij Mollie-icoontjes
+ * met een label erboven. De SVG's hebben hun eigen
+ * kaartje (wit of merkkleur), dus geen extra achtergrond nodig. */
+.site-footer .footer-betalen {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.6rem;
+	text-align: center;
+}
+.site-footer .footer-betalen p { margin: 0; }
+.site-footer .footer-betalen__titel {
+	font-family: var(--wp--preset--font-family--display);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--surface);
+}
+.site-footer .footer-betalen__lijst {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.site-footer .footer-betalen__lijst img {
+	display: block;
+	width: 48px;
+	height: 36px;
+}
 /* Tablet band (782–900px): core columns only stack below 782px, so the 4-up
  * footer stays side-by-side here and squeezes the narrow Contact column —
  * wrapping the address and phone number mid-token. Wrap the columns two-up into

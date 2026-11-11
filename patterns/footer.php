@@ -89,6 +89,21 @@ $threeducation_cookies = threeducation_cookies_settings();
 <div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
 <!-- /wp:spacer -->
 
+<!-- wp:html -->
+<div class="footer-betalen">
+	<p class="footer-betalen__titel"><?php echo esc_html__( 'Veilig betalen', '3ducation' ); ?></p>
+	<ul class="footer-betalen__lijst">
+		<?php foreach ( threeducation_footer_betaalmethodes() as $threeducation_betaal_bestand => $threeducation_betaal_naam ) : ?>
+			<li><img src="<?php echo esc_url( threeducation_asset_url( 'images/betaal/' . $threeducation_betaal_bestand . '.svg' ) ); ?>" alt="<?php echo esc_attr( $threeducation_betaal_naam ); ?>" title="<?php echo esc_attr( $threeducation_betaal_naam ); ?>" width="48" height="36" loading="lazy" decoding="async"></li>
+		<?php endforeach; ?>
+	</ul>
+</div>
+<!-- /wp:html -->
+
+<!-- wp:spacer {"height":"var:preset|spacing|40"} -->
+<div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
 <!-- wp:group {"align":"wide","style":{"border":{"top":{"color":"var:preset|color|ink-line","width":"1px"}},"spacing":{"padding":{"top":"var:preset|spacing|40"}}},"layout":{"type":"flex","justifyContent":"space-between","flexWrap":"wrap"}} -->
 <div class="wp-block-group alignwide" style="border-top-color:var(--wp--preset--color--ink-line);border-top-width:1px;padding-top:var(--wp--preset--spacing--40)"><!-- wp:paragraph {"fontSize":"small","style":{"color":{"text":"var:preset|color|muted"}}} -->
 <p class="has-text-color has-small-font-size" style="color:var(--wp--preset--color--muted)">© 3DUCATION.be · Alle rechten voorbehouden.<br><a href="/algemene-voorwaarden">Algemene voorwaarden</a> · <a href="/privacyverklaring">Privacyverklaring</a> · <a href="/retourbeleid">Retourbeleid</a><?php if ( ! empty( $threeducation_cookies['active'] ) ) : ?><?php if ( ! empty( $threeducation_cookies['policy_dedicated'] ) ) : ?> · <a href="<?php echo esc_url( $threeducation_cookies['policy_url'] ); ?>">Cookiebeleid</a><?php endif; ?> · <a href="#cookie-instellingen" data-cookie-settings>Cookie-instellingen</a><?php endif; ?><br>Foto's: <a href="https://margaux.photo" target="_blank" rel="noopener">Margaux Laurier</a></p>

@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.46' );
+	define( 'THREEDUCATION_VERSION', '0.18.47' );
 }
 
 /**
@@ -3919,6 +3919,25 @@ function threeducation_footer_multiline( $text ) {
 /** Het telefoonnummer als tel:-href, dus zonder spaties. */
 function threeducation_footer_tel_href( $telefoon ) {
 	return preg_replace( '/[^0-9+]/', '', (string) $telefoon );
+}
+
+/**
+ * De betaalmethodes in de footer: bestandsnaam in assets/images/betaal/ =>
+ * naam (alt-tekst). Dezelfde methodes en icoontjes als Mollie in de checkout
+ * toont (de SVG's komen van Mollie). Cash staat er bewust niet bij: dat kan
+ * alleen in de winkel via de kassa.
+ */
+function threeducation_footer_betaalmethodes() {
+	return (array) apply_filters(
+		'threeducation_footer_betaalmethodes',
+		array(
+			'bancontact'     => __( 'Bancontact', '3ducation' ),
+			'kbc'            => __( 'KBC/CBC-Betaalknop', '3ducation' ),
+			'belfius'        => __( 'Belfius Pay Button', '3ducation' ),
+			'overschrijving' => __( 'Overschrijving', '3ducation' ),
+			'ideal-wero'     => __( 'iDEAL | Wero', '3ducation' ),
+		)
+	);
 }
 
 /** Registreer de footergegevens bij de Settings API. */
