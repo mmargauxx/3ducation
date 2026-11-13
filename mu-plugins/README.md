@@ -1,6 +1,6 @@
 # Overzicht mu-plugins 3DUCATION
 
-Stand: 9 november 2026.
+Stand: 13 november 2026.
 
 Must-use plugins staan in `wp-content/mu-plugins/`, laden altijd en hebben geen activatieknop. Ze zitten niet in de thema-zip en worden per bestand via FTP geüpload naar `/www/wp-content/mu-plugins/`.
 
@@ -28,10 +28,11 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | `3ducation-legacy-redirects.php` | 1.3.0 | 301-redirects van de oude Duda-site | Ja |
 | `3ducation-onderhoudsmodus.php` | 1.1.1 | Site of webshop tijdelijk in onderhoud | Ja, uit tot je hem aanzet |
 | `3ducation-verberg-cron-melding.php` | 1.0.0 | Verbergt een valse WP-Cron-melding in wp-admin | Ja |
+| `3ducation-versiepaden.php` | 1.0.0 | Versie in het pad van plugin- en core-scripts, tegen oude cachekopieën na een update | Ja |
 | **Alleen testomgeving** | | | |
 | `3ducation-staging-veilig.php` | 1.1.0 | Blokkeert mail, webhooks en externe verzoeken op een kopie | Nee, bewust |
 
-De versies komen uit de repo. "Op live" komt uit de bestandslijst van de server op 9 november; de inhoud van de live bestanden is die dag niet vergeleken, behalve bij `3ducation-alleen-afhalen.php`.
+De versies komen uit de repo. "Op live" komt uit de bestandslijst van de server op 9 november (`3ducation-versiepaden.php`: 13 november); de inhoud van de live bestanden is die dag niet vergeleken, behalve bij `3ducation-alleen-afhalen.php`.
 
 Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.php`. Die zijn van EasyHost, staan niet in deze repo en mogen blijven staan.
 
@@ -121,6 +122,12 @@ Na elke WCPOS-update: één cadeaubon verkopen, één inwisselen en de puntenreg
 - **Doet:** verbergt de valse melding "WP Cron is disabled". `DISABLE_WP_CRON` staat bewust aan omdat EasyHost een echte cronjob draait.
 - **Hangt af van:** alleen WordPress.
 - **Controle na update:** de melding staat niet in wp-admin.
+
+### `3ducation-versiepaden.php`
+- **Doet:** zet de versie van elk script en stylesheet van plugins en WordPress in het pad (`/_v/<versie>/wp-content/plugins/…`) in plaats van in `?ver=`. De Varnish-cache van EasyHost negeert `?ver=` en gaf na een plugin-update oude kopieën, waardoor winkelwagen en checkout bleven hangen (9 oktober en 13 november 2026).
+- **Hangt af van:** het blok `# BEGIN 3ducation-versiepaden` in de `.htaccess` in de hoofdmap, helemaal bovenaan (in elk geval boven `# BEGIN Webhosting WordPress` en `# BEGIN WordPress`). Het blok staat bovenaan in het bestand zelf. Zonder dat blok doet de mu-plugin niets en toont hij een melding in wp-admin.
+- **Controle na update:** in de broncode van de checkout beginnen de scripts van WooCommerce met `/_v/`, en de checkout laadt.
+- **Let op:** uitzetten kan met `define( 'THREEDUCATION_VERSIEPADEN_UIT', true );` in `wp-config.php`. Op de testomgeving werkt hij pas als het blok ook daar in de `.htaccess` staat. Scripts die WooCommerce zelf later bijlaadt vanaf een vast pad vallen er mogelijk buiten; blijft de checkout na een update toch hangen, maak dan de cache leeg bij EasyHost.
 
 ## Alleen testomgeving
 
