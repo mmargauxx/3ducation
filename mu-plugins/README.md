@@ -1,6 +1,6 @@
 # Overzicht mu-plugins 3DUCATION
 
-Stand: 13 november 2026.
+Stand: 19 november 2026.
 
 Must-use plugins staan in `wp-content/mu-plugins/`, laden altijd en hebben geen activatieknop. Ze zitten niet in de thema-zip en worden per bestand via FTP geüpload naar `/www/wp-content/mu-plugins/`.
 
@@ -13,6 +13,7 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | **Webshop** | | | |
 | `3ducation-alleen-afhalen.php` | 1.0.0 | Montage-optie 2 of 3 gekozen: alleen afhalen mogelijk | Ja |
 | `3ducation-bestelstatussen.php` | 1.1.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja |
+| `3ducation-bpost-handmatig.php` | 1.0.0 | bpost-label alleen nog met de knop, niet meer vanzelf bij betaling | Ja |
 | `3ducation-pakket-voorraad.php` | 1.0.0 | Pakketvoorraad = laagste voorraad van alle producten | Ja |
 | `3ducation-product-schema.php` | 1.0.0 | Prijs, voorraad en SKU terug in Google | Ja |
 | `3ducation-ga-paginaweergave.php` | 1.1.0 | Voorkomt dubbele telling in GA4 | Ja |
@@ -49,6 +50,12 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Doet:** "Klaar voor afhaling" alleen voor afhaalbestellingen, met klantmail. "Verzonden" alleen voor het beheer, zonder mail.
 - **Hangt af van:** WooCommerce (bestelstatussen, e-mails, bulkacties).
 - **Controle na update:** beide statussen staan in de lijst, de snelknop verschijnt alleen op afhaalbestellingen en de klantmail staat onder WooCommerce → E-mails.
+
+### `3ducation-bpost-handmatig.php`
+- **Doet:** een betaalde bestelling maakt niet meer vanzelf een bpost-label. Het label komt er pas als je in de bestellijst op de bpost-knop klikt (per bestelling of als bulkactie).
+- **Hangt af van:** bpost-shipping-platform (optie `Bpost_autoexport`).
+- **Controle na update:** een betaalde testbestelling met verzending blijft op "niet geëxporteerd" staan tot je op de knop klikt.
+- **Terugdraaien:** bestand verwijderen, dan maakt bpost weer een label bij elke betaalde bestelling.
 
 ### `3ducation-pakket-voorraad.php`
 - **Doet:** een pakket is uitverkocht zodra één product op 0 staat, ook als dat product nabesteld kan worden. Het getal wordt bij elke load herberekend, dus met de hand invullen heeft geen zin.
