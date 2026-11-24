@@ -58,7 +58,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Doet:** boven de bestellijst staat een keuzelijst "Alle verzendmethodes" met elke verzendmethode zoals ze op de bestellingen staat, met het aantal erachter. "bpost @ home" kiezen en op Filter klikken toont alleen die bestellingen. Totaal, pagina's en statustabs tellen mee.
 - **Hangt af van:** WooCommerce (bestellijst-hooks voor HPOS en klassiek, tabel `woocommerce_order_items`).
 - **Controle na update:** de keuzelijst staat er en "bpost @ home" toont evenveel bestellingen als het getal in de keuzelijst.
-- **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan op hun naam.
+- **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan bewust niet in de lijst.
 
 ### `3ducation-bestelstatussen.php`
 - **Doet:** "Klaar voor afhaling" alleen voor afhaalbestellingen, met klantmail. "Verzonden" alleen voor het beheer, zonder mail.

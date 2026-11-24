@@ -20,7 +20,7 @@
  * `shipping_Bpost_71_weight:5`), met als label de naam op de meest recente
  * bestelling. Een hernoemde methode ("Zelf Ophalen" → "Zelf Afhalen
  * (Nieuwkerken)" op 2026-11-24) blijft zo één keuze. Verzendregels zonder
- * method_id (oude geïmporteerde bestellingen) worden op hun naam gegroepeerd.
+ * method_id (oude geïmporteerde bestellingen) staan bewust niet in de lijst.
  * Geen vaste bpost-code in de code: het transporteursnummer verschilt per
  * bpost-account. Bestellingen zonder verzendregel (kassa, cadeaubon) vallen
  * onder geen enkele keuze.
@@ -51,9 +51,9 @@ function threeducation_verzendfilter_keuze(): string {
 /**
  * FROM/JOIN-deel en sleutel-expressie die verzendregels per methode groeperen.
  *
- * Sleutel `m:<method_id>:<instance_id>` als de regel een method_id heeft, anders `n:<naam>`.
+ * Sleutel `<method_id>:<instance_id>`. Regels zonder method_id (oude imports) vallen weg via de WHERE-voorwaarde.
  *
- * @return array{0:string,1:string} [ from_join, key_expression ]
+ * @return array{0:string,1:string,2:string} [ from_join, key_expression, where ]
  */
 function threeducation_verzendfilter_bron(): array {
 	global $wpdb;
@@ -61,9 +61,10 @@ function threeducation_verzendfilter_bron(): array {
 	$from = "{$wpdb->prefix}woocommerce_order_items oi
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta mid ON mid.order_item_id = oi.order_item_id AND mid.meta_key = 'method_id'
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta iid ON iid.order_item_id = oi.order_item_id AND iid.meta_key = 'instance_id'";
-	$key  = "COALESCE( CONCAT( 'm:', NULLIF( mid.meta_value, '' ), ':', COALESCE( iid.meta_value, '0' ) ), CONCAT( 'n:', oi.order_item_name ) )";
+	$key   = "CONCAT( mid.meta_value, ':', COALESCE( iid.meta_value, '' ) )";
+	$where = "oi.order_item_type = 'shipping' AND mid.meta_value IS NOT NULL AND mid.meta_value <> ''";
 
-	return array( $from, $key );
+	return array( $from, $key, $where );
 }
 
 /**
@@ -74,7 +75,7 @@ function threeducation_verzendfilter_bron(): array {
 function threeducation_verzendfilter_methodes(): array {
 	global $wpdb;
 
-	list( $from, $key ) = threeducation_verzendfilter_bron();
+	list( $from, $key, $where ) = threeducation_verzendfilter_bron();
 
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- vaste SQL zonder invoer.
 	$rows = $wpdb->get_results(
@@ -82,7 +83,7 @@ function threeducation_verzendfilter_methodes(): array {
 			SUBSTRING_INDEX( GROUP_CONCAT( oi.order_item_name ORDER BY oi.order_id DESC SEPARATOR '\n' ), '\n', 1 ) AS naam,
 			COUNT( DISTINCT oi.order_id ) AS aantal
 		FROM {$from}
-		WHERE oi.order_item_type = 'shipping' AND oi.order_item_name <> ''
+		WHERE {$where} AND oi.order_item_name <> ''
 		GROUP BY sleutel
 		ORDER BY aantal DESC, naam ASC
 		LIMIT 100"
@@ -121,11 +122,11 @@ function threeducation_verzendfilter_dropdown(): void {
 function threeducation_verzendfilter_sql( string $id_column, string $sleutel ): string {
 	global $wpdb;
 
-	list( $from, $key ) = threeducation_verzendfilter_bron();
+	list( $from, $key, $where ) = threeducation_verzendfilter_bron();
 
 	return $wpdb->prepare(
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- kolomnaam en vaste SQL uit WooCommerce/WordPress zelf.
-		" AND {$id_column} IN ( SELECT oi.order_id FROM {$from} WHERE oi.order_item_type = 'shipping' AND {$key} = %s )",
+		" AND {$id_column} IN ( SELECT oi.order_id FROM {$from} WHERE {$where} AND {$key} = %s )",
 		$sleutel
 	);
 }
