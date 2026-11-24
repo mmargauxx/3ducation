@@ -13,6 +13,7 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | **Webshop** | | | |
 | `3ducation-afhaalbetaling-zonder-cadeaubon.php` | 1.0.0 | Geen "Betalen bij ophalen" als er een cadeaubon in de winkelwagen zit | Ja |
 | `3ducation-alleen-afhalen.php` | 1.0.0 | Montage-optie 2 of 3 gekozen: alleen afhalen mogelijk | Ja |
+| `3ducation-bestellijst-verzendfilter.php` | 1.0.0 | Keuzelijst in de bestellijst om op verzendmethode te filteren (bv. bpost @ home) | Nog niet |
 | `3ducation-bestelstatussen.php` | 1.2.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja |
 | `3ducation-bpost-handmatig.php` | 1.0.0 | bpost-label alleen nog met de knop, niet meer vanzelf bij betaling | Ja |
 | `3ducation-pakket-voorraad.php` | 1.0.0 | Pakketvoorraad = laagste voorraad van alle producten | Ja |
@@ -52,6 +53,12 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Controle na update:** printer met optie 2 in de winkelwagen geeft alleen afhalen en de melding. Optie 1 kan nog verzonden worden.
 - **Let op:** herschrijf je de optietekst, hou dan die woorden in optie 2 en 3 en gebruik ze niet samen in optie 1. Live gebruikt de klassieke methode `local_pickup`, dus de klant vult nog een verzendadres in.
 - **Open:** eerste echte bestelling nakijken.
+
+### `3ducation-bestellijst-verzendfilter.php`
+- **Doet:** boven de bestellijst staat een keuzelijst "Alle verzendmethodes" met elke verzendmethode zoals ze op de bestellingen staat, met het aantal erachter. "bpost @ home" kiezen en op Filter klikken toont alleen die bestellingen. Totaal, pagina's en statustabs tellen mee.
+- **Hangt af van:** WooCommerce (bestellijst-hooks voor HPOS en klassiek, tabel `woocommerce_order_items`).
+- **Controle na update:** de keuzelijst staat er en "bpost @ home" toont evenveel bestellingen als het getal in de keuzelijst.
+- **Let op:** filtert op de naam van de verzendregel. Een hernoemde methode ("Zelf Ophalen" → "Zelf Afhalen") staat als twee keuzes in de lijst.
 
 ### `3ducation-bestelstatussen.php`
 - **Doet:** "Klaar voor afhaling" alleen voor afhaalbestellingen, met klantmail. "Verzonden" alleen voor het beheer, zonder mail.
