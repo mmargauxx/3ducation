@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.49' );
+	define( 'THREEDUCATION_VERSION', '0.18.50' );
 }
 
 /**
@@ -1082,6 +1082,23 @@ function threeducation_wc_string_fallbacks( $translation, $text, $domain ) {
 	return isset( $map[ $text ] ) ? $map[ $text ] : $translation;
 }
 add_filter( 'gettext_woocommerce', 'threeducation_wc_string_fallbacks', 10, 3 );
+
+/**
+ * Cadeaubon (PW Gift Cards): duidelijkere uitleg onder het veld "Aan".
+ *
+ * PW maakt van elk e-mailadres in dat veld een aparte bon van het gekozen
+ * bedrag en zet het aantal gelijk aan het aantal adressen. De korte zin
+ * "Scheid meerdere e-mailadressen met een komma." liet uitschijnen dat één bon
+ * naar meerdere mensen ging. Vervangt altijd, ook als er een vertaling is.
+ */
+function threeducation_pwgc_strings( $translation, $text, $domain ) {
+	if ( 'Separate multiple email addresses with a comma.' === $text ) {
+		return __( 'Voor meerdere personen? Zet hun e-mailadressen achter elkaar, gescheiden door een komma. Iedereen krijgt een eigen bon van dit bedrag.', '3ducation' );
+	}
+
+	return $translation;
+}
+add_filter( 'gettext_pw-woocommerce-gift-cards', 'threeducation_pwgc_strings', 10, 3 );
 
 /**
  * Register a pattern category so the theme's patterns are grouped
