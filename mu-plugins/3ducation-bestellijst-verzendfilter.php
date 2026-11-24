@@ -28,7 +28,8 @@
  * naam (ophalen, afhalen) is daarom één keuze, ook zonder method_id.
  *
  * Lijst (1.2.0): alfabetisch (hoofdletters tellen niet, dus bpost bovenaan),
- * en "Standaard verzendingskosten" (oude shop) staat er niet in. Meer namen
+ * en "Standaard verzendingskosten" (oude shop) en "bpost pakketpunt" (staat
+ * uit, wacht op bpost) staan er niet in. Meer namen
  * verbergen: filter `threeducation_verzendfilter_verborgen` (lijst van
  * tekstdelen, hoofdletterongevoelig).
  * Geen vaste bpost-code in de code: het transporteursnummer verschilt per
@@ -114,7 +115,7 @@ function threeducation_verzendfilter_methodes(): array {
 		LIMIT 100"
 	);
 
-	$verborgen = (array) apply_filters( 'threeducation_verzendfilter_verborgen', array( 'standaard verzendingskosten' ) );
+	$verborgen = (array) apply_filters( 'threeducation_verzendfilter_verborgen', array( 'standaard verzendingskosten', 'bpost pakketpunt' ) );
 
 	$out = array();
 	foreach ( (array) $rows as $row ) {
