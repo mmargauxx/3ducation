@@ -11,9 +11,9 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | Bestand | Versie | Wat het doet | Op live |
 |---|---|---|---|
 | **Webshop** | | | |
-| `3ducation-afhaalbetaling-zonder-cadeaubon.php` | 1.0.0 | Geen "Betalen bij ophalen" als er een cadeaubon in de winkelwagen zit | Nog niet |
+| `3ducation-afhaalbetaling-zonder-cadeaubon.php` | 1.0.0 | Geen "Betalen bij ophalen" als er een cadeaubon in de winkelwagen zit | Ja |
 | `3ducation-alleen-afhalen.php` | 1.0.0 | Montage-optie 2 of 3 gekozen: alleen afhalen mogelijk | Ja |
-| `3ducation-bestelstatussen.php` | 1.2.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja (1.1.0) |
+| `3ducation-bestelstatussen.php` | 1.2.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja |
 | `3ducation-bpost-handmatig.php` | 1.0.0 | bpost-label alleen nog met de knop, niet meer vanzelf bij betaling | Ja |
 | `3ducation-pakket-voorraad.php` | 1.0.0 | Pakketvoorraad = laagste voorraad van alle producten | Ja |
 | `3ducation-product-schema.php` | 1.0.0 | Prijs, voorraad en SKU terug in Google | Ja |
