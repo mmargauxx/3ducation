@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION bestellijst: filter op verzendmethode
  * Description: Keuzelijst "Alle verzendmethodes" boven de WooCommerce-bestellijst, om bijvoorbeeld alleen de bpost @ home-bestellingen te tonen.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: 3DUCATION
  *
  * Vraag van Margaux (2026-11-24): in de bestellijst filteren op alle
@@ -21,6 +21,11 @@
  * bestelling. Een hernoemde methode ("Zelf Ophalen" → "Zelf Afhalen
  * (Nieuwkerken)" op 2026-11-24) blijft zo één keuze. Verzendregels zonder
  * method_id (oude geïmporteerde bestellingen) staan bewust niet in de lijst.
+ *
+ * Afhalen (1.1.0, 2026-11-24): live heeft uit de oude shop meerdere
+ * afhaalmethodes met elk een eigen code ("Zelf ophalen Nieuwkerken" twee
+ * keer, "Zelf Afhalen (Nieuwkerken)"). Elke verzendregel met "halen" in de
+ * naam (ophalen, afhalen) is daarom één keuze, ook zonder method_id.
  * Geen vaste bpost-code in de code: het transporteursnummer verschilt per
  * bpost-account. Bestellingen zonder verzendregel (kassa, cadeaubon) vallen
  * onder geen enkele keuze.
@@ -65,7 +70,8 @@ function threeducation_verzendfilter_keuze(): string {
 /**
  * FROM/JOIN-deel en sleutel-expressie die verzendregels per methode groeperen.
  *
- * Sleutel `<method_id>:<instance_id>`. Regels zonder method_id (oude imports) vallen weg via de WHERE-voorwaarde.
+ * Sleutel `afhalen` voor elke regel met "halen" in de naam, anders `<method_id>:<instance_id>`.
+ * Andere regels zonder method_id (oude imports) vallen weg via de WHERE-voorwaarde.
  *
  * @return array{0:string,1:string,2:string} [ from_join, key_expression, where ]
  */
@@ -75,8 +81,8 @@ function threeducation_verzendfilter_bron(): array {
 	$from = "{$wpdb->prefix}woocommerce_order_items oi
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta mid ON mid.order_item_id = oi.order_item_id AND mid.meta_key = 'method_id'
 		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta iid ON iid.order_item_id = oi.order_item_id AND iid.meta_key = 'instance_id'";
-	$key   = "CONCAT( mid.meta_value, ':', COALESCE( iid.meta_value, '' ) )";
-	$where = "oi.order_item_type = 'shipping' AND mid.meta_value IS NOT NULL AND mid.meta_value <> ''";
+	$key   = "CASE WHEN LOCATE( 'halen', oi.order_item_name ) > 0 THEN 'afhalen' ELSE CONCAT( mid.meta_value, ':', COALESCE( iid.meta_value, '' ) ) END";
+	$where = "oi.order_item_type = 'shipping' AND ( LOCATE( 'halen', oi.order_item_name ) > 0 OR ( mid.meta_value IS NOT NULL AND mid.meta_value <> '' ) )";
 
 	return array( $from, $key, $where );
 }

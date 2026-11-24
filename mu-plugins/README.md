@@ -14,7 +14,7 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | `3ducation-afhaalbetaling-zonder-cadeaubon.php` | 1.0.0 | Geen "Betalen bij ophalen" als er een cadeaubon in de winkelwagen zit | Ja |
 | `3ducation-alleen-afhalen.php` | 1.0.0 | Montage-optie 2 of 3 gekozen: alleen afhalen mogelijk | Ja |
 | `3ducation-bestelinstellingen.php` | 1.0.0 | Scherm WooCommerce → Bestelinstellingen: bpost-labels automatisch of met de knop, verzendfilter aan/uit | Ja |
-| `3ducation-bestellijst-verzendfilter.php` | 1.0.0 | Keuzelijst in de bestellijst om op verzendmethode te filteren (bv. bpost @ home) | Ja |
+| `3ducation-bestellijst-verzendfilter.php` | 1.1.0 | Keuzelijst in de bestellijst om op verzendmethode te filteren (bv. bpost @ home) | Ja |
 | `3ducation-bestelstatussen.php` | 1.2.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja |
 | `3ducation-bpost-handmatig.php` | 1.1.0 | bpost-label alleen met de knop, tenzij "automatisch" gekozen in Bestelinstellingen | Ja |
 | `3ducation-pakket-voorraad.php` | 1.0.0 | Pakketvoorraad = laagste voorraad van alle producten | Ja |
@@ -65,7 +65,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Hangt af van:** WooCommerce (bestellijst-hooks voor HPOS en klassiek, tabel `woocommerce_order_items`).
 - **Controle na update:** de keuzelijst staat er en "bpost @ home" toont evenveel bestellingen als het getal in de keuzelijst.
 - **Aan/uit:** WooCommerce → Bestelinstellingen.
-- **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan bewust niet in de lijst.
+- **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan bewust niet in de lijst. Alles met "halen" in de naam (ophalen, afhalen, ook uit de oude shop) is één keuze (1.1.0).
 
 ### `3ducation-bestelstatussen.php`
 - **Doet:** "Klaar voor afhaling" alleen voor afhaalbestellingen, met klantmail. "Verzonden" alleen voor het beheer, zonder mail.
