@@ -56,7 +56,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Open:** eerste echte bestelling nakijken.
 
 ### `3ducation-bestelinstellingen.php`
-- **Doet:** scherm **WooCommerce → Bestelinstellingen** (beheerder en winkelbeheerder) met twee keuzes: bpost-labels "Genereer label met blauwe printknop" (standaard) of "Automatisch bij betaling", en "Filter op verzendmethode tonen" in de bestellijst (standaard aan).
+- **Doet:** scherm **WooCommerce → Bestelinstellingen** (beheerder en winkelbeheerder) met twee keuzes: bpost-labels "Genereer label met blauwe printknop" (standaard) of "Genereer label automatisch na betaling (standaard bpost-instelling)", en "Filter op verzendmethode tonen" in de bestellijst (standaard aan).
 - **Hangt af van:** niets buiten WordPress. De twee andere mu-plugins lezen de keuze; zonder dit bestand houden ze hun standaard (knop, filter aan).
 - **Controle na update:** het scherm opent, opslaan werkt, en de keuzes hebben effect (zie de twee plugins hieronder).
 
@@ -77,7 +77,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Doet:** een betaalde bestelling maakt niet meer vanzelf een bpost-label. Het label komt er pas als je in de bestellijst op de bpost-knop klikt (per bestelling of als bulkactie).
 - **Hangt af van:** bpost-shipping-platform (optie `Bpost_autoexport`).
 - **Controle na update:** een betaalde testbestelling met verzending blijft op "niet geëxporteerd" staan tot je op de knop klikt.
-- **Keuze voor de klant (1.1.0):** WooCommerce → Bestelinstellingen → bpost-labels "Automatisch bij betaling" laat bpost weer zelf labels maken, zonder dit bestand te verwijderen.
+- **Keuze voor de klant (1.1.0):** WooCommerce → Bestelinstellingen → bpost-labels "Genereer label automatisch na betaling" laat bpost weer zelf labels maken, zonder dit bestand te verwijderen.
 - **Terugdraaien:** bestand verwijderen, dan maakt bpost weer een label bij elke betaalde bestelling.
 
 ### `3ducation-pakket-voorraad.php`

@@ -123,7 +123,7 @@ function threeducation_bestelinstellingen_render(): void {
 							<p class="description" style="margin:0 0 0.8em 1.6em;"><?php esc_html_e( 'Een betaalde bestelling maakt geen label aan. Je maakt het zelf in de bestellijst met het blauwe printericoon in de kolom bpost, of voor meerdere bestellingen tegelijk met de bulkactie "bpost: Print label". Kiest een klant achteraf toch voor afhalen, dan is er nog geen label betaald.', '3ducation' ); ?></p>
 							<label>
 								<input type="radio" name="<?php echo esc_attr( $naam ); ?>[bpost_automatisch]" value="1" <?php checked( (int) $o['bpost_automatisch'], 1 ); ?> />
-								<strong><?php esc_html_e( 'Automatisch bij betaling', '3ducation' ); ?></strong>
+								<strong><?php esc_html_e( 'Genereer label automatisch na betaling (standaard bpost-instelling)', '3ducation' ); ?></strong>
 							</label>
 							<p class="description" style="margin:0 0 0 1.6em;"><?php esc_html_e( 'Zodra een bestelling met bpost-verzending betaald is (In behandeling), maakt bpost meteen het label aan en rekent de credit aan. Een label dat al gemaakt is, kan niet geannuleerd worden. Afhaalbestellingen krijgen nooit een label.', '3ducation' ); ?></p>
 						</fieldset>
