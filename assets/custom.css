@@ -1385,6 +1385,82 @@ body:has(.cookie-consent[open]) .site-popup-pill {
 }
 
 /* ------------------------------------------------------------------ *
+ * Cadeaubon (PW Gift Cards): Voor / Van / Bericht
+ *
+ * PW prints its fields with an inline <style> (11px grey hints, 95%-wide
+ * unstyled inputs). Same card chrome as the PPOM panel above, labels in the
+ * display face, full-width inputs with the site's border/radius and a cyan
+ * focus ring like the PPOM controls. #id selectors outrank PW's inline rules.
+ * ------------------------------------------------------------------ */
+#pwgc-purchase-container {
+	box-sizing: border-box;
+	border: 1px solid var(--wp--preset--color--border);
+	border-radius: 14px;
+	padding: clamp(1.25rem, 3vw, 1.75rem);
+	background: var(--wp--preset--color--base);
+	margin-block: var(--wp--preset--spacing--30);
+}
+/* PW toggles the container with inline display:none/block; only restyle it
+ * once shown, as a column with gap so the hidden quantity row adds no space. */
+#pwgc-purchase-container:not([style*="none"]) {
+	display: flex !important;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+#pwgc-purchase-container .pwgc-field-container {
+	margin: 0;
+}
+#pwgc-purchase-container .pwgc-label {
+	display: block;
+	margin-bottom: 0.4rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 500;
+	color: var(--wp--preset--color--ink);
+}
+#pwgc-purchase-container .pwgc-input-text,
+#pwgc-purchase-container #pwgc-message {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 0.7rem 0.9rem;
+	font: inherit;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.5;
+	color: var(--wp--preset--color--ink);
+	background: var(--wp--preset--color--surface);
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-radius: 8px;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+#pwgc-purchase-container #pwgc-message {
+	height: auto;
+	min-height: 7rem;
+	resize: vertical;
+}
+#pwgc-purchase-container .pwgc-input-text::placeholder,
+#pwgc-purchase-container #pwgc-message::placeholder {
+	color: var(--wp--preset--color--muted);
+}
+#pwgc-purchase-container .pwgc-input-text:focus,
+#pwgc-purchase-container #pwgc-message:focus {
+	outline: none;
+	border-color: var(--wp--preset--color--cyan);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--wp--preset--color--cyan) 25%, transparent);
+}
+#pwgc-purchase-container .pwgc-subtitle {
+	margin-top: 0.4rem;
+	font-size: var(--wp--preset--font-size--small);
+	line-height: 1.45;
+	color: var(--wp--preset--color--muted);
+}
+/* "Aantal: 3 · 1 naar elke ontvanger" when several addresses are entered. */
+#pwgc-quantity-one-per-recipient .pwgc-label {
+	margin-bottom: 0;
+}
+#pwgc-quantity-one-per-recipient .pwgc-subtitle {
+	margin-top: 0.15rem;
+}
+
+/* ------------------------------------------------------------------ *
  * Single product: scannable specifications table
  *
  * The product-details "Additional information" block ships a dense

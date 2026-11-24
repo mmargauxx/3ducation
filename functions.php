@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.50' );
+	define( 'THREEDUCATION_VERSION', '0.18.51' );
 }
 
 /**
@@ -1089,11 +1089,15 @@ add_filter( 'gettext_woocommerce', 'threeducation_wc_string_fallbacks', 10, 3 );
  * PW maakt van elk e-mailadres in dat veld een aparte bon van het gekozen
  * bedrag en zet het aantal gelijk aan het aantal adressen. De korte zin
  * "Scheid meerdere e-mailadressen met een komma." liet uitschijnen dat één bon
- * naar meerdere mensen ging. Vervangt altijd, ook als er een vertaling is.
+ * naar meerdere mensen ging. Ook de stroeve placeholder van dat veld krijgt
+ * een kortere tekst. Vervangt altijd, ook als er een vertaling is.
  */
 function threeducation_pwgc_strings( $translation, $text, $domain ) {
 	if ( 'Separate multiple email addresses with a comma.' === $text ) {
 		return __( 'Voor meerdere personen? Zet hun e-mailadressen achter elkaar, gescheiden door een komma. Iedereen krijgt een eigen bon van dit bedrag.', '3ducation' );
+	}
+	if ( 'Enter an email address for each recipient' === $text ) {
+		return __( 'E-mailadres van de ontvanger', '3ducation' );
 	}
 
 	return $translation;
