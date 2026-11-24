@@ -1385,6 +1385,66 @@ body:has(.cookie-consent[open]) .site-popup-pill {
 }
 
 /* ------------------------------------------------------------------ *
+ * Single product: variation dropdown + quantity field
+ *
+ * The browser-default square select and inset-bordered number box sat
+ * next to the rounded magenta button. Same look as the shop's sorting
+ * dropdown: 1.5px border, 8px radius, own chevron, cyan focus. The quantity
+ * box matches the add-to-cart button's height so the row lines up.
+ * WooCommerce's `.woocommerce div.product form.cart …` rules outrank a plain
+ * selector, hence the !important on the properties it sets.
+ * ------------------------------------------------------------------ */
+.single-product form.cart table.variations select {
+	appearance: none;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	min-width: 10rem;
+	height: 2.75rem !important;
+	padding: 0 2.4em 0 0.9em !important;
+	border: 1.5px solid var(--wp--preset--color--border) !important;
+	border-radius: 8px !important;
+	background-color: var(--wp--preset--color--surface) !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8d99' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+	background-repeat: no-repeat !important;
+	background-position: right 0.8em center !important;
+	background-size: 1em !important;
+	color: var(--wp--preset--color--ink);
+	font-size: var(--wp--preset--font-size--small);
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.single-product form.cart .quantity .qty {
+	box-sizing: border-box;
+	text-align: center;
+	width: 3.6rem !important;
+	height: 3.3rem !important;
+	padding: 0 0.4rem !important;
+	border: 1.5px solid var(--wp--preset--color--border) !important;
+	border-radius: 8px !important;
+	background: var(--wp--preset--color--surface) !important;
+	color: var(--wp--preset--color--ink);
+	font-size: var(--wp--preset--font-size--small);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* Chrome/Safari reserve room for the spin buttons, which pushes the number
+ * off-centre; typing and the arrow keys still work without them. */
+.single-product form.cart .quantity .qty {
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+.single-product form.cart .quantity .qty::-webkit-inner-spin-button,
+.single-product form.cart .quantity .qty::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.single-product form.cart table.variations select:focus,
+.single-product form.cart .quantity .qty:focus {
+	outline: none;
+	border-color: var(--wp--preset--color--cyan) !important;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--wp--preset--color--cyan) 25%, transparent);
+}
+
+/* ------------------------------------------------------------------ *
  * Cadeaubon (PW Gift Cards): Voor / Van / Bericht
  *
  * PW prints its fields with an inline <style> (11px grey hints, 95%-wide
@@ -1392,13 +1452,20 @@ body:has(.cookie-consent[open]) .site-popup-pill {
  * display face, full-width inputs with the site's border/radius and a cyan
  * focus ring like the PPOM controls. #id selectors outrank PW's inline rules.
  * ------------------------------------------------------------------ */
+/* Between the amount dropdown and the card WooCommerce stacks the table's
+ * margin, an empty price/availability row with its own margin and the card's
+ * top margin (~64px). On the gift card form only: drop the last two. */
+form.variations_form:has(#pwgc-purchase-container) .woocommerce-variation.single_variation {
+	margin-bottom: 0;
+}
 #pwgc-purchase-container {
+	margin-top: 0;
 	box-sizing: border-box;
 	border: 1px solid var(--wp--preset--color--border);
 	border-radius: 14px;
 	padding: clamp(1.25rem, 3vw, 1.75rem);
 	background: var(--wp--preset--color--base);
-	margin-block: var(--wp--preset--spacing--30);
+	margin-bottom: var(--wp--preset--spacing--30);
 }
 /* PW toggles the container with inline display:none/block; only restyle it
  * once shown, as a column with gap so the hidden quantity row adds no space. */
