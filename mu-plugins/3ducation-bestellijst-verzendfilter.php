@@ -25,6 +25,11 @@
  * bpost-account. Bestellingen zonder verzendregel (kassa, cadeaubon) vallen
  * onder geen enkele keuze.
  *
+ * Aan/uit: WooCommerce → Bestelinstellingen (`3ducation-bestelinstellingen.php`),
+ * "Filter op verzendmethode tonen", standaard aan. Uit = geen keuzelijst en
+ * geen enkele query-aanpassing. Ontbreekt het instellingenbestand, dan staat
+ * de filter aan.
+ *
  * Werkt met de HPOS-bestellijst (WooCommerce → Bestellingen,
  * `page=wc-orders`) en met de klassieke lijst (`edit.php?post_type=shop_order`).
  * Alleen lezen: verandert niets aan bestellingen.
@@ -42,8 +47,17 @@ defined( 'ABSPATH' ) || exit;
 
 const THREEDUCATION_VERZENDFILTER_PARAM = '_3du_verzending';
 
-/** De gekozen verzendmethode uit de URL, of ''. */
+/** Staat de filter aan in WooCommerce → Bestelinstellingen? */
+function threeducation_verzendfilter_aan(): bool {
+	return ! function_exists( 'threeducation_bestelinstelling' ) || threeducation_bestelinstelling( 'verzendfilter' );
+}
+
+/** De gekozen verzendmethode uit de URL, of '' (ook als de filter uit staat). */
 function threeducation_verzendfilter_keuze(): string {
+	if ( ! threeducation_verzendfilter_aan() ) {
+		return '';
+	}
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- alleen lezen, een filter in de lijst.
 	return isset( $_GET[ THREEDUCATION_VERZENDFILTER_PARAM ] ) ? sanitize_text_field( wp_unslash( $_GET[ THREEDUCATION_VERZENDFILTER_PARAM ] ) ) : '';
 }
@@ -99,6 +113,10 @@ function threeducation_verzendfilter_methodes(): array {
 
 /** Toont de keuzelijst. */
 function threeducation_verzendfilter_dropdown(): void {
+	if ( ! threeducation_verzendfilter_aan() ) {
+		return;
+	}
+
 	$methodes = threeducation_verzendfilter_methodes();
 	if ( ! $methodes ) {
 		return;

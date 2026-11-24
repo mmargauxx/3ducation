@@ -13,9 +13,10 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | **Webshop** | | | |
 | `3ducation-afhaalbetaling-zonder-cadeaubon.php` | 1.0.0 | Geen "Betalen bij ophalen" als er een cadeaubon in de winkelwagen zit | Ja |
 | `3ducation-alleen-afhalen.php` | 1.0.0 | Montage-optie 2 of 3 gekozen: alleen afhalen mogelijk | Ja |
+| `3ducation-bestelinstellingen.php` | 1.0.0 | Scherm WooCommerce → Bestelinstellingen: bpost-labels automatisch of met de knop, verzendfilter aan/uit | Nog niet |
 | `3ducation-bestellijst-verzendfilter.php` | 1.0.0 | Keuzelijst in de bestellijst om op verzendmethode te filteren (bv. bpost @ home) | Nog niet |
 | `3ducation-bestelstatussen.php` | 1.2.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja |
-| `3ducation-bpost-handmatig.php` | 1.0.0 | bpost-label alleen nog met de knop, niet meer vanzelf bij betaling | Ja |
+| `3ducation-bpost-handmatig.php` | 1.1.0 | bpost-label alleen met de knop, tenzij "automatisch" gekozen in Bestelinstellingen | Ja (1.0.0) |
 | `3ducation-pakket-voorraad.php` | 1.0.0 | Pakketvoorraad = laagste voorraad van alle producten | Ja |
 | `3ducation-product-schema.php` | 1.0.0 | Prijs, voorraad en SKU terug in Google | Ja |
 | `3ducation-ga-paginaweergave.php` | 1.1.0 | Voorkomt dubbele telling in GA4 | Ja |
@@ -54,10 +55,16 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Let op:** herschrijf je de optietekst, hou dan die woorden in optie 2 en 3 en gebruik ze niet samen in optie 1. Live gebruikt de klassieke methode `local_pickup`, dus de klant vult nog een verzendadres in.
 - **Open:** eerste echte bestelling nakijken.
 
+### `3ducation-bestelinstellingen.php`
+- **Doet:** scherm **WooCommerce → Bestelinstellingen** (beheerder en winkelbeheerder) met twee keuzes: bpost-labels "Alleen met de knop" (standaard) of "Automatisch bij betaling", en "Filter op verzendmethode tonen" in de bestellijst (standaard aan).
+- **Hangt af van:** niets buiten WordPress. De twee andere mu-plugins lezen de keuze; zonder dit bestand houden ze hun standaard (knop, filter aan).
+- **Controle na update:** het scherm opent, opslaan werkt, en de keuzes hebben effect (zie de twee plugins hieronder).
+
 ### `3ducation-bestellijst-verzendfilter.php`
 - **Doet:** boven de bestellijst staat een keuzelijst "Alle verzendmethodes" met elke verzendmethode zoals ze op de bestellingen staat, met het aantal erachter. "bpost @ home" kiezen en op Filter klikken toont alleen die bestellingen. Totaal, pagina's en statustabs tellen mee.
 - **Hangt af van:** WooCommerce (bestellijst-hooks voor HPOS en klassiek, tabel `woocommerce_order_items`).
 - **Controle na update:** de keuzelijst staat er en "bpost @ home" toont evenveel bestellingen als het getal in de keuzelijst.
+- **Aan/uit:** WooCommerce → Bestelinstellingen.
 - **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan bewust niet in de lijst.
 
 ### `3ducation-bestelstatussen.php`
@@ -70,6 +77,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Doet:** een betaalde bestelling maakt niet meer vanzelf een bpost-label. Het label komt er pas als je in de bestellijst op de bpost-knop klikt (per bestelling of als bulkactie).
 - **Hangt af van:** bpost-shipping-platform (optie `Bpost_autoexport`).
 - **Controle na update:** een betaalde testbestelling met verzending blijft op "niet geëxporteerd" staan tot je op de knop klikt.
+- **Keuze voor de klant (1.1.0):** WooCommerce → Bestelinstellingen → bpost-labels "Automatisch bij betaling" laat bpost weer zelf labels maken, zonder dit bestand te verwijderen.
 - **Terugdraaien:** bestand verwijderen, dan maakt bpost weer een label bij elke betaalde bestelling.
 
 ### `3ducation-pakket-voorraad.php`

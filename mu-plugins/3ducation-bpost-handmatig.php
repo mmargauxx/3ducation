@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION bpost: label alleen met de knop
  * Description: Zet de automatische export van de bpost-plugin uit. Een betaalde bestelling maakt niet langer vanzelf een bpost-label (en verbruikt dus geen credits); het label komt er pas als je in de bestellijst op de bpost-knop klikt.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: 3DUCATION
  *
  * Vraag van Patrick (2026-11-19): de bpost-plugin maakt een label zodra een
@@ -26,6 +26,13 @@
  * Wat blijft werken: de bpost-knop per bestelling en de bulkactie in de
  * bestellijst, en alles aan de kant van het afrekenen (tarieven, pakketpunt).
  *
+ * Sinds 1.1.0 (2026-11-24) is dit een keuze voor de klant: WooCommerce →
+ * Bestelinstellingen (`3ducation-bestelinstellingen.php`), "bpost-labels:
+ * alleen met de knop" (standaard) of "automatisch bij betaling". Bij
+ * automatisch laat de filter de echte optie door en werkt bpost zoals
+ * zonder deze mu-plugin. Ontbreekt het instellingenbestand, dan blijft het
+ * "alleen met de knop".
+ *
  * Afhankelijkheid (zie memory mu-plugins-update-checks): de optienaam
  * `Bpost_autoexport`. Hernoemt bpost die bij een update, dan komt de
  * automatische export stil terug. Controle na een update van de bpost-plugin:
@@ -37,7 +44,12 @@ defined( 'ABSPATH' ) || exit;
 
 add_filter(
 	'pre_option_Bpost_autoexport',
-	function () {
+	function ( $pre ) {
+		// Klant koos "automatisch bij betaling": de echte optie (wc-processing) doorlaten.
+		if ( function_exists( 'threeducation_bestelinstelling' ) && threeducation_bestelinstelling( 'bpost_automatisch' ) ) {
+			return $pre;
+		}
+
 		return '';
 	}
 );
