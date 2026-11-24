@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION bestelstatussen
  * Description: Twee extra bestelstatussen: "Klaar voor afhaling" (alleen voor afhaalbestellingen, met klantmail zodra de bestelling klaarligt) en "Verzonden" (alleen voor het beheer, zonder klantmail).
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: 3DUCATION
  *
  * Waarom: een webshopbestelling met "Afhalen in de winkel" staat na betaling op
@@ -25,7 +25,10 @@
  *     → E-mails, daar zijn onderwerp, kop en tekst aanpasbaar). De mail bevat
  *     het winkeladres en de openingsuren uit Instellingen → Footer van het
  *     thema, en het besteloverzicht. Opnieuw sturen kan via "Bestelling
- *     acties" op het bewerkscherm.
+ *     acties" op het bewerkscherm. Koos de klant "Betalen bij ophalen"
+ *     (gateway `cod`), dan staat onder het bericht ook "Je betaalt € X bij
+ *     het afhalen." (sinds 1.2.0; aanpasbaar via de filter
+ *     `threeducation_afhaal_betaalzin`, leeg = weg).
  *  4. Registreert de status `wc-verzonden` ("Verzonden"), na "Klaar voor
  *     afhaling". Puur administratief: geen klantmail, geen bewaking. In de
  *     bestellijst staat de snelknop "Verzonden" bij verzendbestellingen (niet
@@ -397,6 +400,28 @@ function threeducation_afhaal_register_email( $emails ) {
 				$this->restore_locale();
 			}
 
+			/**
+			 * Zin over betalen bij afhaling, als platte tekst met het bedrag; leeg als de klant al betaald heeft.
+			 *
+			 * Alleen bij de methode "Betalen bij ophalen" (WooCommerce `cod`): die bestelling staat al op
+			 * "In behandeling" maar is nog niet betaald. Het bedrag is het totaal min eventuele terugbetalingen.
+			 */
+			private function betaalzin(): string {
+				$order = $this->object;
+				if ( ! $order instanceof WC_Order || 'cod' !== $order->get_payment_method() ) {
+					return '';
+				}
+
+				$bedrag = (float) $order->get_total() - (float) $order->get_total_refunded();
+				$tekst  = sprintf(
+					/* translators: %s: bedrag met munteenheid */
+					__( 'Je betaalt %s bij het afhalen.', '3ducation' ),
+					html_entity_decode( wp_strip_all_tags( wc_price( $bedrag, array( 'currency' => $order->get_currency() ) ) ), ENT_QUOTES, 'UTF-8' )
+				);
+
+				return (string) apply_filters( 'threeducation_afhaal_betaalzin', $tekst, $order, $this );
+			}
+
 			/** Het blok met adres en openingsuren, als HTML. */
 			private function shop_info_html(): string {
 				$info  = threeducation_afhaal_shop_info();
@@ -418,6 +443,10 @@ function threeducation_afhaal_register_email( $emails ) {
 				ob_start();
 				do_action( 'woocommerce_email_header', $this->get_heading(), $this );
 				echo wp_kses_post( wpautop( wptexturize( $this->get_intro() ) ) );
+				$betaalzin = $this->betaalzin();
+				if ( '' !== $betaalzin ) {
+					echo '<p><strong>' . esc_html( $betaalzin ) . '</strong></p>';
+				}
 				echo $this->shop_info_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- hierboven ge-escaped.
 				do_action( 'woocommerce_email_order_details', $this->object, false, false, $this );
 				do_action( 'woocommerce_email_order_meta', $this->object, false, false, $this );
@@ -436,6 +465,10 @@ function threeducation_afhaal_register_email( $emails ) {
 				ob_start();
 				echo wp_strip_all_tags( $this->get_heading() ) . "\n\n";
 				echo wp_strip_all_tags( wptexturize( $this->get_intro() ) ) . "\n\n";
+				$betaalzin = $this->betaalzin();
+				if ( '' !== $betaalzin ) {
+					echo $betaalzin . "\n\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- platte tekst, geen HTML.
+				}
 				echo wp_strip_all_tags( __( 'Afhaaladres', '3ducation' ) ) . ":\n" . wp_strip_all_tags( $info['adres'] ) . "\n" . wp_strip_all_tags( $info['telefoon'] ) . "\n\n";
 				echo wp_strip_all_tags( __( 'Openingsuren', '3ducation' ) ) . ":\n" . wp_strip_all_tags( $info['openingsuren'] ) . "\n\n";
 				do_action( 'woocommerce_email_order_details', $this->object, false, true, $this );
