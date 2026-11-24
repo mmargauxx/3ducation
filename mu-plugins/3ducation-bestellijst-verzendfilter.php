@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 3DUCATION bestellijst: filter op verzendmethode
  * Description: Keuzelijst "Alle verzendmethodes" boven de WooCommerce-bestellijst, om bijvoorbeeld alleen de bpost @ home-bestellingen te tonen.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: 3DUCATION
  *
  * Vraag van Margaux (2026-11-24): in de bestellijst filteren op alle
@@ -26,6 +26,11 @@
  * afhaalmethodes met elk een eigen code ("Zelf ophalen Nieuwkerken" twee
  * keer, "Zelf Afhalen (Nieuwkerken)"). Elke verzendregel met "halen" in de
  * naam (ophalen, afhalen) is daarom één keuze, ook zonder method_id.
+ *
+ * Lijst (1.2.0): alfabetisch (hoofdletters tellen niet, dus bpost bovenaan),
+ * en "Standaard verzendingskosten" (oude shop) staat er niet in. Meer namen
+ * verbergen: filter `threeducation_verzendfilter_verborgen` (lijst van
+ * tekstdelen, hoofdletterongevoelig).
  * Geen vaste bpost-code in de code: het transporteursnummer verschilt per
  * bpost-account. Bestellingen zonder verzendregel (kassa, cadeaubon) vallen
  * onder geen enkele keuze.
@@ -88,7 +93,7 @@ function threeducation_verzendfilter_bron(): array {
 }
 
 /**
- * Alle verzendmethodes op bestellingen: sleutel => [ naam van de recentste bestelling, aantal bestellingen ].
+ * Alle verzendmethodes op bestellingen, alfabetisch: sleutel => [ naam van de recentste bestelling, aantal bestellingen ].
  *
  * @return array<string,array{0:string,1:int}>
  */
@@ -109,10 +114,26 @@ function threeducation_verzendfilter_methodes(): array {
 		LIMIT 100"
 	);
 
+	$verborgen = (array) apply_filters( 'threeducation_verzendfilter_verborgen', array( 'standaard verzendingskosten' ) );
+
 	$out = array();
 	foreach ( (array) $rows as $row ) {
-		$out[ (string) $row->sleutel ] = array( (string) $row->naam, (int) $row->aantal );
+		$naam = (string) $row->naam;
+		foreach ( $verborgen as $deel ) {
+			if ( '' !== (string) $deel && false !== stripos( $naam, (string) $deel ) ) {
+				continue 2;
+			}
+		}
+		$out[ (string) $row->sleutel ] = array( $naam, (int) $row->aantal );
 	}
+
+	// Alfabetisch op de getoonde naam, hoofdletters tellen niet ("bpost" vóór "Gratis").
+	uasort(
+		$out,
+		function ( $a, $b ) {
+			return strnatcasecmp( $a[0], $b[0] );
+		}
+	);
 
 	return $out;
 }
