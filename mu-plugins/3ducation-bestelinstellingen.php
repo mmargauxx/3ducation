@@ -118,7 +118,7 @@ function threeducation_bestelinstellingen_render(): void {
 						<fieldset>
 							<label>
 								<input type="radio" name="<?php echo esc_attr( $naam ); ?>[bpost_automatisch]" value="0" <?php checked( (int) $o['bpost_automatisch'], 0 ); ?> />
-								<strong><?php esc_html_e( 'Genereer label met blauwe printknop', '3ducation' ); ?></strong>
+								<strong><?php esc_html_e( 'Genereer label handmatig met blauwe printknop', '3ducation' ); ?></strong>
 							</label>
 							<p class="description" style="margin:0 0 0.8em 1.6em;"><?php esc_html_e( 'Een betaalde bestelling maakt geen label aan. Je maakt het zelf in de bestellijst met het blauwe printericoon in de kolom bpost, of voor meerdere bestellingen tegelijk met de bulkactie "bpost: Print label". Kiest een klant achteraf toch voor afhalen, dan is er nog geen label betaald.', '3ducation' ); ?></p>
 							<label>
