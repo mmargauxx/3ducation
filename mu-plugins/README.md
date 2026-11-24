@@ -13,10 +13,10 @@ Een update van een andere plugin verwijdert ze nooit. Hernoemt die plugin een ho
 | **Webshop** | | | |
 | `3ducation-afhaalbetaling-zonder-cadeaubon.php` | 1.0.0 | Geen "Betalen bij ophalen" als er een cadeaubon in de winkelwagen zit | Ja |
 | `3ducation-alleen-afhalen.php` | 1.0.0 | Montage-optie 2 of 3 gekozen: alleen afhalen mogelijk | Ja |
-| `3ducation-bestelinstellingen.php` | 1.0.0 | Scherm WooCommerce → Bestelinstellingen: bpost-labels automatisch of met de knop, verzendfilter aan/uit | Nog niet |
-| `3ducation-bestellijst-verzendfilter.php` | 1.0.0 | Keuzelijst in de bestellijst om op verzendmethode te filteren (bv. bpost @ home) | Nog niet |
+| `3ducation-bestelinstellingen.php` | 1.0.0 | Scherm WooCommerce → Bestelinstellingen: bpost-labels automatisch of met de knop, verzendfilter aan/uit | Ja |
+| `3ducation-bestellijst-verzendfilter.php` | 1.0.0 | Keuzelijst in de bestellijst om op verzendmethode te filteren (bv. bpost @ home) | Ja |
 | `3ducation-bestelstatussen.php` | 1.2.0 | Statussen "Klaar voor afhaling" en "Verzonden" | Ja |
-| `3ducation-bpost-handmatig.php` | 1.1.0 | bpost-label alleen met de knop, tenzij "automatisch" gekozen in Bestelinstellingen | Ja (1.0.0) |
+| `3ducation-bpost-handmatig.php` | 1.1.0 | bpost-label alleen met de knop, tenzij "automatisch" gekozen in Bestelinstellingen | Ja |
 | `3ducation-pakket-voorraad.php` | 1.0.0 | Pakketvoorraad = laagste voorraad van alle producten | Ja |
 | `3ducation-product-schema.php` | 1.0.0 | Prijs, voorraad en SKU terug in Google | Ja |
 | `3ducation-ga-paginaweergave.php` | 1.1.0 | Voorkomt dubbele telling in GA4 | Ja |
