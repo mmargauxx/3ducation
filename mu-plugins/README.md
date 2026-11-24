@@ -65,7 +65,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Hangt af van:** WooCommerce (bestellijst-hooks voor HPOS en klassiek, tabel `woocommerce_order_items`).
 - **Controle na update:** de keuzelijst staat er en "bpost @ home" toont evenveel bestellingen als het getal in de keuzelijst.
 - **Aan/uit:** WooCommerce → Bestelinstellingen.
-- **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan bewust niet in de lijst. Alles met "halen" in de naam (ophalen, afhalen, ook uit de oude shop) is één keuze (1.1.0). Lijst alfabetisch (bpost bovenaan), "Standaard verzendingskosten" en "bpost pakketpunt" verborgen (1.2.0).
+- **Let op:** groepeert per verzendmethode (code + instantie, bv. `local_pickup:1`) met de naam van de recentste bestelling, dus "Zelf Ophalen" en "Zelf Afhalen" zijn één keuze. Oude geïmporteerde bestellingen zonder methodecode staan bewust niet in de lijst. Alles met "halen" in de naam (ophalen, afhalen, ook uit de oude shop) is één keuze (1.1.0). Lijst alfabetisch (bpost bovenaan), "Standaard verzendingskosten", "bpost pakketpunt" en "Gratis verzending" verborgen (1.2.0).
 
 ### `3ducation-bestelstatussen.php`
 - **Doet:** "Klaar voor afhaling" alleen voor afhaalbestellingen, met klantmail. "Verzonden" alleen voor het beheer, zonder mail.
