@@ -12,16 +12,18 @@
  * staat een keuzelijst met elke verzendmethode zoals ze op de bestellingen
  * staat ("bpost @ home", "Zelf Afhalen (Nieuwkerken)" …), met het aantal
  * bestellingen erachter. Kies je er een en klik je op Filter, dan toont de
- * lijst alleen bestellingen met een verzendregel met die naam. Werkt samen
+ * lijst alleen bestellingen met die verzendmethode. Werkt samen
  * met de statustabs, de zoekfunctie en de andere filters.
  *
- * Waarom op naam en niet op de bpost-code: de bpost-plugin bewaart als
- * method_id `shipping_Bpost_<transporteur>_weight`, met een nummer dat per
- * bpost-account verschilt; de naam is wat Patrick in de lijst en op de
- * bestelling ziet. Gevolg: hernoem je een verzendmethode (zoals "Zelf
- * Ophalen" → "Zelf Afhalen" op 2026-11-24), dan staan oude en nieuwe
- * bestellingen als twee aparte keuzes in de lijst. Bestellingen zonder
- * verzendregel (kassa, cadeaubon) vallen onder geen enkele keuze.
+ * Groepering: per verzendmethode zoals WooCommerce ze bewaart (meta
+ * `method_id` + `instance_id` op de verzendregel, bv. `local_pickup:1` of
+ * `shipping_Bpost_71_weight:5`), met als label de naam op de meest recente
+ * bestelling. Een hernoemde methode ("Zelf Ophalen" → "Zelf Afhalen
+ * (Nieuwkerken)" op 2026-11-24) blijft zo één keuze. Verzendregels zonder
+ * method_id (oude geïmporteerde bestellingen) worden op hun naam gegroepeerd.
+ * Geen vaste bpost-code in de code: het transporteursnummer verschilt per
+ * bpost-account. Bestellingen zonder verzendregel (kassa, cadeaubon) vallen
+ * onder geen enkele keuze.
  *
  * Werkt met de HPOS-bestellijst (WooCommerce → Bestellingen,
  * `page=wc-orders`) en met de klassieke lijst (`edit.php?post_type=shop_order`).
@@ -47,26 +49,48 @@ function threeducation_verzendfilter_keuze(): string {
 }
 
 /**
- * Alle verzendmethodenamen op bestellingen, met het aantal bestellingen, meest gebruikte eerst.
+ * FROM/JOIN-deel en sleutel-expressie die verzendregels per methode groeperen.
  *
- * @return array<string,int>
+ * Sleutel `m:<method_id>:<instance_id>` als de regel een method_id heeft, anders `n:<naam>`.
+ *
+ * @return array{0:string,1:string} [ from_join, key_expression ]
+ */
+function threeducation_verzendfilter_bron(): array {
+	global $wpdb;
+
+	$from = "{$wpdb->prefix}woocommerce_order_items oi
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta mid ON mid.order_item_id = oi.order_item_id AND mid.meta_key = 'method_id'
+		LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta iid ON iid.order_item_id = oi.order_item_id AND iid.meta_key = 'instance_id'";
+	$key  = "COALESCE( CONCAT( 'm:', NULLIF( mid.meta_value, '' ), ':', COALESCE( iid.meta_value, '0' ) ), CONCAT( 'n:', oi.order_item_name ) )";
+
+	return array( $from, $key );
+}
+
+/**
+ * Alle verzendmethodes op bestellingen: sleutel => [ naam van de recentste bestelling, aantal bestellingen ].
+ *
+ * @return array<string,array{0:string,1:int}>
  */
 function threeducation_verzendfilter_methodes(): array {
 	global $wpdb;
 
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- eenmalig per lijstweergave, geen cache nodig.
+	list( $from, $key ) = threeducation_verzendfilter_bron();
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- vaste SQL zonder invoer.
 	$rows = $wpdb->get_results(
-		"SELECT order_item_name AS naam, COUNT( DISTINCT order_id ) AS aantal
-		FROM {$wpdb->prefix}woocommerce_order_items
-		WHERE order_item_type = 'shipping' AND order_item_name <> ''
-		GROUP BY order_item_name
+		"SELECT {$key} AS sleutel,
+			SUBSTRING_INDEX( GROUP_CONCAT( oi.order_item_name ORDER BY oi.order_id DESC SEPARATOR '\n' ), '\n', 1 ) AS naam,
+			COUNT( DISTINCT oi.order_id ) AS aantal
+		FROM {$from}
+		WHERE oi.order_item_type = 'shipping' AND oi.order_item_name <> ''
+		GROUP BY sleutel
 		ORDER BY aantal DESC, naam ASC
 		LIMIT 100"
 	);
 
 	$out = array();
 	foreach ( (array) $rows as $row ) {
-		$out[ (string) $row->naam ] = (int) $row->aantal;
+		$out[ (string) $row->sleutel ] = array( (string) $row->naam, (int) $row->aantal );
 	}
 
 	return $out;
@@ -84,8 +108,8 @@ function threeducation_verzendfilter_dropdown(): void {
 	<label for="filter-by-3du-verzending" class="screen-reader-text"><?php esc_html_e( 'Filter op verzendmethode', '3ducation' ); ?></label>
 	<select name="<?php echo esc_attr( THREEDUCATION_VERZENDFILTER_PARAM ); ?>" id="filter-by-3du-verzending">
 		<option value=""><?php esc_html_e( 'Alle verzendmethodes', '3ducation' ); ?></option>
-		<?php foreach ( $methodes as $naam => $aantal ) : ?>
-			<option value="<?php echo esc_attr( $naam ); ?>" <?php selected( $naam, $keuze ); ?>>
+		<?php foreach ( $methodes as $sleutel => list( $naam, $aantal ) ) : ?>
+			<option value="<?php echo esc_attr( $sleutel ); ?>" <?php selected( $sleutel, $keuze ); ?>>
 				<?php echo esc_html( sprintf( '%s (%d)', $naam, $aantal ) ); ?>
 			</option>
 		<?php endforeach; ?>
@@ -93,14 +117,16 @@ function threeducation_verzendfilter_dropdown(): void {
 	<?php
 }
 
-/** SQL-voorwaarde "deze bestelling heeft een verzendregel met deze naam" voor de gegeven id-kolom. */
-function threeducation_verzendfilter_sql( string $id_column, string $naam ): string {
+/** SQL-voorwaarde "deze bestelling heeft een verzendregel met deze methode-sleutel" voor de gegeven id-kolom. */
+function threeducation_verzendfilter_sql( string $id_column, string $sleutel ): string {
 	global $wpdb;
 
+	list( $from, $key ) = threeducation_verzendfilter_bron();
+
 	return $wpdb->prepare(
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- kolomnaam komt uit WooCommerce/WordPress zelf.
-		" AND {$id_column} IN ( SELECT order_id FROM {$wpdb->prefix}woocommerce_order_items WHERE order_item_type = 'shipping' AND order_item_name = %s )",
-		$naam
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- kolomnaam en vaste SQL uit WooCommerce/WordPress zelf.
+		" AND {$id_column} IN ( SELECT oi.order_id FROM {$from} WHERE oi.order_item_type = 'shipping' AND {$key} = %s )",
+		$sleutel
 	);
 }
 
@@ -135,12 +161,12 @@ add_filter(
 add_filter(
 	'woocommerce_orders_table_query_clauses',
 	function ( $clauses, $query, $args ) {
-		$naam = isset( $args[ THREEDUCATION_VERZENDFILTER_PARAM ] ) ? (string) $args[ THREEDUCATION_VERZENDFILTER_PARAM ] : '';
-		if ( '' === $naam || ! is_object( $query ) || ! method_exists( $query, 'get_table_name' ) ) {
+		$sleutel = isset( $args[ THREEDUCATION_VERZENDFILTER_PARAM ] ) ? (string) $args[ THREEDUCATION_VERZENDFILTER_PARAM ] : '';
+		if ( '' === $sleutel || ! is_object( $query ) || ! method_exists( $query, 'get_table_name' ) ) {
 			return $clauses;
 		}
 
-		$clauses['where'] = ( $clauses['where'] ?? '' ) . threeducation_verzendfilter_sql( $query->get_table_name( 'orders' ) . '.id', $naam );
+		$clauses['where'] = ( $clauses['where'] ?? '' ) . threeducation_verzendfilter_sql( $query->get_table_name( 'orders' ) . '.id', $sleutel );
 
 		return $clauses;
 	},
@@ -153,8 +179,8 @@ add_filter(
 add_filter(
 	'woocommerce_shop_order_list_table_order_count',
 	function ( $count, $status ) {
-		$naam = threeducation_verzendfilter_keuze();
-		if ( '' === $naam ) {
+		$sleutel = threeducation_verzendfilter_keuze();
+		if ( '' === $sleutel ) {
 			return $count;
 		}
 
@@ -165,7 +191,7 @@ add_filter(
 				'limit'                            => 1,
 				'paginate'                         => true,
 				'return'                           => 'ids',
-				THREEDUCATION_VERZENDFILTER_PARAM => $naam,
+				THREEDUCATION_VERZENDFILTER_PARAM => $sleutel,
 			)
 		);
 
@@ -199,9 +225,9 @@ add_filter(
 			return $where;
 		}
 
-		$naam = threeducation_verzendfilter_keuze();
+		$sleutel = threeducation_verzendfilter_keuze();
 
-		return '' === $naam ? $where : $where . threeducation_verzendfilter_sql( "{$wpdb->posts}.ID", $naam );
+		return '' === $sleutel ? $where : $where . threeducation_verzendfilter_sql( "{$wpdb->posts}.ID", $sleutel );
 	},
 	10,
 	2
