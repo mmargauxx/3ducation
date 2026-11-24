@@ -7,13 +7,13 @@
  *
  * Vraag van Margaux (2026-11-24): de klant moet zelf kunnen kiezen
  *  - of bpost een label automatisch aanmaakt zodra een bestelling betaald
- *    is, of alleen nog met de knop (wat `3ducation-bpost-handmatig.php`
+ *    is, of alleen nog met de blauwe printknop (wat `3ducation-bpost-handmatig.php`
  *    sinds 2026-11-19 afdwingt);
  *  - of de keuzelijst "Alle verzendmethodes" van
  *    `3ducation-bestellijst-verzendfilter.php` in de bestellijst staat.
  *
  * Eén optie `threeducation_bestelinstellingen` (array):
- *  - `bpost_automatisch` 0|1, standaard 0 (labels alleen met de knop).
+ *  - `bpost_automatisch` 0|1, standaard 0 (label met de blauwe printknop).
  *  - `verzendfilter`     0|1, standaard 1 (keuzelijst zichtbaar).
  *
  * De twee andere mu-plugins lezen dit via `threeducation_bestelinstelling()`
@@ -118,9 +118,9 @@ function threeducation_bestelinstellingen_render(): void {
 						<fieldset>
 							<label>
 								<input type="radio" name="<?php echo esc_attr( $naam ); ?>[bpost_automatisch]" value="0" <?php checked( (int) $o['bpost_automatisch'], 0 ); ?> />
-								<strong><?php esc_html_e( 'Alleen met de knop', '3ducation' ); ?></strong>
+								<strong><?php esc_html_e( 'Genereer label met blauwe printknop', '3ducation' ); ?></strong>
 							</label>
-							<p class="description" style="margin:0 0 0.8em 1.6em;"><?php esc_html_e( 'Een betaalde bestelling maakt geen label aan. Je maakt het zelf in de bestellijst met de bpost-knop (blauw printericoon) of de bulkactie "bpost: Print label". Kiest een klant achteraf toch voor afhalen, dan is er nog geen label betaald.', '3ducation' ); ?></p>
+							<p class="description" style="margin:0 0 0.8em 1.6em;"><?php esc_html_e( 'Een betaalde bestelling maakt geen label aan. Je maakt het zelf in de bestellijst met het blauwe printericoon in de kolom bpost, of voor meerdere bestellingen tegelijk met de bulkactie "bpost: Print label". Kiest een klant achteraf toch voor afhalen, dan is er nog geen label betaald.', '3ducation' ); ?></p>
 							<label>
 								<input type="radio" name="<?php echo esc_attr( $naam ); ?>[bpost_automatisch]" value="1" <?php checked( (int) $o['bpost_automatisch'], 1 ); ?> />
 								<strong><?php esc_html_e( 'Automatisch bij betaling', '3ducation' ); ?></strong>

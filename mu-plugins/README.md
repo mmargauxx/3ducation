@@ -56,7 +56,7 @@ Op de server staan ook `ensure-admin-not-deleted.php` en `wp-cli-login-server.ph
 - **Open:** eerste echte bestelling nakijken.
 
 ### `3ducation-bestelinstellingen.php`
-- **Doet:** scherm **WooCommerce → Bestelinstellingen** (beheerder en winkelbeheerder) met twee keuzes: bpost-labels "Alleen met de knop" (standaard) of "Automatisch bij betaling", en "Filter op verzendmethode tonen" in de bestellijst (standaard aan).
+- **Doet:** scherm **WooCommerce → Bestelinstellingen** (beheerder en winkelbeheerder) met twee keuzes: bpost-labels "Genereer label met blauwe printknop" (standaard) of "Automatisch bij betaling", en "Filter op verzendmethode tonen" in de bestellijst (standaard aan).
 - **Hangt af van:** niets buiten WordPress. De twee andere mu-plugins lezen de keuze; zonder dit bestand houden ze hun standaard (knop, filter aan).
 - **Controle na update:** het scherm opent, opslaan werkt, en de keuzes hebben effect (zie de twee plugins hieronder).
 

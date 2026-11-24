@@ -28,10 +28,10 @@
  *
  * Sinds 1.1.0 (2026-11-24) is dit een keuze voor de klant: WooCommerce →
  * Bestelinstellingen (`3ducation-bestelinstellingen.php`), "bpost-labels:
- * alleen met de knop" (standaard) of "automatisch bij betaling". Bij
+ * Genereer label met blauwe printknop" (standaard) of "automatisch bij betaling". Bij
  * automatisch laat de filter de echte optie door en werkt bpost zoals
  * zonder deze mu-plugin. Ontbreekt het instellingenbestand, dan blijft het
- * "alleen met de knop".
+ * "Genereer label met blauwe printknop".
  *
  * Afhankelijkheid (zie memory mu-plugins-update-checks): de optienaam
  * `Bpost_autoexport`. Hernoemt bpost die bij een update, dan komt de
