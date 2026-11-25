@@ -3137,3 +3137,178 @@ object {
 		padding-bottom: 0.7rem;
 	}
 }
+
+/* ------------------------------------------------------------------ *
+ * Mobiele leesbaarheid en tik-doelen (v0.18.53)
+ * ------------------------------------------------------------------ */
+
+/* Hamburgermenu: de links erfden 14px van fontSize "small" op het nav-blok
+ * en waren maar 22px hoog. In de overlay worden het grote, volle rijen van
+ * minstens 56px met een scheidingslijn. Alleen .is-menu-open, dus de inline
+ * desktopnav blijft ongemoeid. */
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content .wp-block-navigation__container {
+	gap: 0;
+	width: 100%;
+}
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content .wp-block-navigation-item {
+	width: 100%;
+	border-bottom: 1px solid var(--wp--preset--color--border);
+}
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content .wp-block-navigation-item__content {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	min-height: 56px;
+	padding-block: 0.6rem;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item__content:hover,
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item__content:focus-visible,
+.wp-block-navigation__responsive-container.is-menu-open .current-menu-item > .wp-block-navigation-item__content {
+	color: var(--wp--preset--color--magenta);
+}
+
+/* Header-iconen (account, winkelwagen) en het sluitkruis van de pop-up:
+ * volle 44 × 44. */
+@media (max-width: 1199px) {
+	.site-header .wc-block-customer-account__link,
+	.site-header .wc-block-mini-cart__button {
+		box-sizing: border-box;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 44px;
+		min-height: 44px;
+	}
+}
+.site-popup__close {
+	width: 2.75rem;
+	height: 2.75rem;
+}
+
+@media (max-width: 781px) {
+	/* Velden onder 16px laten iOS Safari inzoomen bij het aantikken. */
+	input[type="text"],
+	input[type="email"],
+	input[type="tel"],
+	input[type="search"],
+	input[type="number"],
+	input[type="password"],
+	select,
+	textarea {
+		font-size: 16px !important;
+	}
+
+	/* Categoriechips: 37px → 44px hoog. */
+	.cat-chip { min-height: 44px; }
+
+	/* Filteroverlay: elke categorie een volle rij om aan te tikken. */
+	.wc-block-product-filter-checkbox-list__label {
+		display: flex;
+		align-items: center;
+		min-height: 44px;
+	}
+	.wc-block-product-filters__open-overlay,
+	.wc-block-product-filters__close-overlay,
+	.wc-block-product-filter-checkbox-list__show-more-button {
+		min-height: 44px;
+	}
+
+	/* Winkelwagen + mini-winkelwagen: het aantal-veld (27px) en het
+	 * vuilbakje (24px) waren te klein om betrouwbaar aan te tikken. */
+	.wc-block-components-quantity-selector {
+		width: auto !important;
+		height: 44px;
+	}
+	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__button {
+		min-width: 44px;
+		height: 100%;
+	}
+	.wc-block-components-quantity-selector .wc-block-components-quantity-selector__input {
+		box-sizing: border-box;
+		width: 2.75rem;
+		height: 100%;
+		padding-block: 0;
+	}
+	.wc-block-cart-item__remove-link {
+		display: inline-flex !important;
+		align-items: center;
+		justify-content: center;
+		min-width: 44px;
+		min-height: 44px;
+	}
+	.wc-block-components-product-name {
+		font-size: 1rem !important;
+	}
+}
+
+/* Productraster: "Lees verder" in muted (#8a8d99) haalde maar ~3:1 contrast;
+ * ink-soft is leesbaar en blijft duidelijk secundair naast magenta/cyaan. */
+.shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button) {
+	box-shadow: inset 0 0 0 1.5px var(--wp--preset--color--ink-soft);
+	color: var(--wp--preset--color--ink-soft);
+}
+.shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):hover,
+.shop-grid .wc-block-components-product-button__button:not(.add_to_cart_button):focus-visible {
+	background-color: var(--wp--preset--color--ink-soft);
+}
+@media (max-width: 781px) {
+	.shop-grid .wp-block-woocommerce-product-button .wc-block-components-product-button__button {
+		font-size: 0.9rem;
+	}
+}
+
+/* Mini-winkelwagen: de titel (32px, flex) brak in twee kolommen naast het
+ * sluitkruis ("Je / winkelwagen" | "(items: / 1)"). Kleiner, laat de teller
+ * eronder doorlopen en houd plaats vrij voor het kruis. */
+.wc-block-mini-cart__title {
+	flex-wrap: wrap;
+	align-items: baseline;
+	column-gap: 0.4em;
+	padding-right: 2.5rem;
+	font-size: clamp(1.5rem, 5vw, 2rem);
+	line-height: 1.15;
+}
+.wc-block-mini-cart__title .wp-block-woocommerce-mini-cart-title-items-counter-block {
+	font-size: 0.6em;
+	font-weight: 400;
+	color: var(--wp--preset--color--ink-soft);
+}
+
+/* Cadeaubon in de blokwinkelwagen (PW Gift Cards): ongestyled, 21px hoog
+ * en 8px breder dan de kolom. Zelfde veld en tweede knop als de rest. */
+#pwgc-redeem-gift-card-number {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 48px;
+	margin-block: 0.4rem 0.6rem;
+	padding: 0.6rem 0.9rem;
+	border: 1.5px solid var(--wp--preset--color--border);
+	border-radius: 8px;
+	background: var(--wp--preset--color--surface);
+	color: var(--wp--preset--color--ink);
+	font-size: 1rem;
+}
+#pwgc-redeem-gift-card-number:focus {
+	outline: 2px solid var(--wp--preset--color--magenta);
+	outline-offset: 1px;
+	border-color: transparent;
+}
+.pwgc-apply-gift-card-button.wc-block-components-button {
+	width: 100%;
+	border: 1.5px solid var(--wp--preset--color--ink) !important;
+	border-radius: 8px;
+	background: transparent !important;
+	color: var(--wp--preset--color--ink) !important;
+	font-family: var(--wp--preset--font-family--display);
+	font-size: 1rem;
+	font-weight: 600;
+}
+.pwgc-apply-gift-card-button.wc-block-components-button:hover,
+.pwgc-apply-gift-card-button.wc-block-components-button:focus-visible {
+	background: var(--wp--preset--color--ink) !important;
+	color: var(--wp--preset--color--surface) !important;
+}
