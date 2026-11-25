@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( ! defined( 'THREEDUCATION_VERSION' ) ) {
-	define( 'THREEDUCATION_VERSION', '0.18.54' );
+	define( 'THREEDUCATION_VERSION', '0.18.55' );
 }
 
 /**
@@ -1197,7 +1197,8 @@ add_action( 'wp_head', 'threeducation_pillar_meta_tags', 1 );
  * Webshop product sorting.
  *
  * Replace WooCommerce's catalog "sorteer op" options with the set the shop
- * needs — A→Z, Z→A, gemiddelde beoordeling, prijs (beide richtingen) en
+ * needs — Aanbevolen (default on /shop), A→Z, Z→A, gemiddelde beoordeling,
+ * prijs (beide richtingen) en
  * releasedatum — and implement the A→Z / Z→A title ordering that WooCommerce
  * doesn't ship out of the box.
  *
@@ -1207,6 +1208,7 @@ add_action( 'wp_head', 'threeducation_pillar_meta_tags', 1 );
  */
 function threeducation_catalog_orderby_options( $options ) {
 	return array(
+		'aanbevolen' => __( 'Aanbevolen', '3ducation' ),
 		'title'      => __( 'Naam: A → Z', '3ducation' ),
 		'title-desc' => __( 'Naam: Z → A', '3ducation' ),
 		'rating'     => __( 'Gemiddelde beoordeling', '3ducation' ),
@@ -1219,32 +1221,85 @@ add_filter( 'woocommerce_catalog_orderby', 'threeducation_catalog_orderby_option
 add_filter( 'woocommerce_default_catalog_orderby_options', 'threeducation_catalog_orderby_options' );
 
 /**
- * Default the shop to A → Z (WooCommerce's stored default is 'menu_order',
- * which we've removed from the options list above).
+ * Default ordering: "Aanbevolen" on the main shop page (no category, tag or
+ * search), A → Z everywhere else. WooCommerce's stored default is
+ * 'menu_order', which isn't in the options list above.
  */
 function threeducation_default_catalog_orderby() {
+	if ( function_exists( 'is_shop' ) && is_shop() && ! is_search() ) {
+		return 'aanbevolen';
+	}
 	return 'title';
 }
 add_filter( 'woocommerce_default_catalog_orderby', 'threeducation_default_catalog_orderby' );
 
 /**
- * Implement the two title-based orderings. WooCommerce splits 'title-desc' on
- * the hyphen before this filter runs, so we read the raw request value to tell
- * A→Z from Z→A. Runs late (priority 20) to win over WC's own args.
+ * Implement the custom orderings. WooCommerce resolves the request/default
+ * value and splits 'title-desc' on the hyphen before this filter runs, so we
+ * read the raw request value to tell A→Z from Z→A. Runs late (priority 20) to
+ * win over WC's own args.
  */
-function threeducation_catalog_ordering_args( $args ) {
-	$orderby = isset( $_GET['orderby'] ) ? wc_clean( wp_unslash( $_GET['orderby'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-	if ( '' === $orderby ) {
-		$orderby = 'title';
+function threeducation_catalog_ordering_args( $args, $orderby = '' ) {
+	$raw = isset( $_GET['orderby'] ) ? wc_clean( wp_unslash( $_GET['orderby'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( is_array( $raw ) ) {
+		$raw = (string) reset( $raw );
 	}
-	if ( 'title' === $orderby || 'title-desc' === $orderby ) {
+	if ( '' === $raw ) {
+		$raw = (string) $orderby;
+	}
+	if ( 'title' === $raw || 'title-desc' === $raw ) {
 		$args['orderby']  = 'title';
-		$args['order']    = ( 'title-desc' === $orderby ) ? 'DESC' : 'ASC';
+		$args['order']    = ( 'title-desc' === $raw ) ? 'DESC' : 'ASC';
 		$args['meta_key'] = ''; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+	} elseif ( 'aanbevolen' === $raw ) {
+		$args['orderby']  = 'title';
+		$args['order']    = 'ASC';
+		$args['meta_key'] = ''; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+		add_filter( 'posts_clauses', 'threeducation_aanbevolen_post_clauses', 20, 2 );
 	}
 	return $args;
 }
-add_filter( 'woocommerce_get_catalog_ordering_args', 'threeducation_catalog_ordering_args', 20 );
+add_filter( 'woocommerce_get_catalog_ordering_args', 'threeducation_catalog_ordering_args', 20, 2 );
+
+/**
+ * "Aanbevolen" ordering, in tiers:
+ *   1. products the client can't really show (out of stock or no product photo) last;
+ *   2. within the rest: products marked "Uitgelicht" (⭐ in Producten) first;
+ *   3. then best-sellers (total_sales from wc_product_meta_lookup);
+ *   4. then A → Z as a stable tie-breaker (so pagination never repeats).
+ * Applied to the main query only and removed after use, like WC's own price/popularity clauses.
+ */
+function threeducation_aanbevolen_post_clauses( $clauses, $query ) {
+	global $wpdb;
+
+	// Only the catalog's main query: helper product queries that run earlier in
+	// the request (visibility window, spotlights) must not consume this filter.
+	if ( ! $query->is_main_query() ) {
+		return $clauses;
+	}
+	remove_filter( 'posts_clauses', 'threeducation_aanbevolen_post_clauses', 20 );
+
+	if ( false === strpos( $clauses['join'], 'wc_product_meta_lookup' ) ) {
+		$clauses['join'] .= " LEFT JOIN {$wpdb->wc_product_meta_lookup} wc_product_meta_lookup ON {$wpdb->posts}.ID = wc_product_meta_lookup.product_id ";
+	}
+	$clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} threedu_thumb ON ( threedu_thumb.post_id = {$wpdb->posts}.ID AND threedu_thumb.meta_key = '_thumbnail_id' ) ";
+
+	$featured = get_term_by( 'slug', 'featured', 'product_visibility' );
+	$featured_sql = '0';
+	if ( $featured && ! is_wp_error( $featured ) ) {
+		$featured_sql = $wpdb->prepare(
+			"EXISTS ( SELECT 1 FROM {$wpdb->term_relationships} threedu_tr WHERE threedu_tr.object_id = {$wpdb->posts}.ID AND threedu_tr.term_taxonomy_id = %d )",
+			(int) $featured->term_taxonomy_id
+		);
+	}
+
+	$clauses['orderby'] = "( wc_product_meta_lookup.stock_status = 'outofstock' OR COALESCE( threedu_thumb.meta_value, '' ) IN ( '', '0' ) ) ASC, "
+		. "{$featured_sql} DESC, "
+		. "COALESCE( wc_product_meta_lookup.total_sales, 0 ) DESC, "
+		. "{$wpdb->posts}.post_title ASC, {$wpdb->posts}.ID ASC";
+
+	return $clauses;
+}
 
 /**
  * Spotlight products (shop).
