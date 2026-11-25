@@ -3202,9 +3202,6 @@ object {
 		font-size: 16px !important;
 	}
 
-	/* Categoriechips: 37px → 44px hoog. */
-	.cat-chip { min-height: 44px; }
-
 	/* Filteroverlay: elke categorie een volle rij om aan te tikken. */
 	.wc-block-product-filter-checkbox-list__label {
 		display: flex;
